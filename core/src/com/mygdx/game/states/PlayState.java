@@ -27,7 +27,7 @@ public class PlayState extends State {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
-        cam.position.set(cam.viewportWidth / 2,cam.viewportHeight / 2, 0);
+        cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0);
     }
     
     @Override
@@ -47,6 +47,9 @@ public class PlayState extends State {
         renderer.setView(cam);
         sb.setProjectionMatrix(cam.combined);
         renderer.render();
+        sb.begin();
+        sb.draw(tank.getTexture(), tank.getPosition().x * unitScale, tank.getPosition().y * unitScale, 104 * unitScale, 58 * unitScale);
+        sb.end();
     }
 
     @Override
