@@ -12,13 +12,13 @@ public class TankDemo extends ApplicationAdapter {
         public static final int WIDTH = 480;
         public static final int HEIGHT = 800;
         private GameStateManager gsm;
-	private SpriteBatch batch;
+	private SpriteBatch sb;
 	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
+		sb = new SpriteBatch();
                 gsm = new GameStateManager();
-                Gdx.gl.glClearColor(1, 0, 0, 1);
+                Gdx.gl.glClearColor(0, 0, 0, 1);
                 gsm.push(new MenuState(gsm));
 	}
 
@@ -27,6 +27,6 @@ public class TankDemo extends ApplicationAdapter {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
             // Wipes the screen before each render
             gsm.update(Gdx.graphics.getDeltaTime());
-            gsm.render(batch);
+            gsm.render(sb);
 	}
 }
