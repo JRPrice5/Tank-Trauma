@@ -9,8 +9,8 @@ import com.mygdx.game.states.MenuState;
 
 public class TankDemo extends ApplicationAdapter {
         public static final String TITLE = "Tank Trauma";
-        public static final int WIDTH = 480;
-        public static final int HEIGHT = 800;
+        public static final int WIDTH = 1920;
+        public static final int HEIGHT = 1080;
         private GameStateManager gsm;
 	private SpriteBatch sb;
 	

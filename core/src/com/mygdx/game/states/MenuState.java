@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.TankDemo;
 
@@ -20,11 +22,11 @@ public class MenuState extends State {
         viewport = new FitViewport(TankDemo.WIDTH, TankDemo.HEIGHT, cam);
     }
     
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height);
-        cam.position.set(cam.viewportWidth / 2,cam.viewportHeight / 2, 0);
-    }
+//    @Override
+//    public void resize(int width, int height) {
+//        viewport.update(width, height);
+//        cam.position.set(viewport.getScreenWidth() / 2, viewport.getScreenHeight() / 2, 0);
+//    }
 
     @Override
     public void handleInput() {
@@ -42,11 +44,10 @@ public class MenuState extends State {
     @Override
     public void render(SpriteBatch sb) {
         sb.begin();
-        resize(600, 600);
-        cam.update();
+//        resize(600, 600);
+//        cam.update();
         sb.setProjectionMatrix(cam.combined);
-        sb.draw(background, 0, 0, TankDemo.WIDTH, TankDemo.HEIGHT);
-        sb.draw(playBtn, (TankDemo.WIDTH) - (TankDemo.HEIGHT), TankDemo.HEIGHT / 2);
+//        sb.draw(background, 0, 0, 400, 800);
         sb.end();
     }
 

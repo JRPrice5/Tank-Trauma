@@ -17,9 +17,9 @@ public class Tilemap {
     
     public Tilemap() {
         ground = new TiledMap();
-        groundLayer = new TiledMapTileLayer(8, 8, 256, 256);
+        groundLayer = new TiledMapTileLayer(8, 8, 128, 128);
         ground.getLayers().add(groundLayer);
-        tileImage = new TextureRegion(new Texture("badlogic.jpg"));
+        tileImage = new TextureRegion(new Texture("tileGrass1.png"));
         
 //        groundLayer = (TiledMapTileLayer) ground.getLayers().get("GroundLayer");
 //        cell = groundLayer.getCell(0, 0);
