@@ -7,9 +7,11 @@ import com.mygdx.game.sprites.Tank;
 import com.mygdx.game.sprites.Tilemap;
 
 public class PlayState extends State {
-    private float unitScale = 1 / 128f;
-    private int TWidth;
-    private int THeight;
+    private static float unitScale = 1 / 128f;
+    private int tankWidth;
+    private int tankHeight;
+    private int turretWidth;
+    private int turretHeight;
     private Tank tank;
     private OrthogonalTiledMapRenderer renderer;
     private Tilemap tilemap;
@@ -18,8 +20,10 @@ public class PlayState extends State {
     public PlayState(GameStateManager gsm, Viewport viewport) {
         super(gsm);
         tank = new Tank(50, 400);
-        TWidth = tank.getTexture().getWidth();
-        THeight = tank.getTexture().getHeight();
+        tankWidth = tank.getBody().getWidth();
+        tankHeight = tank.getBody().getHeight();
+        turretWidth = tank.getTurret().getWidth();
+        turretHeight = tank.getTurret().getHeight();
         cam.setToOrtho(false, 8, 8);
         this.viewport = viewport;
         tilemap = new Tilemap();
@@ -49,9 +53,41 @@ public class PlayState extends State {
         sb.setProjectionMatrix(cam.combined);
         renderer.render();
         sb.begin();
-        sb.draw(tank.getTexture(), tank.getPosition().x * unitScale, tank.getPosition().y * unitScale, TWidth * unitScale / 2,
-                THeight * unitScale / 2, TWidth * unitScale, THeight * unitScale,
-                1, 1, -tank.getRotation(), 0, 0, TWidth , THeight, false, false);
+        sb.draw(
+                tank.getBody(),
+                tank.getBodyPosition().x * unitScale,
+                tank.getBodyPosition().y * unitScale,
+                tankWidth * unitScale / 2,
+                ((tankHeight / 2) + 7) * unitScale,
+                tankWidth * unitScale,
+                tankHeight * unitScale,
+                1,
+                1,
+                180-tank.getBodyRotation(), 
+                0,
+                0,
+                tankWidth,
+                tankHeight,
+                false,
+                false);
+        sb.draw(
+                tank.getTurret(),
+                tank.getTurretPosition().x * unitScale,
+                tank.getTurretPosition().y * unitScale,
+                (turretWidth / 2) * unitScale,
+//                (tankHeight / 2) * unitScale,
+                44 * unitScale,
+                turretWidth * unitScale,
+                turretHeight * unitScale,
+                1,
+                1,
+                180-tank.getTurretRotation(),
+                0,
+                0,
+                turretWidth,
+                turretHeight,
+                false,
+                false);
         sb.end();
     }
 
