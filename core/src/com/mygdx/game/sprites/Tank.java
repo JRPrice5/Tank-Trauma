@@ -43,74 +43,6 @@ public class Tank {
     }
     
     public void update(float dt) {
-        
-        // Control turret and body rotation speeds, depending on user input
-        if (Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.DPAD_LEFT)) {
-            bodyRotation -= bodyRotationSpeed;
-            turretRotation -= turretRotationSpeed;
-        } else if (Gdx.input.isKeyPressed(Keys.A)) {
-            bodyRotation -= bodyRotationSpeed;
-            turretRotation -= bodyRotationSpeed;
-        } else if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT)) {
-            turretRotation -= turretRotationSpeed;
-        }
-        if (Gdx.input.isKeyPressed(Keys.D) && Gdx.input.isKeyPressed(Keys.DPAD_RIGHT)) {
-            bodyRotation += bodyRotationSpeed;
-            turretRotation += turretRotationSpeed;
-        } else if (Gdx.input.isKeyPressed(Keys.D)) {
-            bodyRotation += bodyRotationSpeed;
-            turretRotation += bodyRotationSpeed;
-        } else if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT)) {
-            turretRotation += turretRotationSpeed;
-        }
-        
-        // Correct rotations that are greater than 360 or smaller than 0
-        if (bodyRotation > 359) {
-            bodyRotation -= 360;
-        } else if (bodyRotation < 0) {
-            bodyRotation += 360;
-        }
-        if (turretRotation > 359) {
-            turretRotation -= 360;
-        } else if (turretRotation < 0) {
-            turretRotation += 360;
-        }
-        
-        byte directionX = 0;
-        byte directionY = 0;
-        float resolvedBodyRotation = 0;
-        if (bodyRotation < 90) {
-            resolvedBodyRotation = (float) Math.toRadians(bodyRotation);
-            directionX = 1;
-            directionY = 1;
-        } else if (bodyRotation < 180) {
-            resolvedBodyRotation = (float) Math.toRadians(180 - bodyRotation); 
-            directionX = 1;
-            directionY = -1;
-        } else if (bodyRotation < 270) {
-            resolvedBodyRotation = (float) Math.toRadians(bodyRotation - 180);
-            directionX = -1;
-            directionY = -1;
-        } else if (bodyRotation < 360) {
-            resolvedBodyRotation = (float) Math.toRadians(360 - bodyRotation);
-            directionX = -1;
-            directionY = 1;                   
-        }
-        
-        // Apply normalised x and y velocities if W or S is pressed
-        if (Gdx.input.isKeyPressed(Keys.W)) {
-            velocity.add(
-                    (float) (directionX * forwardSpeed * java.lang.Math.sin(resolvedBodyRotation)),
-                    (float) (directionY * forwardSpeed * java.lang.Math.cos(resolvedBodyRotation)),
-                    0);
-        }
-        if (Gdx.input.isKeyPressed(Keys.S)) {
-            velocity.add(
-                    -(float) (directionX * backwardSpeed * java.lang.Math.sin(resolvedBodyRotation)),
-                    -(float) (directionY * backwardSpeed * java.lang.Math.cos(resolvedBodyRotation)),
-                    0);
-        }
-        
         // Calculate tank position vectors with velocity and time between frames.
         velocity.scl(dt);
         bodyPosition.add(velocity.x, velocity.y, 0);
@@ -121,6 +53,18 @@ public class Tank {
 //            position.y = 0;
 //        if (position.x < 0)
 //            position.x = 0;
+    }
+    
+    public void appendBodyRotation(int value) {
+        bodyRotation += value;
+    }
+    
+    public void appendTurretRotation(int value) {
+        turretRotation += value;
+    }
+    
+    public void appendVelocity(float x, float y) {
+        velocity.add(x, y, 0);
     }
     
     public Vector3 getBodyPosition() {
@@ -145,5 +89,27 @@ public class Tank {
     
     public int getTurretRotation() {
         return turretRotation;
+    }   
+
+    public int getBodyRotationSpeed() {
+        return bodyRotationSpeed;
     }
+
+    public int getTurretRotationSpeed() {
+        return turretRotationSpeed;
+    }
+
+    public int getForwardSpeed() {
+        return forwardSpeed;
+    }
+
+    public int getBackwardSpeed() {
+        return backwardSpeed;
+    }
+
+    public Vector3 getVelocity() {
+        return velocity;
+    }
+    
+    
 }
