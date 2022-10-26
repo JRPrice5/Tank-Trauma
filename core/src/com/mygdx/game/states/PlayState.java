@@ -5,10 +5,12 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.game.prefabs.Tank;
-import com.mygdx.game.prefabs.TankBody;
-import com.mygdx.game.prefabs.Ground;
-import com.mygdx.game.prefabs.TankTurret;
+import com.mygdx.game.gameObjects.Bullet;
+import com.mygdx.game.gameObjects.Tank;
+import com.mygdx.game.gameObjects.TankBody;
+import com.mygdx.game.gameObjects.Ground;
+import com.mygdx.game.gameObjects.TankTurret;
+import java.util.LinkedList;
 
 public class PlayState extends State {
     private static float unitScale = 1 / 128f;
@@ -18,10 +20,12 @@ public class PlayState extends State {
     private OrthogonalTiledMapRenderer renderer;
     private Ground tilemap;
     private Viewport viewport;
+    private LinkedList<Bullet> playerBullets;
+    private Bullet bullet;
     
     public PlayState(GameStateManager gsm, Viewport viewport) {
         super(gsm);
-        player = new Tank(50, 400, "green");
+        player = new Tank(50, 400, "red");
         body = player.getBody();
         turret = player.getTurret();
         cam.setToOrtho(false, 8, 8);
@@ -29,6 +33,7 @@ public class PlayState extends State {
         tilemap = new Ground();
         tilemap.generateTilemap();
         renderer = new OrthogonalTiledMapRenderer(tilemap.getTileMap(), unitScale);
+        playerBullets = player.getTurret().getBullets();
     }
 
 //    @Override
@@ -46,19 +51,26 @@ public class PlayState extends State {
         if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
             body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
+            body.appendRotation(-bodyRotationSpeed);
+            turret.appendRotation(turretRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-bodyRotationSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
+        } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
             turret.appendRotation(-turretRotationSpeed);
-        }
+        } 
+        
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
             body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
+            body.appendRotation(bodyRotationSpeed);
+            turret.appendRotation(-turretRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(bodyRotationSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
+        } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.A))) {
             turret.appendRotation(turretRotationSpeed);
         }
         
@@ -112,6 +124,32 @@ public class PlayState extends State {
                     (float) (directionX * backwardVelocity * java.lang.Math.sin(resolvedBodyRotation)),
                     (float) (directionY * backwardVelocity * java.lang.Math.cos(resolvedBodyRotation)));
         }
+        
+
+        float resolvedTurretRotation = 0;
+        if (turretRotation < 90) {
+            resolvedTurretRotation = (float) Math.toRadians(turretRotation);
+            directionX = 1;
+            directionY = 1;
+        } else if (turretRotation < 180) {
+            resolvedTurretRotation = (float) Math.toRadians(180 - turretRotation); 
+            directionX = 1;
+            directionY = -1;
+        } else if (turretRotation < 270) {
+            resolvedTurretRotation = (float) Math.toRadians(turretRotation - 180);
+            directionX = -1;
+            directionY = -1;
+        } else if (turretRotation < 360) {
+            resolvedTurretRotation = (float) Math.toRadians(360 - turretRotation);
+            directionX = -1;
+            directionY = 1;                   
+        }
+        
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
+            turret.shoot(
+                    (float) (directionX * java.lang.Math.sin(resolvedTurretRotation)),
+                    (float) (directionY * java.lang.Math.cos(resolvedTurretRotation)));
+        }
     }
 
     @Override
@@ -144,7 +182,7 @@ public class PlayState extends State {
                 tankHeight * unitScale,
                 1,
                 1,
-                180-player.getBody().getRotation(), 
+                180-body.getRotation(), 
                 0,
                 0,
                 tankWidth,
@@ -152,23 +190,45 @@ public class PlayState extends State {
                 false,
                 false);
         sb.draw(
-                player.getTurret().getTexture(),
-                player.getTurret().getPosition().x * unitScale,
-                player.getTurret().getPosition().y * unitScale,
+                turret.getTexture(),
+                turret.getPosition().x * unitScale,
+                turret.getPosition().y * unitScale,
                 (turretWidth / 2) * unitScale,
-//                (tankHeight / 2) * unitScale,
                 44 * unitScale,
                 turretWidth * unitScale,
                 turretHeight * unitScale,
                 1,
                 1,
-                180-player.getTurret().getRotation(),
+                180-turret.getRotation(),
                 0,
                 0,
                 turretWidth,
                 turretHeight,
                 false,
                 false);
+
+        for (int i = 0; i < turret.getBullets().size(); i++) {
+            bullet = turret.getBullets().get(i);
+            int bulletWidth = bullet.getTexture().getWidth();
+            int bulletHeight = bullet.getTexture().getHeight();
+            sb.draw(
+                bullet.getTexture(),
+                bullet.getPosition().x * unitScale,
+                bullet.getPosition().y * unitScale,
+                (bulletWidth / 2) * unitScale, 
+                (bulletHeight / 2) * unitScale,
+                bulletWidth * unitScale,
+                bulletHeight * unitScale,
+                1,
+                1,
+                -bullet.getRotation(),
+                0,
+                0,
+                bulletWidth,
+                bulletHeight,
+                false,
+                false);
+        }
         sb.end();
     }
 
