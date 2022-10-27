@@ -19,7 +19,7 @@ public class PlayState extends State {
     private TankTurret turret;
     private OrthogonalTiledMapRenderer renderer;
     private Ground tilemap;
-    private Viewport viewport;
+    private static Viewport viewport;
     private LinkedList<Bullet> playerBullets;
     private Bullet bullet;
     
@@ -44,16 +44,16 @@ public class PlayState extends State {
     
     @Override
     public void handleInput() {
-        int bodyRotationSpeed = body.getRotationSpeed();
-        int turretRotationSpeed = turret.getRotationSpeed();
+        float bodyRotationSpeed = body.getRotationSpeed();
+        float turretRotationSpeed = turret.getRotationSpeed();
         
         // Control turret and body rotation speeds, depending on user input
         if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
             body.appendRotation(-bodyRotationSpeed);
-            turret.appendRotation(-turretRotationSpeed);
+            turret.appendRotation(-turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
             body.appendRotation(-bodyRotationSpeed);
-            turret.appendRotation(turretRotationSpeed);
+            turret.appendRotation(turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-bodyRotationSpeed);
@@ -63,10 +63,10 @@ public class PlayState extends State {
         
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
             body.appendRotation(bodyRotationSpeed);
-            turret.appendRotation(turretRotationSpeed);
+            turret.appendRotation(turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
             body.appendRotation(bodyRotationSpeed);
-            turret.appendRotation(-turretRotationSpeed);
+            turret.appendRotation(-turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(bodyRotationSpeed);
@@ -74,81 +74,24 @@ public class PlayState extends State {
             turret.appendRotation(turretRotationSpeed);
         }
         
-        int bodyRotation = body.getRotation();
-        int turretRotation = turret.getRotation();
-        
-        // Correct rotations that are greater than 360 or smaller than 0
-        if (bodyRotation > 359) {
-            body.appendRotation(-360);
-        } else if (bodyRotation < 0) {
-            body.appendRotation(360);
-        }
-        if (turretRotation > 359) {
-            turret.appendRotation(-360);
-        } else if (turretRotation < 0) {
-            turret.appendRotation(360);
-        }
-        
-        byte directionX = 0;
-        byte directionY = 0;
-        float resolvedBodyRotation = 0;
-        if (bodyRotation < 90) {
-            resolvedBodyRotation = (float) Math.toRadians(bodyRotation);
-            directionX = 1;
-            directionY = 1;
-        } else if (bodyRotation < 180) {
-            resolvedBodyRotation = (float) Math.toRadians(180 - bodyRotation); 
-            directionX = 1;
-            directionY = -1;
-        } else if (bodyRotation < 270) {
-            resolvedBodyRotation = (float) Math.toRadians(bodyRotation - 180);
-            directionX = -1;
-            directionY = -1;
-        } else if (bodyRotation < 360) {
-            resolvedBodyRotation = (float) Math.toRadians(360 - bodyRotation);
-            directionX = -1;
-            directionY = 1;                   
-        }
-        
-        int forwardVelocity = player.getForwardVelocity();
-        int backwardVelocity = player.getBackwardVelocity();
+        float resolvedBodyRotation = body.getResolvedRotation();
         
         // Apply normalised x and y velocities if W or S is pressed
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             player.appendVelocity(
-                    (float) (directionX * forwardVelocity * java.lang.Math.sin(resolvedBodyRotation)),
-                    (float) (directionY * forwardVelocity * java.lang.Math.cos(resolvedBodyRotation)));
+                    (float) (body.getDirectionX() * player.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
+                    (float) (body.getDirectionY() * player.getForwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             player.appendVelocity(
-                    (float) (directionX * backwardVelocity * java.lang.Math.sin(resolvedBodyRotation)),
-                    (float) (directionY * backwardVelocity * java.lang.Math.cos(resolvedBodyRotation)));
+                    (float) (body.getDirectionX() * player.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
+                    (float) (body.getDirectionY() * player.getBackwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
         }
-        
 
-        float resolvedTurretRotation = 0;
-        if (turretRotation < 90) {
-            resolvedTurretRotation = (float) Math.toRadians(turretRotation);
-            directionX = 1;
-            directionY = 1;
-        } else if (turretRotation < 180) {
-            resolvedTurretRotation = (float) Math.toRadians(180 - turretRotation); 
-            directionX = 1;
-            directionY = -1;
-        } else if (turretRotation < 270) {
-            resolvedTurretRotation = (float) Math.toRadians(turretRotation - 180);
-            directionX = -1;
-            directionY = -1;
-        } else if (turretRotation < 360) {
-            resolvedTurretRotation = (float) Math.toRadians(360 - turretRotation);
-            directionX = -1;
-            directionY = 1;                   
-        }
-        
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
             turret.shoot(
-                    (float) (directionX * java.lang.Math.sin(resolvedTurretRotation)),
-                    (float) (directionY * java.lang.Math.cos(resolvedTurretRotation)));
+                    (float) (turret.getTurretDirectionX() * java.lang.Math.sin(turret.getResolvedRotation())),
+                    (float) (turret.getTurretDirectionY() * java.lang.Math.cos(turret.getResolvedRotation())));
         }
     }
 
@@ -162,8 +105,8 @@ public class PlayState extends State {
     public void render(SpriteBatch sb) {
         int tankWidth = body.getTexture().getWidth();
         int tankHeight = body.getTexture().getHeight();
-        int turretWidth = turret.getTexture().getWidth();
-        int turretHeight = turret.getTexture().getHeight();
+        int turretWidth = turret.getTurretTexture().getWidth();
+        int turretHeight = turret.getTurretTexture().getHeight();
         
         // Render ground tilemap
         renderer.setView(cam);
@@ -176,7 +119,7 @@ public class PlayState extends State {
                 body.getTexture(),
                 body.getPosition().x * unitScale,
                 body.getPosition().y * unitScale,
-                tankWidth * unitScale / 2,
+                (tankWidth / 2) * unitScale,
                 ((tankHeight / 2) + 7) * unitScale,
                 tankWidth * unitScale,
                 tankHeight * unitScale,
@@ -189,24 +132,7 @@ public class PlayState extends State {
                 tankHeight,
                 false,
                 false);
-        sb.draw(
-                turret.getTexture(),
-                turret.getPosition().x * unitScale,
-                turret.getPosition().y * unitScale,
-                (turretWidth / 2) * unitScale,
-                44 * unitScale,
-                turretWidth * unitScale,
-                turretHeight * unitScale,
-                1,
-                1,
-                180-turret.getRotation(),
-                0,
-                0,
-                turretWidth,
-                turretHeight,
-                false,
-                false);
-
+        
         for (int i = 0; i < turret.getBullets().size(); i++) {
             bullet = turret.getBullets().get(i);
             int bulletWidth = bullet.getTexture().getWidth();
@@ -229,10 +155,33 @@ public class PlayState extends State {
                 false,
                 false);
         }
+        
+        sb.draw(turret.getTurretTexture(),
+                turret.getPosition().x * unitScale,
+                turret.getPosition().y * unitScale,
+                (turretWidth / 2) * unitScale,
+                44 * unitScale,
+                turretWidth * unitScale,
+                turretHeight * unitScale,
+                1,
+                1,
+                180-turret.getRotation(),
+                0,
+                0,
+                turretWidth,
+                turretHeight,
+                false,
+                false);
+
         sb.end();
     }
 
     @Override
     public void dispose() {
     }
+    
+    public static Viewport getViewport() {
+        return viewport;
+    }
+            
 }

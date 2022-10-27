@@ -6,33 +6,32 @@ import com.badlogic.gdx.math.Vector3;
 public class Bullet {
     private Texture texture;
     private Vector3 position;
-    private int rotation;
+    private float rotation;
     private int speed;
     private Vector3 velocity;
     private int lifeSpan;
     private int timeAlive;
 
-    public Bullet(float x, float y, int rotation, String colour, float normaliserX, float normaliserY) {
+    public Bullet(float x, float y, float rotation, String colour, float normaliserX, float normaliserY) {
         texture = new Texture("bullet"
                 +colour.substring(0,1).toUpperCase()
                 +colour.substring(1)
                 +"1.png");
         position = new Vector3(x, y, 0);
         this.rotation = rotation;
-        speed = 140;
+        speed = 400;
         velocity = new Vector3(normaliserX * speed, normaliserY * speed, 0);
         lifeSpan = 15;
         timeAlive = 0;
     }
     
-    public void update(float dt, int rotation) {
-        this.rotation = rotation;
+    public void update(float dt) {
         velocity.scl(dt);
         position.add(velocity.x, velocity.y, 0);
         velocity.scl(1/dt);
-        velocity.scl(dt);
+//        velocity.scl(dt);
         
-        timeAlive += (dt/1000);
+        timeAlive += (dt*10);
         if (timeAlive >= lifeSpan) {
             texture.dispose();
         }
@@ -46,7 +45,7 @@ public class Bullet {
         return position;
     }
     
-    public int getRotation() {
+    public float getRotation() {
         return rotation;
     }
     
