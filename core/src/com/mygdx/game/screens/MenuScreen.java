@@ -57,8 +57,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
-        cam.position.set(viewport.getScreenWidth() / 2, viewport.getScreenHeight() / 2, 0);
+        viewport.update(width, height, true);
     }
 
     @Override

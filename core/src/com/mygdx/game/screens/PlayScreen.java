@@ -32,8 +32,8 @@ public class PlayScreen implements Screen {
     public PlayScreen(TankTrauma game) {
         this.game = game;
         cam = new OrthographicCamera();
-        viewport = new FitViewport(TankTrauma.WIDTH * UNIT_SCALE, TankTrauma.HEIGHT * UNIT_SCALE, cam);
-        player = new Tank(50, 400, "green");
+        viewport = new FitViewport(128 / 9, 8, cam);
+        player = new Tank(50, 400, "red");
         body = player.getBody();
         turret = player.getTurret();
         tilemap = new Ground();
@@ -113,6 +113,7 @@ public class PlayScreen implements Screen {
         int turretHeight = turret.getTurretTexture().getHeight();
         
         // Render ground tilemap
+        cam.position.set(UNIT_SCALE * viewport.getScreenWidth() / 2, UNIT_SCALE * viewport.getScreenHeight() / 2, 0);
         renderer.setView(cam);
         renderer.render();
         
@@ -185,8 +186,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update((int)(width * UNIT_SCALE), (int)(height * UNIT_SCALE));
-        cam.position.set(viewport.getScreenWidth() / 2, viewport.getScreenHeight() / 2, 0);
+        viewport.update(width, height, true);
     }
 
     @Override
