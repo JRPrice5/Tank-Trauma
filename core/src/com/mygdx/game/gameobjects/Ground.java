@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import java.util.Random;
 
 public class Ground {
     private TiledMap tileMap;
@@ -16,14 +17,29 @@ public class Ground {
         tileMap = new TiledMap();
         layer = new TiledMapTileLayer(8, 8, 128, 128);
         tileMap.getLayers().add(layer);
-        tileImage = new TextureRegion(new Texture("tileGrass_roadCrossing.png"));
     }
     
     public void generateTilemap() {
+        Random random = new Random();
+        int tileMapType = random.nextInt(2);
         for (int h = 0; h < layer.getHeight(); h++) {
             for (int w = 0; w < layer.getWidth(); w++) {
                 Cell cell = new Cell();
-                cell.setTile(new StaticTiledMapTile(tileImage));
+                String tile = "";
+                    if (tileMapType == 0) {
+                        if (random.nextInt(2) == 0) {
+                            tile = "tileGrass1.png";
+                        } else {
+                            tile = "tileGrass2.png";
+                        }
+                    } else if (tileMapType == 1) {
+                        if (random.nextInt(2) == 0) {
+                            tile = "tileSand1.png";
+                        } else {
+                            tile = "tileSand2.png";
+                        }
+                    }
+                cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture(tile))));
                 layer.setCell(w, h, cell);
             }
         }

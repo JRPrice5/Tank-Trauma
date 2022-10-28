@@ -33,7 +33,7 @@ public class PlayScreen implements Screen {
         this.game = game;
         cam = new OrthographicCamera();
         viewport = new FitViewport(128 / 9, 8, cam);
-        player = new Tank(50, 400, "red");
+        player = new Tank(50, 400, "green");
         body = player.getBody();
         turret = player.getTurret();
         tilemap = new Ground();
@@ -113,7 +113,8 @@ public class PlayScreen implements Screen {
         int turretHeight = turret.getTurretTexture().getHeight();
         
         // Render ground tilemap
-        cam.position.set(UNIT_SCALE * viewport.getScreenWidth() / 2, UNIT_SCALE * viewport.getScreenHeight() / 2, 0);
+        cam.position.set(4, 4, 0);
+        cam.update();
         renderer.setView(cam);
         renderer.render();
         

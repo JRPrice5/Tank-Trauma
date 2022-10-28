@@ -54,17 +54,17 @@ public class Tank {
         turretAngleResolved(turretRotation);
         
         // Prevent tank from moving off the screen
-        if (body.getPosition().y < 0) {
-            body.setPositionY(0);
-            turret.setPositionY(-1);
+        if (body.getPosition().y < 4) {
+            body.setPositionY(4);
+            turret.setPositionY(3);
         } 
 //        else if (body.getPosition().y > viewport.getScreenHeight()) {
 //            body.setPositionY(viewport.getScreenHeight());
 //            turret.setPositionY(viewport.getScreenHeight() + 1);
 //        }
-        if (body.getPosition().x < 0) {
-            body.setPositionX(0);
-            turret.setPositionX((body.getTexture().getWidth() - turret.getTurretTexture().getWidth()) / 2);
+        if (body.getPosition().x < 10) {
+            body.setPositionX(10);
+            turret.setPositionX(10 + ((body.getTexture().getWidth() - turret.getTurretTexture().getWidth()) / 2));
         } 
 //        else if (body.getPosition().x > viewport.getScreenWidth()) {
 //            body.setPositionX(viewport.getScreenWidth());

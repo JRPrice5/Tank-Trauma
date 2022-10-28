@@ -24,7 +24,7 @@ public class TankTurret {
     public TankTurret(Texture body, int x, int y, String colour) {
         this.colour = colour;
         turretTexture = new Texture("tank"+colour+"_barrel1.png");
-        bulletTexture = new Texture("bulletGreen1.png");
+        bulletTexture = new Texture("bulletDark1.png");
         position = new Vector3(x + (body.getWidth() - turretTexture.getWidth()) / 2, y - 1, 0);
         barrel = new Vector3((position.x + (turretTexture.getWidth() / 2)), position.y + 44, 0);
         rotation = 0;
@@ -84,7 +84,6 @@ public class TankTurret {
                             - (bulletTexture.getWidth() * java.lang.Math.sin(resolvedRotation))
                             + (turretDirectionY * bulletTexture.getHeight() * java.lang.Math.cos(resolvedRotation) / 2)),
                     rotation,
-                    colour,
                     normaliserX,
                     normaliserY);
             bullets.add(bullet);
