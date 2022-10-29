@@ -20,16 +20,24 @@ public class Tank {
     public void update(float dt) {
         // Calculate tank position vectors
         velocity.scl(dt);
-        if ((body.getPosition().y <= 0) && (body.getPosition().x > 0) && velocity.y < 0) {
-            body.appendPosition(velocity.x, 0);
-            turret.appendPosition(velocity.x, 0);               
-        } else if ((body.getPosition().x <= 0) && (body.getPosition().y > 0) && velocity.x < 0) {
-            body.appendPosition(0, velocity.y);
-            turret.appendPosition(0, velocity.y);
-        } else {
-            body.appendPosition(velocity.x, velocity.y);
-            turret.appendPosition(velocity.x, velocity.y);
-        }
+//        if ((body.getPosition().y <= 0) && (body.getPosition().x > 0) && velocity.y <= 0) {
+//            body.appendPosition(velocity.x, 0);
+//            turret.appendPosition(velocity.x, 0);               
+//        } else if ((body.getPosition().x <= 0) && (body.getPosition().y > 0) && velocity.x <= 0) {
+//            body.appendPosition(0, velocity.y);
+//            turret.appendPosition(0, velocity.y);
+//        } else if ((body.getPosition().x <= 0) && (body.getPosition().y <= 0) && velocity.x < 0 && velocity.y >= 0) {
+//            body.appendPosition(0, velocity.y);
+//            turret.appendPosition(0, velocity.y);
+//        } else if ((body.getPosition().x <= 0) && (body.getPosition().y <= 0) && velocity.x >= 0 && velocity.y < 0) {
+//            body.appendPosition(velocity.x, 0);
+//            turret.appendPosition(velocity.x, 0);  
+//        } else if ((body.getPosition().x > 0) && (body.getPosition().y > 0)){
+//            body.appendPosition(velocity.x, velocity.y);
+//            turret.appendPosition(velocity.x, velocity.y);
+//        } 
+        body.appendPosition(velocity.x, velocity.y);
+        turret.appendPosition(velocity.x, velocity.y);
         velocity.scl(1/dt);
         velocity.scl(dt);
         
@@ -52,24 +60,6 @@ public class Tank {
         
         bodyAngleResolved(bodyRotation);
         turretAngleResolved(turretRotation);
-        
-        // Prevent tank from moving off the screen
-        if (body.getPosition().y < 4) {
-            body.setPositionY(4);
-            turret.setPositionY(3);
-        } 
-//        else if (body.getPosition().y > viewport.getScreenHeight()) {
-//            body.setPositionY(viewport.getScreenHeight());
-//            turret.setPositionY(viewport.getScreenHeight() + 1);
-//        }
-        if (body.getPosition().x < 10) {
-            body.setPositionX(10);
-            turret.setPositionX(10 + ((body.getTexture().getWidth() - turret.getTurretTexture().getWidth()) / 2));
-        } 
-//        else if (body.getPosition().x > viewport.getScreenWidth()) {
-//            body.setPositionX(viewport.getScreenWidth());
-//            turret.setPositionX(viewport.getScreenWidth() - (body.getTexture().getWidth() - turret.getTurretTexture().getWidth()) / 2);
-//        }
     }
     
     public void turretAngleResolved(float turretRotation) {

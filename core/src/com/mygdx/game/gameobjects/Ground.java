@@ -13,9 +13,9 @@ public class Ground {
     private TiledMapTileLayer layer;
     private TextureRegion tileImage;
     
-    public Ground() {
+    public Ground(int mapSize) {
         tileMap = new TiledMap();
-        layer = new TiledMapTileLayer(8, 8, 128, 128);
+        layer = new TiledMapTileLayer(mapSize, mapSize, 128, 128);
         tileMap.getLayers().add(layer);
     }
     

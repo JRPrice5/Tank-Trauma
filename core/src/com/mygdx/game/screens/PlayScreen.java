@@ -28,18 +28,20 @@ public class PlayScreen implements Screen {
     private final Ground tilemap;
     private LinkedList<Bullet> playerBullets;
     private Bullet bullet;
+    private int mapSize;
     
-    public PlayScreen(TankTrauma game) {
+    public PlayScreen(TankTrauma game, int mapSize) {
         this.game = game;
         cam = new OrthographicCamera();
-        viewport = new FitViewport(128 / 9, 8, cam);
+        viewport = new FitViewport((mapSize * 16) / 9, mapSize, cam);
         player = new Tank(50, 400, "green");
         body = player.getBody();
         turret = player.getTurret();
-        tilemap = new Ground();
+        tilemap = new Ground(mapSize);
         tilemap.generateTilemap();
         renderer = new OrthogonalTiledMapRenderer(tilemap.getTileMap(), UNIT_SCALE);
         playerBullets = player.getTurret().getBullets();
+        this.mapSize = mapSize;
     }
 
     public void handleInput() {
@@ -92,6 +94,23 @@ public class PlayScreen implements Screen {
                     (float) (turret.getTurretDirectionX() * java.lang.Math.sin(turret.getResolvedRotation())),
                     (float) (turret.getTurretDirectionY() * java.lang.Math.cos(turret.getResolvedRotation())));
         }
+        
+        // Prevent tank from moving off the screen
+//        if (body.getPosition().y < 4) {
+//            body.setPositionY(4);
+//            turret.setPositionY(3);
+//        } else if (body.getPosition().y > 7 / UNIT_SCALE) {
+//            body.setPositionY(7 / UNIT_SCALE);
+//            turret.setPositionY((7 / UNIT_SCALE) - 1);
+//        }
+//        if (body.getPosition().x < 10) {
+//            body.setPositionX(10);
+//            turret.setPositionX(10 + ((body.getTexture().getWidth() - turret.getTurretTexture().getWidth()) / 2));
+//        } 
+////        else if (body.getPosition().x > viewport.getScreenWidth()) {
+////            body.setPositionX(viewport.getScreenWidth());
+////            turret.setPositionX(viewport.getScreenWidth() - (body.getTexture().getWidth() - turret.getTurretTexture().getWidth()) / 2);
+////        }
     }
 
     public void update(float dt) {
@@ -113,7 +132,7 @@ public class PlayScreen implements Screen {
         int turretHeight = turret.getTurretTexture().getHeight();
         
         // Render ground tilemap
-        cam.position.set(4, 4, 0);
+        cam.position.set(mapSize / 2, mapSize / 2, 0);
         cam.update();
         renderer.setView(cam);
         renderer.render();
