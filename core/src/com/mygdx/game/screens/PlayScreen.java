@@ -128,11 +128,11 @@ public class PlayScreen implements Screen {
         
         int tankWidth = body.getTexture().getWidth();
         int tankHeight = body.getTexture().getHeight();
-        int turretWidth = turret.getTurretTexture().getWidth();
-        int turretHeight = turret.getTurretTexture().getHeight();
+        int turretWidth = turret.getTexture().getWidth();
+        int turretHeight = turret.getTexture().getHeight();
         
         // Render ground tilemap
-        cam.position.set(mapSize / 2, mapSize / 2, 0);
+        cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
         cam.update();
         renderer.setView(cam);
         renderer.render();
@@ -165,8 +165,8 @@ public class PlayScreen implements Screen {
                 bullet.getTexture(),
                 bullet.getPosition().x * UNIT_SCALE,
                 bullet.getPosition().y * UNIT_SCALE,
-                (bulletWidth / 2) * UNIT_SCALE, 
-                (bulletHeight / 2) * UNIT_SCALE,
+                0, 
+                0,
                 bulletWidth * UNIT_SCALE,
                 bulletHeight * UNIT_SCALE,
                 1,
@@ -180,11 +180,11 @@ public class PlayScreen implements Screen {
                 false);
         }
         
-        game.sb.draw(turret.getTurretTexture(),
+        game.sb.draw(turret.getTexture(),
                 turret.getPosition().x * UNIT_SCALE,
                 turret.getPosition().y * UNIT_SCALE,
                 (turretWidth / 2) * UNIT_SCALE,
-                44 * UNIT_SCALE,
+                turret.getBarrelLength() * UNIT_SCALE,
                 turretWidth * UNIT_SCALE,
                 turretHeight * UNIT_SCALE,
                 1,
@@ -195,8 +195,7 @@ public class PlayScreen implements Screen {
                 turretWidth,
                 turretHeight,
                 false,
-                false);
-
+                false);        
         game.sb.end();
     }
     

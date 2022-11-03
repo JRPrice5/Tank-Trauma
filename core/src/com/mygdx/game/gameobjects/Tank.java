@@ -13,8 +13,8 @@ public class Tank {
         body = new TankBody(x, y, colour);
         turret = new TankTurret(body.getTexture(), x, y, colour);
         velocity = new Vector3(0, 0, 0);
-        forwardVelocity = 140;
-        backwardVelocity = -100;
+        forwardVelocity = 130;
+        backwardVelocity = -90;
     }
     
     public void update(float dt) {
@@ -41,7 +41,6 @@ public class Tank {
         velocity.scl(1/dt);
         velocity.scl(dt);
         
-        turret.update(dt);
         
         float bodyRotation = body.getRotation();
         float turretRotation = turret.getRotation();
@@ -60,6 +59,8 @@ public class Tank {
         
         bodyAngleResolved(bodyRotation);
         turretAngleResolved(turretRotation);
+        
+        turret.update(dt);
     }
     
     public void turretAngleResolved(float turretRotation) {
@@ -78,7 +79,7 @@ public class Tank {
         } else if (turretRotation < 360) {
             turret.setResolvedRotation((float) Math.toRadians(360 - turretRotation));
             turret.setTurretDirectionX((byte) -1);
-            turret.setTurretDirectionY((byte) 1);           
+            turret.setTurretDirectionY((byte) 1);     
         }
         
     }

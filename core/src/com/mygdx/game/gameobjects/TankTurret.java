@@ -5,8 +5,10 @@ import com.badlogic.gdx.math.Vector3;
 import java.util.LinkedList;
 
 public class TankTurret {
-    private static final int BARREL_LENGTH = 34;
-    private Texture turretTexture;
+    private int barrelLength;
+    private String colour;
+    private String turretFile;
+    private Texture texture;
     private Texture bulletTexture;
     private Vector3 position;
     private Vector3 barrel;
@@ -15,25 +17,30 @@ public class TankTurret {
     private float rotationSpeed;
     private byte turretDirectionX;
     private byte turretDirectionY;
-    private String colour;
     private LinkedList<Bullet> bullets;
     private float reload;
-    private byte barrelDirectionX;
-    private byte barrelDirectionY;
+    private byte barrelAdjustmentX;
+    private byte barrelAdjustmentY;
 
     public TankTurret(Texture body, int x, int y, String colour) {
+        barrelLength = 44;
         this.colour = colour;
-        turretTexture = new Texture("tank"+colour+"_barrel1.png");
+        turretFile = "tank"+colour+"_barrel1.png";
+        texture = new Texture(turretFile);
         bulletTexture = new Texture("bulletDark1.png");
-        position = new Vector3(x + (body.getWidth() - turretTexture.getWidth()) / 2, y - 1, 0);
-        barrel = new Vector3((position.x + (turretTexture.getWidth() / 2)), position.y + 44, 0);
+        position = new Vector3(x + (body.getWidth() - texture.getWidth()) / 2, y - 1, 0);
+        barrel = new Vector3((position.x + (texture.getWidth() / 2)), position.y + barrelLength, 0);
         rotation = 0;
-        rotationSpeed = 1.5f;
+        rotationSpeed = 1.2f;
         bullets = new LinkedList();
         reload = 0;
     }
     
     public void update(float dt) {
+//        if () {
+//            
+//        }
+        
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
             bullet.update(dt);
@@ -45,44 +52,38 @@ public class TankTurret {
         if (reload > 0) {
             reduceReload(dt);
         }
-        
+
         // resolved rotation is causing an issue
-        float distanceX = (float) ((turretDirectionX * BARREL_LENGTH * java.lang.Math.sin(resolvedRotation))
-                + position.x + (turretTexture.getWidth() / 2) - barrel.x);
-        float distanceY = (float) ((turretDirectionY * BARREL_LENGTH * java.lang.Math.cos(resolvedRotation))
-                + position.y + 44 - barrel.y);
+        float distanceX = (float) ((turretDirectionX * barrelLength * java.lang.Math.sin(resolvedRotation))
+                + position.x + (texture.getWidth() / 2) - barrel.x);
+        float distanceY = (float) ((turretDirectionY * barrelLength * java.lang.Math.cos(resolvedRotation))
+                + position.y + barrelLength - barrel.y);
         barrel.add(distanceX, distanceY, 0);
     }
     
     public void shoot(float normaliserX, float normaliserY) {
-        if (rotation < 45) {
-            setBarrelDirectionX((byte) -1);
-            setBarrelDirectionY((byte) 1);
-        } else if (rotation < 90) {
-            setBarrelDirectionX((byte) 1);
-            setBarrelDirectionY((byte) -1);
+        if (rotation < 90) {
+            setBarrelAdjustmentX((byte) -1);
+            setBarrelAdjustmentY((byte) 1);
         } else if (rotation < 180) {
-            setBarrelDirectionX((byte) -1);
-            setBarrelDirectionY((byte) -1);           
-        } else if (rotation < 225) {
-            setBarrelDirectionX((byte) -1);
-            setBarrelDirectionY((byte) 1);
+            setBarrelAdjustmentX((byte) 1);
+            setBarrelAdjustmentY((byte) 1);           
         } else if (rotation < 270) {
-            setBarrelDirectionX((byte) 1);
-            setBarrelDirectionY((byte) -1);
+            setBarrelAdjustmentX((byte) 1);
+            setBarrelAdjustmentY((byte) -1);
         } else if (rotation < 360) {
-            setBarrelDirectionX((byte) -1);
-            setBarrelDirectionY((byte) -1);
+            setBarrelAdjustmentX((byte) -1);
+            setBarrelAdjustmentY((byte) -1);
         } 
         
         if (reload <= 0) {
             Bullet bullet = new Bullet(
                     (float) (barrel.x
-                            - (bulletTexture.getWidth() * java.lang.Math.cos(resolvedRotation) / 2)
-                            + (turretDirectionX * bulletTexture.getHeight() * java.lang.Math.sin(resolvedRotation) / 2)),
+                            + (barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * bulletTexture.getWidth() / 2)
+                            - (turretDirectionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 2)),
                     (float) (barrel.y
-                            - (bulletTexture.getWidth() * java.lang.Math.sin(resolvedRotation))
-                            + (turretDirectionY * bulletTexture.getHeight() * java.lang.Math.cos(resolvedRotation) / 2)),
+                            + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
+                            - (turretDirectionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 2)),
                     rotation,
                     normaliserX,
                     normaliserY);
@@ -131,8 +132,8 @@ public class TankTurret {
         return rotationSpeed;
     }
 
-    public Texture getTurretTexture() {
-        return turretTexture;
+    public Texture getTexture() {
+        return texture;
     }
     
     public LinkedList<Bullet> getBullets() {
@@ -167,19 +168,23 @@ public class TankTurret {
         this.turretDirectionY = turretDirectionY;
     }
 
-    public byte getBarrelDirectionX() {
-        return barrelDirectionX;
+    public byte getBarrelAdjustmentX() {
+        return barrelAdjustmentX;
     }
 
-    public void setBarrelDirectionX(byte barrelDirectionX) {
-        this.barrelDirectionX = barrelDirectionX;
+    public void setBarrelAdjustmentX(byte barrelAdjustmentX) {
+        this.barrelAdjustmentX = barrelAdjustmentX;
     }
 
-    public byte getBarrelDirectionY() {
-        return barrelDirectionY;
+    public byte getBarrelAdjustmentY() {
+        return barrelAdjustmentY;
     }
 
-    public void setBarrelDirectionY(byte barrelDirectionY) {
-        this.barrelDirectionY = barrelDirectionY;
+    public void setBarrelAdjustmentY(byte barrelAdjustmentY) {
+        this.barrelAdjustmentY = barrelAdjustmentY;
+    }
+    
+    public int getBarrelLength() {
+        return barrelLength;
     }
 }
