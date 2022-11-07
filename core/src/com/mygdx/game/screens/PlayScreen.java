@@ -143,6 +143,7 @@ public class PlayScreen implements Screen {
         // Render maze
         cam.position.set((float)((mapSize / 2) - 64), (float)((mapSize / 2) + 64), 0);
         mazeRenderer.setView(cam);
+        
         mazeRenderer.renderTileLayer(Map.getVerticalLayer());
         mazeRenderer.renderTileLayer(Map.getHorizontalLayer());
         

@@ -13,6 +13,7 @@ public class Map {
     private TiledMap mazeMap;
     private int mapSize;
     private TiledMapTileLayer groundLayer;
+    private TiledMapTileLayer dotLayer;
     private TiledMapTileLayer verticalLayer;
     private TiledMapTileLayer horizontalLayer;
     
@@ -21,9 +22,11 @@ public class Map {
         mazeMap = new TiledMap();
         this.mapSize = mapSize;
         groundLayer = new TiledMapTileLayer(mapSize, mapSize, 128, 128);
+        dotLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
         verticalLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
         horizontalLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
         groundMap.getLayers().add(groundLayer);
+        mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
         mazeMap.getLayers().add(horizontalLayer);
     }
@@ -91,6 +94,9 @@ public class Map {
                     cell.setTile(new StaticTiledMapTile(new TextureRegion()));
                 }
                 horizontalLayer.setCell(x, y, cell);
+                
+                // Create dot if a v or h wall is present
+                // Adjust this algorithm and sizes of walls to work with dot layer
             }
         }
     }
@@ -103,6 +109,10 @@ public class Map {
         return mazeMap;
     } 
 
+    public TiledMapTileLayer getDotLayer() {
+        return dotLayer;
+    }
+    
     public TiledMapTileLayer getVerticalLayer() {
         return verticalLayer;
     }
