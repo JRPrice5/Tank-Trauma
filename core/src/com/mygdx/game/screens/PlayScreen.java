@@ -12,7 +12,7 @@ import com.mygdx.game.TankTrauma;
 import com.mygdx.game.gameobjects.Bullet;
 import com.mygdx.game.gameobjects.Tank;
 import com.mygdx.game.gameobjects.TankBody;
-import com.mygdx.game.gameobjects.Ground;
+import com.mygdx.game.gameobjects.Map;
 import com.mygdx.game.gameobjects.TankTurret;
 import java.util.LinkedList;
 
@@ -24,8 +24,9 @@ public class PlayScreen implements Screen {
     private final Tank player;
     private final TankBody body;
     private TankTurret turret;
-    private final OrthogonalTiledMapRenderer renderer;
-    private final Ground tilemap;
+    private final OrthogonalTiledMapRenderer groundRenderer;
+    private final OrthogonalTiledMapRenderer mazeRenderer;
+    private final Map Map;
     private LinkedList<Bullet> playerBullets;
     private Bullet bullet;
     private int mapSize;
@@ -37,9 +38,11 @@ public class PlayScreen implements Screen {
         player = new Tank(50, 400, "green");
         body = player.getBody();
         turret = player.getTurret();
-        tilemap = new Ground(mapSize);
-        tilemap.generateTilemap();
-        renderer = new OrthogonalTiledMapRenderer(tilemap.getTileMap(), UNIT_SCALE);
+        Map = new Map(mapSize);
+        Map.generateGround();
+        Map.generateMaze();
+        groundRenderer = new OrthogonalTiledMapRenderer(Map.getGroundMap(), UNIT_SCALE);
+        mazeRenderer = new OrthogonalTiledMapRenderer(Map.getMazeMap(), UNIT_SCALE);
         playerBullets = player.getTurret().getBullets();
         this.mapSize = mapSize;
     }
@@ -131,11 +134,20 @@ public class PlayScreen implements Screen {
         int turretWidth = turret.getTexture().getWidth();
         int turretHeight = turret.getTexture().getHeight();
         
-        // Render ground tilemap
+        // Render ground
         cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
         cam.update();
-        renderer.setView(cam);
-        renderer.render();
+        groundRenderer.setView(cam);
+        groundRenderer.render();
+        
+        // Render maze
+        cam.position.set((float)((mapSize / 2) - 64), (float)((mapSize / 2) + 64), 0);
+        mazeRenderer.setView(cam);
+        mazeRenderer.renderTileLayer(Map.getVerticalLayer());
+        mazeRenderer.renderTileLayer(Map.getHorizontalLayer());
+        
+        // Reset camera position to centre
+        cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
         
         // Render tank
         game.sb.begin();
