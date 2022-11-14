@@ -23,8 +23,8 @@ public class Map {
         this.mapSize = mapSize;
         groundLayer = new TiledMapTileLayer(mapSize, mapSize, 128, 128);
         dotLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
-        verticalLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
-        horizontalLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
+        verticalLayer = new TiledMapTileLayer(mapSize + 1, mapSize, 128, 128);
+        horizontalLayer = new TiledMapTileLayer(mapSize, mapSize + 1, 128, 128);
         groundMap.getLayers().add(groundLayer);
         mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
@@ -59,44 +59,67 @@ public class Map {
     
     public void generateMaze() {
         Random random = new Random();
+        Boolean[][] isEmpty = new Boolean[mapSize + 1][mapSize + 1];
+        for (int y = 0; y < mapSize + 1; y++) {
+            for (int x = 0; x < mapSize + 1; x++) {
+                isEmpty[y][x] = false;
+            }
+        }
+            
         for (int y = 0; y < verticalLayer.getHeight(); y++) {
             for (int x = 0; x < verticalLayer.getWidth(); x++) {
                 Cell cell = new Cell();
-                String vTile = "";
-                String hTile = "";
                 
                 if (x == 0 || x == verticalLayer.getWidth() - 1) {
-                    vTile = "vwall.png";
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall.png"))));
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
-                        vTile = "vwall.png";
+                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall.png"))));
+                    } else {
+                        cell.setTile(null);
+                        isEmpty[y][x] = true;
                     }
                 }
-                if (vTile == "vwall.png") {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture(vTile))));
-                } else {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion()));
-                }
-                verticalLayer.setCell(x, y, cell);
-                
-                if (y == 0 || y == verticalLayer.getHeight() - 1) {
-                    hTile = "hwall.png";
+                verticalLayer.setCell(x, y, cell);  
+            }
+        }
+        
+        for (int y = 0; y < horizontalLayer.getHeight(); y++) {
+            for (int x = 0; x < horizontalLayer.getWidth(); x++) {
+                Cell cell = new Cell();
+
+                if (y == 0 || y == horizontalLayer.getHeight() - 1) {
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall.png"))));
+                    isEmpty[y][x] = false;
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
-                        hTile = "hwall.png";
+                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall.png"))));
+                        isEmpty[y][x] = false;
+                    } else {
+                        cell.setTile(null);
                     }
-                }
-                if (hTile == "hwall.png") {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture(hTile))));
-                } else {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion()));
                 }
                 horizontalLayer.setCell(x, y, cell);
+            }
+        }
+        
+        for (int y = 0; y < dotLayer.getHeight(); y++) {
+            for (int x = 0; x < dotLayer.getWidth(); x++) {
+                Cell cell = new Cell();
                 
-                // Create dot if a v or h wall is present
-                // Adjust this algorithm and sizes of walls to work with dot layer
+                if (y == 0 || y == dotLayer.getHeight() - 1 || x == 0 || x == dotLayer.getWidth() - 1) {
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                }  else if (!isEmpty[y][x]) {
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                } else if (verticalLayer.getCell(x, y + 1).getTile() != null) {
+                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                } else if (horizontalLayer.getCell(x + 1, y).getTile() != null) {
+                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                }                  
+                // check if next vertical and horizontal tile contains a wall, if so, add dot
+                dotLayer.setCell(x, y, cell);
             }
         }
     }

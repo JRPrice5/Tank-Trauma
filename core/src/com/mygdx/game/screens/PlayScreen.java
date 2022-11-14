@@ -34,7 +34,7 @@ public class PlayScreen implements Screen {
     public PlayScreen(TankTrauma game, int mapSize) {
         this.game = game;
         cam = new OrthographicCamera();
-        viewport = new FitViewport((mapSize * 16) / 9, mapSize, cam);
+        viewport = new FitViewport(((mapSize + 1) * 16) / 9, mapSize + 1, cam);
         player = new Tank(50, 400, "green");
         body = player.getBody();
         turret = player.getTurret();
@@ -134,6 +134,7 @@ public class PlayScreen implements Screen {
         int turretWidth = turret.getTexture().getWidth();
         int turretHeight = turret.getTexture().getHeight();
         
+
         // Render ground
         cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
         cam.update();
@@ -141,11 +142,32 @@ public class PlayScreen implements Screen {
         groundRenderer.render();
         
         // Render maze
-        cam.position.set((float)((mapSize / 2) - 64), (float)((mapSize / 2) + 64), 0);
-        mazeRenderer.setView(cam);
+//        cam.position.set((float)((mapSize / 2) - 64), (float)((mapSize / 2) + 64), 0);
+//        mazeRenderer.setView(cam);
+//        mazeRenderer.getBatch().begin();
+//        mazeRenderer.renderTileLayer(Map.getVerticalLayer());
         
-        mazeRenderer.renderTileLayer(Map.getVerticalLayer());
-        mazeRenderer.renderTileLayer(Map.getHorizontalLayer());
+//        mazeRenderer.setView(cam);
+//        mazeRenderer.renderTileLayer(Map.getHorizontalLayer());
+        
+//        mazeRenderer.renderTileLayer(Map.getDotLayer());
+//        mazeRenderer.getBatch().end();
+        int[] layer1 = {0};
+        int[] layer2 = {1};
+        int[] layer3 = {2};
+        
+        cam.position.set((float)(mapSize / 2) + (128 * UNIT_SCALE), (float)(mapSize / 2) + (128 * UNIT_SCALE), 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer1);
+        cam.position.set((float)(mapSize / 2) + (128 * UNIT_SCALE), (float)(mapSize / 2) + (64 * UNIT_SCALE), 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer2);
+        cam.position.set((float)(mapSize / 2) + (64 * UNIT_SCALE), (float)(mapSize / 2) + (128 * UNIT_SCALE), 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer3);
         
         // Reset camera position to centre
         cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
@@ -170,6 +192,24 @@ public class PlayScreen implements Screen {
                 false,
                 false);
         
+        
+        game.sb.draw(turret.getTexture(),
+                turret.getPosition().x * UNIT_SCALE,
+                turret.getPosition().y * UNIT_SCALE,
+                (turretWidth / 2) * UNIT_SCALE,
+                turret.getBarrelLength() * UNIT_SCALE,
+                turretWidth * UNIT_SCALE,
+                turretHeight * UNIT_SCALE,
+                1,
+                1,
+                180-turret.getRotation(),
+                0,
+                0,
+                turretWidth,
+                turretHeight,
+                false,
+                false);        
+        
         for (int i = 0; i < turret.getBullets().size(); i++) {
             bullet = turret.getBullets().get(i);
             int bulletWidth = bullet.getTexture().getWidth();
@@ -192,23 +232,6 @@ public class PlayScreen implements Screen {
                 false,
                 false);
         }
-        
-        game.sb.draw(turret.getTexture(),
-                turret.getPosition().x * UNIT_SCALE,
-                turret.getPosition().y * UNIT_SCALE,
-                (turretWidth / 2) * UNIT_SCALE,
-                turret.getBarrelLength() * UNIT_SCALE,
-                turretWidth * UNIT_SCALE,
-                turretHeight * UNIT_SCALE,
-                1,
-                1,
-                180-turret.getRotation(),
-                0,
-                0,
-                turretWidth,
-                turretHeight,
-                false,
-                false);        
         game.sb.end();
     }
     
