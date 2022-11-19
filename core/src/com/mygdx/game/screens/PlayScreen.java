@@ -12,7 +12,7 @@ import com.mygdx.game.TankTrauma;
 import com.mygdx.game.gameobjects.Bullet;
 import com.mygdx.game.gameobjects.Tank;
 import com.mygdx.game.gameobjects.TankBody;
-import com.mygdx.game.gameobjects.Map;
+import com.mygdx.game.gameobjects.MapGenerator;
 import com.mygdx.game.gameobjects.TankTurret;
 import java.util.LinkedList;
 
@@ -26,7 +26,7 @@ public class PlayScreen implements Screen {
     private TankTurret turret;
     private final OrthogonalTiledMapRenderer groundRenderer;
     private final OrthogonalTiledMapRenderer mazeRenderer;
-    private final Map Map;
+    private final MapGenerator Map;
     private LinkedList<Bullet> playerBullets;
     private Bullet bullet;
     private int mapSize;
@@ -38,7 +38,7 @@ public class PlayScreen implements Screen {
         player = new Tank(50, 400, "green");
         body = player.getBody();
         turret = player.getTurret();
-        Map = new Map(mapSize);
+        Map = new MapGenerator(mapSize);
         Map.generateGround();
         Map.generateMaze();
         groundRenderer = new OrthogonalTiledMapRenderer(Map.getGroundMap(), UNIT_SCALE);
