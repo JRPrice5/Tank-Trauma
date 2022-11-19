@@ -71,12 +71,12 @@ public class MapGenerator {
                 Cell cell = new Cell();
                 
                 if (x == 0 || x == verticalLayer.getWidth() - 1) {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall.png"))));
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
                     tileCornerState[y][x] = "v";
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
-                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall.png"))));
+                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
                         tileCornerState[y][x] = "v";
                     } 
                 }
@@ -89,12 +89,12 @@ public class MapGenerator {
                 Cell cell = new Cell();
 
                 if (y == 0 || y == horizontalLayer.getHeight() - 1) {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall.png"))));
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
                     tileCornerState[y][x] += "h";
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
-                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall.png"))));
+                        cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
                         tileCornerState[y][x] += "h";
                     } 
                 }
@@ -107,11 +107,11 @@ public class MapGenerator {
                 Cell cell = new Cell();
                 
                 if (y == 0 || y == dotLayer.getHeight() - 1 || x == 0 || x == dotLayer.getWidth() - 1) {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
                 }  else if (!tileCornerState[y][x].equals("")) {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
                 } else if (tileCornerState[y - 1][x].contains("v") || tileCornerState[y][x - 1].contains("h")) {
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot.png"))));
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
                 }
                 dotLayer.setCell(x, y, cell);
             }
