@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class MapGenerator {
@@ -16,6 +17,7 @@ public class MapGenerator {
     private TiledMapTileLayer dotLayer;
     private TiledMapTileLayer verticalLayer;
     private TiledMapTileLayer horizontalLayer;
+    private LinkedList<int[]> cellsToSearch;
     
     public MapGenerator(int mapSize) {
         groundMap = new TiledMap();
@@ -116,7 +118,75 @@ public class MapGenerator {
                 dotLayer.setCell(x, y, cell);
             }
         }
+        
+        int[][] tiles = new int[mapSize][mapSize];
+        for (int[] row : tiles) {
+            for (int tile : row) {
+                tile = 0;
+            }
+        }
+        tiles[0][0] = 1;
+        Boolean a = true;
+        int[] cellToSearch = {0, 0};
+        cellsToSearch.add(cellToSearch);
+        for (int i = 0; i < mapSize * mapSize; i++) {
+            int x = cellsToSearch.get(0)[1];
+            int y = cellsToSearch.get(0)[0];
+            int currentTile = tiles[y][x];
+            String tileState = tileCornerState[y][x] 
+                    + tileCornerState[y + 1][x].replace("v", "")
+                    + tileCornerState[y][x + 1].replace("h", "");
+//            tiles[y + 1][x] = currentTile + 1;
+//            tiles[y][x + 1] = currentTile + 1;
+            Cell cell = new Cell();
+            
+            // Checks whether tile is surrounded by walls
+            if (tileState.contentEquals("vhvh")) {
+                
+                // Deletes a random wall from the tile and updates cellsToSearch
+                switch (random.nextInt(4)) {
+                    case 0:
+                        verticalLayer.setCell(x, y, cell);
+                        cellToSearch = {x - 1, y};
+                        cellsToSearch.add(cellToSearch);
+                        break;
+                    case 1:
+                        horizontalLayer.setCell(x, y, cell);
+                        cellToSearch = {x, y - 1};
+                        cellsToSearch.add(cellToSearch);
+                        break;
+                    case 2:
+                        verticalLayer.setCell(x + 1, y, cell);
+                        cellToSearch = {x + 1, y};
+                        cellsToSearch.add(cellToSearch);
+                        break;
+                    case 3:
+                        horizontalLayer.setCell(x, y + 1, cell);
+                        cellToSearch = {x, y + 1};
+                        cellsToSearch.add(cellToSearch);
+                        break;
+                }
+            }                
+//            if (x >= 0 && x <= horizontalLayer.getWidth() - 1 && y >= 0 && y <= verticalLayer.getHeight() - 1) {
+//               
+//            }
+        }
     }
+    
+//        nodes[]
+//        int x = 0;
+//        int y = 0;
+//        for (int i = 0; i < mapSize * mapSize; i++) {
+//            String tileState = tileCornerState[y][x] 
+//                    + tileCornerState[y + 1][x].replace("v", "")
+//                    + tileCornerState[y][x + 1].replace("h", "");
+//            if (tileState.contentEquals("vhvh")) {
+//                
+//            }
+//            if (x >= 0 && x <= horizontalLayer.getWidth() - 1 && y >= 0 && y <= verticalLayer.getHeight() - 1) {
+//               
+//            }
+//        }
     
     public TiledMap getGroundMap() {
         return groundMap;

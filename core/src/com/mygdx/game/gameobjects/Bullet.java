@@ -15,7 +15,7 @@ public class Bullet {
         texture = new Texture("bulletDark1.png");
         position = new Vector3(x, y, 0);
         this.rotation = rotation;
-        speed = 500;
+        speed = 400;
         velocity = new Vector3(normaliserX * speed, normaliserY * speed, 0);
         lifeSpan = 8;
     }

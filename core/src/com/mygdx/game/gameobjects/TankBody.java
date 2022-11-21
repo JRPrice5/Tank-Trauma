@@ -16,7 +16,7 @@ public class TankBody {
         this.texture = new Texture("tankBody_"+colour+".png");
         this.position = new Vector3(x, y, 0);
         this.rotation = 0;
-        this.rotationSpeed = 1.2f;
+        this.rotationSpeed = 1.3f;
     }
 
     public Vector3 getPosition() {

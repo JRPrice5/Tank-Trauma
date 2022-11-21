@@ -31,7 +31,7 @@ public class TankTurret {
         position = new Vector3(x + (body.getWidth() - texture.getWidth()) / 2, y - 1, 0);
         barrel = new Vector3((position.x + (texture.getWidth() / 2)), position.y + barrelLength, 0);
         rotation = 0;
-        rotationSpeed = 1.2f;
+        rotationSpeed = 1.3f;
         bullets = new LinkedList();
         reload = 0;
     }

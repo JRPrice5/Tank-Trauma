@@ -34,7 +34,7 @@ public class PlayScreen implements Screen {
     public PlayScreen(TankTrauma game, int mapSize) {
         this.game = game;
         cam = new OrthographicCamera();
-        viewport = new FitViewport(((mapSize + 1) * 16) / 9, mapSize + 1, cam);
+        viewport = new FitViewport(((mapSize + 0.5f) * 16) / 9, mapSize + 0.5f, cam);
         player = new Tank(50, 400, "green");
         body = player.getBody();
         turret = player.getTurret();
@@ -156,15 +156,15 @@ public class PlayScreen implements Screen {
         int[] layer2 = {1};
         int[] layer3 = {2};
         
-        cam.position.set((float)(mapSize / 2) + (128 * UNIT_SCALE), (float)(mapSize / 2) + (128 * UNIT_SCALE), 0);
+        cam.position.set((float)(mapSize / 2) + 1, (float)(mapSize / 2) + 1, 0);
         cam.update();
         mazeRenderer.setView(cam);
         mazeRenderer.render(layer1);
-        cam.position.set((float)(mapSize / 2) + (128 * UNIT_SCALE), (float)(mapSize / 2) + (64 * UNIT_SCALE), 0);
+        cam.position.set((float)(mapSize / 2) + 1, (float)(mapSize / 2) + 0.5f, 0);
         cam.update();
         mazeRenderer.setView(cam);
         mazeRenderer.render(layer2);
-        cam.position.set((float)(mapSize / 2) + (64 * UNIT_SCALE), (float)(mapSize / 2) + (128 * UNIT_SCALE), 0);
+        cam.position.set((float)(mapSize / 2) + 0.5f, (float)(mapSize / 2) + 1, 0);
         cam.update();
         mazeRenderer.setView(cam);
         mazeRenderer.render(layer3);
