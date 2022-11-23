@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 public class MapGenerator {
@@ -17,7 +18,7 @@ public class MapGenerator {
     private TiledMapTileLayer dotLayer;
     private TiledMapTileLayer verticalLayer;
     private TiledMapTileLayer horizontalLayer;
-    private LinkedList<int[]> cellsToSearch;
+//    private LinkedList<LinkedList> tilesToSearch;
     
     public MapGenerator(int mapSize) {
         groundMap = new TiledMap();
@@ -119,54 +120,73 @@ public class MapGenerator {
             }
         }
         
-        int[][] tiles = new int[mapSize][mapSize];
-        for (int[] row : tiles) {
-            for (int tile : row) {
-                tile = 0;
-            }
-        }
-        tiles[0][0] = 1;
-        Boolean a = true;
-        int[] cellToSearch = {0, 0};
-        cellsToSearch.add(cellToSearch);
-        for (int i = 0; i < mapSize * mapSize; i++) {
-            int x = cellsToSearch.get(0)[1];
-            int y = cellsToSearch.get(0)[0];
-            int currentTile = tiles[y][x];
-            String tileState = tileCornerState[y][x] 
-                    + tileCornerState[y + 1][x].replace("v", "")
-                    + tileCornerState[y][x + 1].replace("h", "");
-//            tiles[y + 1][x] = currentTile + 1;
-//            tiles[y][x + 1] = currentTile + 1;
-            Cell cell = new Cell();
-            
-            // Checks whether tile is surrounded by walls
-            if (tileState.contentEquals("vhvh")) {
-                
-                // Deletes a random wall from the tile and updates cellsToSearch
-                switch (random.nextInt(4)) {
-                    case 0:
-                        verticalLayer.setCell(x, y, cell);
-                        cellToSearch = {x - 1, y};
-                        cellsToSearch.add(cellToSearch);
-                        break;
-                    case 1:
-                        horizontalLayer.setCell(x, y, cell);
-                        cellToSearch = {x, y - 1};
-                        cellsToSearch.add(cellToSearch);
-                        break;
-                    case 2:
-                        verticalLayer.setCell(x + 1, y, cell);
-                        cellToSearch = {x + 1, y};
-                        cellsToSearch.add(cellToSearch);
-                        break;
-                    case 3:
-                        horizontalLayer.setCell(x, y + 1, cell);
-                        cellToSearch = {x, y + 1};
-                        cellsToSearch.add(cellToSearch);
-                        break;
+        Queue<LinkedList> tilesToSearch = null;
+        LinkedList tileToSearch = null;
+        
+        boolean[][] isTileAccessible = new boolean[mapSize][mapSize];
+        isTileAccessible[0][0] = true;
+        boolean FullyAccessible = false;
+        
+        
+        while (!FullyAccessible) {
+            int x = 0;
+            int y = 0;
+            for (int i = 0; i < mapSize * mapSize; i++) {
+                if (i > 0) {
+                        x = (int) tilesToSearch.peek().get(0);
+                        y = (int) tilesToSearch.peek().get(1);
+                        tilesToSearch.remove();
+                        tilesToSearch.remove();
                 }
-            }                
+                
+                String tileState = tileCornerState[y][x] 
+                        + tileCornerState[y + 1][x].replace("v", "")
+                        + tileCornerState[y][x + 1].replace("h", "");
+
+
+                Cell cell = new Cell();
+
+//                // Checks whether tile is surrounded by walls
+//                if (tileState.contentEquals("vhvh")) {
+
+//                    // Deletes a random wall from the tile and updates cellsToSearch
+//                    // Use numbering algorithm
+//                    switch (random.nextInt(4)) {
+//                        case 0:
+//                            verticalLayer.setCell(x, y, cell);
+//                            tileToSearch.add(x - 1);
+//                            tileToSearch.add(y);
+//                            tilesToSearch.add(tileToSearch);
+//                            break;
+//                        case 1:
+//                            horizontalLayer.setCell(x, y, cell);
+//                            tileToSearch.add(x);
+//                            tileToSearch.add(y - 1);
+//                            tilesToSearch.add(tileToSearch);
+//                            break;
+//                        case 2:
+//                            verticalLayer.setCell(x + 1, y, cell);
+//                            tileToSearch.add(x + 1);
+//                            tileToSearch.add(y);
+//                            tilesToSearch.add(tileToSearch);
+//                            break;
+//                        case 3:
+//                            horizontalLayer.setCell(x, y + 1, cell);
+//                            tileToSearch.add(x);
+//                            tileToSearch.add(y + 1);
+//                            tilesToSearch.add(tileToSearch);
+//                            break;
+//                    }
+//                }
+            }
+            FullyAccessible = true;
+            for (boolean[] row : isTileAccessible) {
+                for (boolean tile : row) {
+                    if (tile = false) {
+                        FullyAccessible = false;
+                    }
+                }
+            }
 //            if (x >= 0 && x <= horizontalLayer.getWidth() - 1 && y >= 0 && y <= verticalLayer.getHeight() - 1) {
 //               
 //            }
