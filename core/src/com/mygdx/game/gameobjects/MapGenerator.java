@@ -120,93 +120,316 @@ public class MapGenerator {
             }
         }
         
-        Queue<LinkedList> tilesToSearch = null;
-        LinkedList tileToSearch = null;
         
+        Queue<Integer> tilesToSearch = new LinkedList<>();
         boolean[][] isTileAccessible = new boolean[mapSize][mapSize];
         isTileAccessible[0][0] = true;
         boolean FullyAccessible = false;
         
-        
-        while (!FullyAccessible) {
+//        while (!FullyAccessible) {
             int x = 0;
             int y = 0;
+            boolean[][] beenAccessed = new boolean[mapSize][mapSize];
+            beenAccessed[0][0] = true;
             for (int i = 0; i < mapSize * mapSize; i++) {
+                // Retrieves and removes the coords of the first tile
+                // from the queue
                 if (i > 0) {
-                        x = (int) tilesToSearch.peek().get(0);
-                        y = (int) tilesToSearch.peek().get(1);
-                        tilesToSearch.remove();
-                        tilesToSearch.remove();
+                        x = (int) tilesToSearch.poll();
+                        y = (int) tilesToSearch.poll();
                 }
                 
-                String tileState = tileCornerState[y][x] 
-                        + tileCornerState[y + 1][x].replace("v", "")
-                        + tileCornerState[y][x + 1].replace("h", "");
-
-
-                Cell cell = new Cell();
-
-//                // Checks whether tile is surrounded by walls
-//                if (tileState.contentEquals("vhvh")) {
-
-//                    // Deletes a random wall from the tile and updates cellsToSearch
-//                    // Use numbering algorithm
-//                    switch (random.nextInt(4)) {
-//                        case 0:
-//                            verticalLayer.setCell(x, y, cell);
-//                            tileToSearch.add(x - 1);
-//                            tileToSearch.add(y);
-//                            tilesToSearch.add(tileToSearch);
-//                            break;
-//                        case 1:
-//                            horizontalLayer.setCell(x, y, cell);
-//                            tileToSearch.add(x);
-//                            tileToSearch.add(y - 1);
-//                            tilesToSearch.add(tileToSearch);
-//                            break;
-//                        case 2:
-//                            verticalLayer.setCell(x + 1, y, cell);
-//                            tileToSearch.add(x + 1);
-//                            tileToSearch.add(y);
-//                            tilesToSearch.add(tileToSearch);
-//                            break;
-//                        case 3:
-//                            horizontalLayer.setCell(x, y + 1, cell);
-//                            tileToSearch.add(x);
-//                            tileToSearch.add(y + 1);
-//                            tilesToSearch.add(tileToSearch);
-//                            break;
-//                    }
+                // Determines whether adjacent tiles can be accessed, 
+                // if so, they are added to tilesToSearch
+//                if (x <= mapSize - 1 && y <= mapSize - 1){
+                boolean northWall = (tileCornerState[y][x].contains("h"));
+                boolean eastWall = (tileCornerState[y][x + 1].contains("v"));
+                boolean southWall = (tileCornerState[y + 1][x].contains("h"));
+                boolean westWall = (tileCornerState[y][x].contains("v"));
 //                }
+                
+                if (!northWall && y >= 1) {
+                    if (!beenAccessed[y - 1][x]) {
+                        isTileAccessible[y - 1][x] = true;
+                        beenAccessed[y - 1][x] = true;
+                        tilesToSearch.add(x);
+                        tilesToSearch.add(y - 1);
+                    }
+                }
+                if (!eastWall && x < mapSize - 1) {
+                    if (!beenAccessed[y][x + 1]) {
+                        isTileAccessible[y][x + 1] = true;
+                        beenAccessed[y][x + 1] = true;
+                        tilesToSearch.add(x + 1);
+                        tilesToSearch.add(y);
+                    }
+                }
+                if (!southWall && y < mapSize - 1) {
+                    if (!beenAccessed[y + 1][x]) {
+                        isTileAccessible[y + 1][x] = true;
+                        beenAccessed[y + 1][x] = true;
+                        tilesToSearch.add(x);
+                        tilesToSearch.add(y + 1);
+                    }
+                }
+                if (!westWall && x >= 1) {
+                    if (!beenAccessed[y][x - 1]) {
+                        isTileAccessible[y][x - 1] = true;
+                        beenAccessed[y][x - 1] = true;
+                        tilesToSearch.add(x - 1);
+                        tilesToSearch.add(y);
+                    }
+                }
+                
+                // If the adjacent tiles cannot be accessed, 
+                // delete a wall from a random adjacent tile to continue the
+                // search
+                Cell cell = new Cell();
+                if (tilesToSearch.isEmpty()) {
+                    if (x >= 1 && x < mapSize - 1 && y >= 1 && y < mapSize - 1) {
+                        switch (random.nextInt(4)) {
+                        case 0:
+                            verticalLayer.setCell(x, y, cell);
+                            if (y >= 1) {
+                                if (!tileCornerState[y - 1][x].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                                }
+                            }
+                            tileCornerState[y][x].replace("v", ""); 
+                            tilesToSearch.add(x - 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            horizontalLayer.setCell(x, y, cell);
+                            if (x >= 1) {
+                                if (!tileCornerState[y][x - 1].contains("h")) {
+                                    dotLayer.setCell(x, y, cell);
+                                }
+                            }
+                            tileCornerState[y][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y - 1);
+                            break;
+                        case 2:
+                            verticalLayer.setCell(x + 1, y, cell);
+                            if (y >= 1) {
+                                if (!tileCornerState[y - 1][x + 1].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                                }
+                            }
+                            tileCornerState[y][x + 1].replace("v", "");
+                            tilesToSearch.add(x + 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 3:
+                            horizontalLayer.setCell(x, y + 1, cell);
+                            if (x >= 1) {
+                                if (!tileCornerState[y + 1][x - 1].contains("h")) {
+                                    dotLayer.setCell(x, y, cell);
+                                }
+                            }
+                            tileCornerState[y + 1][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y + 1);
+                            break;
+                        }
+                    } else if (x == 0 && y >= 1 && y < mapSize - 1) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            horizontalLayer.setCell(x, y, cell);
+                            tileCornerState[y][x].replace("v", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y - 1);
+                            break;
+                        case 1:
+                            verticalLayer.setCell(x + 1, y, cell);
+                            if (!tileCornerState[y - 1][x + 1].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y][x + 1].replace("v", "");
+                            tilesToSearch.add(x + 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 2:
+                            horizontalLayer.setCell(x, y + 1, cell);
+                            tileCornerState[y + 1][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y + 1);
+                            break;
+                        }
+                    } else if (x == mapSize - 1 && y >= 1 && y < mapSize - 1) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            verticalLayer.setCell(x, y, cell);
+                            if (!tileCornerState[y - 1][x].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y][x].replace("v", "");
+                            tilesToSearch.add(x - 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            horizontalLayer.setCell(x, y, cell);
+                            if (!tileCornerState[y][x - 1].contains("h")) {
+                                dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y - 1);
+                            break;
+                        case 2:
+                            horizontalLayer.setCell(x, y + 1, cell);
+                            if (!tileCornerState[y + 1][x - 1].contains("h")) {
+                                dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y + 1][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y + 1);
+                            break;
+                        }
+                    } else if (x >= 1 && x < mapSize - 1 && y == 0) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            verticalLayer.setCell(x, y, cell);
+                            tileCornerState[y][x].replace("h", "");
+                            tilesToSearch.add(x - 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            verticalLayer.setCell(x + 1, y, cell);
+                            tileCornerState[y][x + 1].replace("v", "");
+                            tilesToSearch.add(x + 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 2:
+                            horizontalLayer.setCell(x, y + 1, cell);
+                            if (!tileCornerState[y + 1][x - 1].contains("h")) {
+                                dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y + 1][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y + 1);
+                            break;
+                        }
+                    } else if (x >= 1 && x < mapSize - 1 && y == mapSize - 1) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            verticalLayer.setCell(x, y, cell);
+                            if (!tileCornerState[y - 1][x].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                            }                                
+                            tileCornerState[y][x].replace("v", "");
+                            tilesToSearch.add(x - 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            horizontalLayer.setCell(x, y, cell);
+                            if (!tileCornerState[y][x - 1].contains("h")) {
+                                    dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y - 1);
+                            break;
+                        case 2:
+                            verticalLayer.setCell(x + 1, y, cell);
+                            if (!tileCornerState[y - 1][x + 1].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                            }                                
+                            tileCornerState[y][x + 1].replace("v", "");
+                            tilesToSearch.add(x + 1);
+                            tilesToSearch.add(y);
+                            break;
+                        }
+                    } else if (x == 0 && y == 0) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            verticalLayer.setCell(x + 1, y, cell);
+                            tileCornerState[y][x + 1].replace("v", "");
+                            tilesToSearch.add(x + 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            horizontalLayer.setCell(x, y + 1, cell);
+                            tileCornerState[y + 1][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y + 1);
+                            break;
+                        }
+                    } else if (x == 0 && y == mapSize - 1) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            horizontalLayer.setCell(x, y, cell);
+                            tileCornerState[y][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y - 1);
+                            break;
+                        case 1:
+                            verticalLayer.setCell(x + 1, y, cell);
+                            if (!tileCornerState[y - 1][x + 1].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                            } 
+                            tileCornerState[y][x + 1].replace("v", "");
+                            tilesToSearch.add(x + 1);
+                            tilesToSearch.add(y);
+                            break;
+                        }
+                    } else if (x == mapSize - 1 && y == 0) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            verticalLayer.setCell(x, y, cell);
+                            tileCornerState[y][x].replace("v", ""); 
+                            tilesToSearch.add(x - 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            horizontalLayer.setCell(x, y + 1, cell);
+                            if (!tileCornerState[y + 1][x - 1].contains("h")) {
+                                dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y + 1][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y + 1);
+                            break;
+                        }                       
+                    } else if (x == mapSize - 1 && y == mapSize - 1) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            verticalLayer.setCell(x, y, cell);
+                            if (!tileCornerState[y - 1][x].contains("v")) {
+                                    dotLayer.setCell(x, y, cell);
+                            } 
+                            tileCornerState[y][x].replace("v", ""); 
+                            tilesToSearch.add(x - 1);
+                            tilesToSearch.add(y);
+                            break;
+                        case 1:
+                            horizontalLayer.setCell(x, y, cell);
+                            if (!tileCornerState[y][x - 1].contains("h")) {
+                                    dotLayer.setCell(x, y, cell);
+                            }
+                            tileCornerState[y][x].replace("h", "");
+                            tilesToSearch.add(x);
+                            tilesToSearch.add(y - 1);
+                            break;
+                        }                      
+                    }
+                }
             }
             FullyAccessible = true;
             for (boolean[] row : isTileAccessible) {
                 for (boolean tile : row) {
                     if (tile = false) {
                         FullyAccessible = false;
+                        System.out.print("0 ");
+                    } else {
+                        System.out.print("1 ");
                     }
                 }
+                System.out.println("");
             }
-//            if (x >= 0 && x <= horizontalLayer.getWidth() - 1 && y >= 0 && y <= verticalLayer.getHeight() - 1) {
-//               
-//            }
-        }
-    }
-    
-//        nodes[]
-//        int x = 0;
-//        int y = 0;
-//        for (int i = 0; i < mapSize * mapSize; i++) {
-//            String tileState = tileCornerState[y][x] 
-//                    + tileCornerState[y + 1][x].replace("v", "")
-//                    + tileCornerState[y][x + 1].replace("h", "");
-//            if (tileState.contentEquals("vhvh")) {
-//                
-//            }
-//            if (x >= 0 && x <= horizontalLayer.getWidth() - 1 && y >= 0 && y <= verticalLayer.getHeight() - 1) {
-//               
-//            }
 //        }
+    }
     
     public TiledMap getGroundMap() {
         return groundMap;
