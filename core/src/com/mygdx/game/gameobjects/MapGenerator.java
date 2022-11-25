@@ -18,6 +18,9 @@ public class MapGenerator {
     private TiledMapTileLayer dotLayer;
     private TiledMapTileLayer verticalLayer;
     private TiledMapTileLayer horizontalLayer;
+    private String[][] tileCornerStates;
+    Queue<Integer> tilesToSearch;
+    private boolean[][] tilesAccessible;
     
     public MapGenerator(int mapSize) {
         groundMap = new TiledMap();
@@ -31,6 +34,9 @@ public class MapGenerator {
         mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
         mazeMap.getLayers().add(horizontalLayer);
+        tileCornerStates = new String[mapSize + 1][mapSize + 1];
+        tilesToSearch = new LinkedList<>();
+        tilesAccessible = new boolean[mapSize][mapSize];
     }
     
     public void generateGround() {
@@ -61,10 +67,9 @@ public class MapGenerator {
     
     public void generateMaze() {
         Random random = new Random();
-        String[][] tileCornerState = new String[mapSize + 1][mapSize + 1];
         for (int y = 0; y < mapSize + 1; y++) {
             for (int x = 0; x < mapSize + 1; x++) {
-                tileCornerState[y][x] = "";
+                tileCornerStates[y][x] = "";
             }
         }
             
@@ -74,12 +79,12 @@ public class MapGenerator {
                 
                 if (x == 0 || x == verticalLayer.getWidth() - 1) {
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
-                    tileCornerState[y][x] = "v";
+                    tileCornerStates[y][x] = "v";
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
                         cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
-                        tileCornerState[y][x] = "v";
+                        tileCornerStates[y][x] = "v";
                     } 
                 }
                 verticalLayer.setCell(x, y, cell);  
@@ -92,12 +97,12 @@ public class MapGenerator {
 
                 if (y == 0 || y == horizontalLayer.getHeight() - 1) {
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
-                    tileCornerState[y][x] += "h";
+                    tileCornerStates[y][x] += "h";
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
                         cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
-                        tileCornerState[y][x] += "h";
+                        tileCornerStates[y][x] += "h";
                     } 
                 }
                 horizontalLayer.setCell(x, y, cell);
@@ -110,23 +115,18 @@ public class MapGenerator {
                 
                 if (y == 0 || y == dotLayer.getHeight() - 1 || x == 0 || x == dotLayer.getWidth() - 1) {
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
-                }  else if (!tileCornerState[y][x].equals("")) {
+                }  else if (!tileCornerStates[y][x].equals("")) {
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
-                } else if (tileCornerState[y - 1][x].contains("v") || tileCornerState[y][x - 1].contains("h")) {
+                } else if (tileCornerStates[y - 1][x].contains("v") || tileCornerStates[y][x - 1].contains("h")) {
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
                 }
                 dotLayer.setCell(x, y, cell);
             }
         }
         
-        
-        Queue<Integer> tilesToSearch = new LinkedList<>();
-        boolean[][] tilesAccessible = new boolean[mapSize][mapSize];
         tilesAccessible[0][0] = true;
-        
         int x = 0;
         int y = 0;
-        tilesAccessible[0][0] = true;
         for (int i = 0; i < mapSize * mapSize; i++) {
             // Retrieves and removes the coords of the first tile
             // from the queue
@@ -137,10 +137,10 @@ public class MapGenerator {
 
             // Determines whether adjacent tiles can be accessed, 
             // if so, they are added to tilesToSearch
-            boolean northWall = (tileCornerState[y][x].contains("h"));
-            boolean eastWall = (tileCornerState[y][x + 1].contains("v"));
-            boolean southWall = (tileCornerState[y + 1][x].contains("h"));
-            boolean westWall = (tileCornerState[y][x].contains("v"));
+            boolean northWall = (tileCornerStates[y][x].contains("h"));
+            boolean eastWall = (tileCornerStates[y][x + 1].contains("v"));
+            boolean southWall = (tileCornerStates[y + 1][x].contains("h"));
+            boolean westWall = (tileCornerStates[y][x].contains("v"));
 
             if (!northWall && y > 0) {
                 if (!tilesAccessible[y - 1][x]) {
@@ -174,7 +174,6 @@ public class MapGenerator {
             // If the adjacent tiles cannot be accessed, 
             // delete a wall from a random adjacent tile to continue the
             // search
-            Cell cell = new Cell();
             if (tilesToSearch.isEmpty()) {
                 boolean tileAccessed;
                 LinkedList blockingTiles = new LinkedList();
@@ -209,397 +208,248 @@ public class MapGenerator {
                     }
                 }
                 
-                boolean nTileAccessible = true;
-                boolean eTileAccessible = true;
-                boolean sTileAccessible = true;
-                boolean wTileAccessible = true;
+//                int wallsToDestroy = 0;
+//                else if (blockingTiles.size() == 2) {
+//                    int wallsToDestroy = random.nextInt(2);
+//                } else if (blockingTiles.size() == 3) {
+//                    
+//                }
+                Cell cell = new Cell();
                 
                 if (blockingTiles.size() == 0) {
                     continue;
-                }
-                int index = random.nextInt(blockingTiles.size() / 2) * 2;
-                int xCoord = (int) blockingTiles.get(index);
-                int yCoord = (int) blockingTiles.get(index + 1);
-                blockingTiles.clear();
-                
-                if (yCoord > 0) {
-                    nTileAccessible = tilesAccessible[yCoord - 1][xCoord];
-                } 
-                if (xCoord < mapSize - 1) {
-                    eTileAccessible = tilesAccessible[yCoord][xCoord + 1];
-                }
-                if (yCoord < mapSize - 1) {
-                    sTileAccessible = tilesAccessible[yCoord + 1][xCoord];
-                }
-                if (xCoord > 0) {
-                    wTileAccessible = tilesAccessible[yCoord][xCoord - 1];
                 } 
                 
-                if (!(nTileAccessible || eTileAccessible || wTileAccessible)) {
-                    switch (random.nextInt(3)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("h", "");
-                        tilesAccessible[yCoord - 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord - 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        verticalLayer.setCell(xCoord + 1, yCoord, cell);
-                        tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                        tilesAccessible[yCoord][xCoord + 1] = true;
-                        tilesToSearch.add(xCoord + 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                                dotLayer.setCell(xCoord + 1, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 2:
-                        verticalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("v", "");
-                        tilesAccessible[yCoord][xCoord - 1] = true;
-                        tilesToSearch.add(xCoord - 1);
-                        tilesToSearch.add(yCoord);
-                        if (y > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    }
-                }
-                else if (!(nTileAccessible || eTileAccessible || sTileAccessible)) {
-                    switch (random.nextInt(3)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("h", "");
-                        tilesAccessible[yCoord - 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord - 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        verticalLayer.setCell(xCoord + 1, yCoord, cell);    
-                        tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                        tilesAccessible[yCoord][xCoord + 1] = true;
-                        tilesToSearch.add(xCoord + 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                                dotLayer.setCell(xCoord + 1, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 2:
-                        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                        tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                        tilesAccessible[yCoord + 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord + 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord + 1, cell);
-                            }
-                        }
-                        break;
-                     }
-                }
-                else if (!(eTileAccessible || sTileAccessible || wTileAccessible)) {
-                    switch (random.nextInt(3)) {
-                    case 0:
-                        verticalLayer.setCell(xCoord + 1, yCoord, cell);
-                        tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                        tilesToSearch.add(xCoord + 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                                dotLayer.setCell(xCoord + 1, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                        tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                        tilesAccessible[yCoord + 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord + 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord + 1, cell);
-                            }
-                        }
-                        break;
-                    case 2:
-                        verticalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("v", "");
-                        tilesAccessible[yCoord][xCoord - 1] = true;
-                        tilesToSearch.add(xCoord - 1);
-                        tilesToSearch.add(yCoord);
-                        if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                            dotLayer.setCell(xCoord, yCoord, cell);
-                        }
-                        break;
-                    }
-                } 
-                else if (!(nTileAccessible || sTileAccessible || wTileAccessible)) {
-                    switch (random.nextInt(3)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("h", "");
-                        tilesAccessible[yCoord - 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord - 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                        tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                        tilesAccessible[yCoord + 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord + 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord + 1, cell);
-                            }
-                        }
-                        break;
-                    case 2:
-                        verticalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("v", "");
-                        tilesAccessible[yCoord][xCoord - 1] = true;
-                        tilesToSearch.add(xCoord - 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    }
-                }
-                else if (!(nTileAccessible || sTileAccessible)) {
-                    switch (random.nextInt(2)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("h", "");
-                        tilesAccessible[yCoord - 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord - 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                        tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                        tilesAccessible[yCoord + 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord + 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord + 1, cell);
-                            }
-                        }
-                        break;
-                    }
-                }
-                else if (!(eTileAccessible || wTileAccessible)) {
-                    switch (random.nextInt(2)) {
-                    case 0:
-                        verticalLayer.setCell(xCoord + 1, yCoord, cell);
-                        tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                        tilesAccessible[yCoord][xCoord + 1] = true;
-                        tilesToSearch.add(xCoord + 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                                dotLayer.setCell(xCoord + 1, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        verticalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("v", "");
-                        tilesAccessible[yCoord][xCoord - 1] = true;
-                        tilesToSearch.add(xCoord - 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    }
-                } 
-                else if (!(nTileAccessible || wTileAccessible)) {
-                    switch (random.nextInt(2)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("h", "");
-                        tilesAccessible[yCoord - 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord - 1);
-                        if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                            dotLayer.setCell(xCoord, yCoord, cell);
-                        }
-                        break;
-                    case 1:
-                        verticalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("v", "");
-                        tilesAccessible[yCoord][xCoord - 1] = true;
-                        tilesToSearch.add(xCoord - 1);
-                        tilesToSearch.add(yCoord);
-                        if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                            dotLayer.setCell(xCoord, yCoord, cell);
-                        }
-                        break;
-                    }
-                } 
-                else if (!(nTileAccessible || eTileAccessible)) {
-                    switch (random.nextInt(2)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("h", "");
-                        tilesAccessible[yCoord - 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord - 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        verticalLayer.setCell(xCoord + 1, yCoord, cell);
-                        tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                        tilesAccessible[yCoord][xCoord + 1] = true;
-                        tilesToSearch.add(xCoord + 1);
-                        tilesToSearch.add(yCoord);
-                        if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                            dotLayer.setCell(xCoord + 1, yCoord, cell);
-                        }
-                        break;
-                    }
-                } 
-                else if (!(eTileAccessible || sTileAccessible)) {
-                    switch (random.nextInt(2)) {
-                    case 0:
-                        verticalLayer.setCell(xCoord + 1, yCoord, cell);
-                        tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                        tilesAccessible[yCoord][xCoord + 1] = true;
-                        tilesToSearch.add(xCoord + 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                                dotLayer.setCell(xCoord + 1, yCoord, cell);
-                            }
-                        }
-                        break;
-                    case 1:
-                        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                        tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                        tilesAccessible[yCoord + 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord + 1);
-                        if (xCoord > 0) {
-                            if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                                dotLayer.setCell(xCoord, yCoord + 1, cell);
-                            }
-                        }
-                        break;
-                    }
-                } 
-                else if (!(sTileAccessible || wTileAccessible)) {
-                    switch (random.nextInt(2)) {
-                    case 0:
-                        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                        tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                        tilesAccessible[yCoord + 1][xCoord] = true;
-                        tilesToSearch.add(xCoord);
-                        tilesToSearch.add(yCoord + 1);
-                        if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                            dotLayer.setCell(xCoord, yCoord + 1, cell);
-                        }
-                        break;
-                    case 1:
-                        verticalLayer.setCell(xCoord, yCoord, cell);
-                        tileCornerState[yCoord][xCoord].replace("v", "");
-                        tilesAccessible[yCoord][xCoord - 1] = true;
-                        tilesToSearch.add(xCoord - 1);
-                        tilesToSearch.add(yCoord);
-                        if (yCoord > 0) {
-                            if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                                dotLayer.setCell(xCoord, yCoord, cell);
-                            }
-                        }
-                        break;
-                    }
-                } 
-                else if (!nTileAccessible) {
-                    horizontalLayer.setCell(xCoord, yCoord, cell);
-                    tileCornerState[yCoord][xCoord].replace("h", "");
-                    tilesAccessible[yCoord - 1][xCoord] = true;
-                    tilesToSearch.add(xCoord);
-                    tilesToSearch.add(yCoord - 1);
-                    if (xCoord > 0) {
-                        if (!tileCornerState[yCoord][xCoord - 1].contains("h")) {
-                            dotLayer.setCell(xCoord, yCoord, cell);
-                        }
-                    }
-                } 
-                else if (!eTileAccessible) {
-                    verticalLayer.setCell(xCoord + 1, yCoord, cell);
-                    tileCornerState[yCoord][xCoord + 1].replace("v", "");
-                    tilesAccessible[yCoord][xCoord + 1] = true;
-                    tilesToSearch.add(xCoord + 1);
-                    tilesToSearch.add(yCoord);
+                int wallsToDestroy = random.nextInt(blockingTiles.size());
+                
+                for (int p = 0; p <= wallsToDestroy; p++) {
+                    if (blockingTiles.size() == 0) {
+                        continue;
+                    } 
+                    boolean nTileAccessible = true;
+                    boolean eTileAccessible = true;
+                    boolean sTileAccessible = true;
+                    boolean wTileAccessible = true;
+                    int index = random.nextInt(blockingTiles.size() / 2) * 2;
+                    int xCoord = (int) blockingTiles.get(index);
+                    int yCoord = (int) blockingTiles.get(index + 1);
+                    blockingTiles.remove(index);
+                    blockingTiles.remove(index);
+
                     if (yCoord > 0) {
-                        if (!tileCornerState[yCoord - 1][xCoord + 1].contains("v")) {
-                            dotLayer.setCell(xCoord + 1, yCoord, cell);
-                        }
+                        nTileAccessible = tilesAccessible[yCoord - 1][xCoord];
+                    } 
+                    if (xCoord < mapSize - 1) {
+                        eTileAccessible = tilesAccessible[yCoord][xCoord + 1];
                     }
-                } 
-                else if (!sTileAccessible) {
-                    horizontalLayer.setCell(xCoord, yCoord + 1, cell);
-                    tileCornerState[yCoord + 1][xCoord].replace("h", "");
-                    tilesAccessible[yCoord + 1][xCoord] = true;
-                    tilesToSearch.add(xCoord);
-                    tilesToSearch.add(yCoord + 1);
+                    if (yCoord < mapSize - 1) {
+                        sTileAccessible = tilesAccessible[yCoord + 1][xCoord];
+                    }
                     if (xCoord > 0) {
-                        if (!tileCornerState[yCoord + 1][xCoord - 1].contains("h")) {
-                            dotLayer.setCell(xCoord, yCoord + 1, cell);
+                        wTileAccessible = tilesAccessible[yCoord][xCoord - 1];
+                    } 
+
+                    if (!(nTileAccessible || eTileAccessible || wTileAccessible)) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            deleteNorthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteEastTile(xCoord, yCoord);
+                            break;
+                        case 2:
+                            deleteWestTile(xCoord, yCoord);
+                            break;
                         }
                     }
-                } 
-                else if (!wTileAccessible) {
-                    verticalLayer.setCell(xCoord, yCoord, cell);
-                    tileCornerState[yCoord][xCoord].replace("v", "");
-                    tilesAccessible[yCoord][xCoord - 1] = true;
-                    tilesToSearch.add(xCoord - 1);
-                    tilesToSearch.add(yCoord);
-                    if (yCoord > 0) {
-                        if (!tileCornerState[yCoord - 1][xCoord].contains("v")) {
-                            dotLayer.setCell(xCoord, yCoord, cell);
+                    else if (!(nTileAccessible || eTileAccessible || sTileAccessible)) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            deleteNorthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteEastTile(xCoord, yCoord);
+                            break;
+                        case 2:
+                            deleteSouthTile(xCoord, yCoord);
+                            break;
+                         }
+                    }
+                    else if (!(eTileAccessible || sTileAccessible || wTileAccessible)) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            deleteEastTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteSouthTile(xCoord, yCoord);
+                            break;
+                        case 2:
+                            deleteWestTile(xCoord, yCoord);
+                            break;
                         }
+                    } 
+                    else if (!(nTileAccessible || sTileAccessible || wTileAccessible)) {
+                        switch (random.nextInt(3)) {
+                        case 0:
+                            deleteNorthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteSouthTile(xCoord, yCoord);
+                            break;
+                        case 2:
+                            deleteWestTile(xCoord, yCoord);
+                            break;
+                        }
+                    }
+                    else if (!(nTileAccessible || sTileAccessible)) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            deleteNorthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteSouthTile(xCoord, yCoord);
+                            break;
+                        }
+                    }
+                    else if (!(eTileAccessible || wTileAccessible)) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            deleteEastTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteWestTile(xCoord, yCoord);
+                            break;
+                        }
+                    } 
+                    else if (!(nTileAccessible || wTileAccessible)) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            deleteNorthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteWestTile(xCoord, yCoord);
+                            break;
+                        }
+                    } 
+                    else if (!(nTileAccessible || eTileAccessible)) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            deleteNorthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteEastTile(xCoord, yCoord);
+                            break;
+                        }
+                    } 
+                    else if (!(eTileAccessible || sTileAccessible)) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            deleteEastTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteSouthTile(xCoord, yCoord);
+                            break;
+                        }
+                    } 
+                    else if (!(sTileAccessible || wTileAccessible)) {
+                        switch (random.nextInt(2)) {
+                        case 0:
+                            deleteSouthTile(xCoord, yCoord);
+                            break;
+                        case 1:
+                            deleteWestTile(xCoord, yCoord);
+                            break;
+                        }
+                    } 
+                    else if (!nTileAccessible) {
+                        deleteNorthTile(xCoord, yCoord);
+                    } 
+                    else if (!eTileAccessible) {
+                        deleteEastTile(xCoord, yCoord);
+                    } 
+                    else if (!sTileAccessible) {
+                        deleteSouthTile(xCoord, yCoord);
+                    } 
+                    else if (!wTileAccessible) {
+                        deleteWestTile(xCoord, yCoord);
                     }
                 }
+            }
+        }
+    }
+    
+    private void deleteNorthTile(int xCoord, int yCoord) {
+        Cell cell = new Cell();
+        horizontalLayer.setCell(xCoord, yCoord, cell);
+        tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("h", "");
+        tilesAccessible[yCoord - 1][xCoord] = true;
+        tilesToSearch.add(xCoord);
+        tilesToSearch.add(yCoord - 1);
+        if (xCoord > 0) {
+            if (!tileCornerStates[yCoord][xCoord - 1].contains("h")) {
+                dotLayer.setCell(xCoord, yCoord, cell);
+            }
+        }
+        if (xCoord < mapSize - 1) {
+            if (!tileCornerStates[yCoord][xCoord + 1].contains("h")) {
+                dotLayer.setCell(xCoord + 1, yCoord, cell);
+            }
+        }
+    }
+    
+    private void deleteEastTile(int xCoord, int yCoord) {
+        Cell cell = new Cell();
+        verticalLayer.setCell(xCoord + 1, yCoord, cell);
+        tileCornerStates[yCoord][xCoord + 1] = tileCornerStates[yCoord][xCoord + 1].replace("v", "");
+        tilesAccessible[yCoord][xCoord + 1] = true;
+        tilesToSearch.add(xCoord + 1);
+        tilesToSearch.add(yCoord);
+        if (yCoord > 0) {
+            if (!tileCornerStates[yCoord - 1][xCoord + 1].contains("v")) {
+                dotLayer.setCell(xCoord + 1, yCoord, cell);
+            }
+        }
+        if (yCoord < mapSize - 1) {
+            if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("v")) {
+                dotLayer.setCell(xCoord + 1, yCoord + 1, cell);
+            }
+        }
+    }
+    
+    private void deleteSouthTile(int xCoord, int yCoord) {
+        Cell cell = new Cell();
+        horizontalLayer.setCell(xCoord, yCoord + 1, cell);
+        tileCornerStates[yCoord + 1][xCoord] = tileCornerStates[yCoord + 1][xCoord].replace("h", "");
+        tilesAccessible[yCoord + 1][xCoord] = true;
+        tilesToSearch.add(xCoord);
+        tilesToSearch.add(yCoord + 1);
+        if (xCoord > 0) {
+            if (!tileCornerStates[yCoord + 1][xCoord - 1].contains("h")) {
+                dotLayer.setCell(xCoord, yCoord + 1, cell);
+            }
+        }
+        if (xCoord < mapSize - 1) {
+            if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("h")) {
+                dotLayer.setCell(xCoord + 1, yCoord + 1, cell);
+            }
+        }
+    }
+    
+    private void deleteWestTile(int xCoord, int yCoord) {
+        Cell cell = new Cell();
+        verticalLayer.setCell(xCoord, yCoord, cell);
+        tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("v", "");
+        tilesAccessible[yCoord][xCoord - 1] = true;
+        tilesToSearch.add(xCoord - 1);
+        tilesToSearch.add(yCoord);
+        if (yCoord > 0) {
+            if (!tileCornerStates[yCoord - 1][xCoord].contains("v")) {
+                dotLayer.setCell(xCoord, yCoord, cell);
+            }
+        }
+        if (yCoord < mapSize - 1) {
+            if (!tileCornerStates[yCoord + 1][xCoord].contains("v")) {
+                dotLayer.setCell(xCoord, yCoord + 1, cell);
             }
         }
     }

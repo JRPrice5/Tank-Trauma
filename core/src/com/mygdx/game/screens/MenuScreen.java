@@ -24,7 +24,7 @@ public class MenuScreen implements Screen {
     
     public void handleInput() {
         if (Gdx.input.justTouched()) {
-            game.setScreen(new PlayScreen(game, 11));
+            game.setScreen(new PlayScreen(game, 20));
 //            dispose();
         }
     }
@@ -42,7 +42,7 @@ public class MenuScreen implements Screen {
         game.sb.setProjectionMatrix(cam.combined);
         
 //        game.sb.begin();
-//        sb.draw(background, etc);
+//        sb.draw(gui etc);
 //        game.sb.end();
     }
 

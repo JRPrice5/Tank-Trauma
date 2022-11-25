@@ -156,6 +156,20 @@ public class PlayScreen implements Screen {
         int[] layer2 = {1};
         int[] layer3 = {2};
         
+        if (mapSize % 2 == 0) {
+        cam.position.set((float)(mapSize / 2) + 0.5f, (float)(mapSize / 2) + 0.5f, 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer1);
+        cam.position.set((float)(mapSize / 2) + 0.5f, (float)(mapSize / 2), 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer2);
+        cam.position.set((float)(mapSize / 2), (float)(mapSize / 2) + 0.5f, 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer3);
+    } else {
         cam.position.set((float)(mapSize / 2) + 1, (float)(mapSize / 2) + 1, 0);
         cam.update();
         mazeRenderer.setView(cam);
@@ -168,6 +182,8 @@ public class PlayScreen implements Screen {
         cam.update();
         mazeRenderer.setView(cam);
         mazeRenderer.render(layer3);
+    }
+        
         
         // Reset camera position to centre
         cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
