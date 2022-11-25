@@ -216,11 +216,15 @@ public class MapGenerator {
 //                }
                 Cell cell = new Cell();
                 
+                int wallsToDestroy = 0;
                 if (blockingTiles.size() == 0) {
                     continue;
                 } 
-                
-                int wallsToDestroy = random.nextInt(blockingTiles.size());
+                else if (blockingTiles.size() < 4) {
+                    wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
+                } else {
+                    wallsToDestroy = random.nextInt(blockingTiles.size() / 4);
+                }
                 
                 for (int p = 0; p <= wallsToDestroy; p++) {
                     if (blockingTiles.size() == 0) {
