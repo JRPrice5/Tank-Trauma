@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 public class TankTurret {
     private String colour;
-    private String turretFile;
+    private String turret;
     private Texture texture;
     private float barrelLength;
     private Texture bulletTexture;
@@ -24,9 +24,9 @@ public class TankTurret {
 
     public TankTurret(Texture body, String colour) {
         this.colour = colour;
-        turretFile = "tank"+colour+"_barrel1.png";
-        texture = new Texture(turretFile);
-        barrelLength = texture.getHeight() - (texture.getHeight() / 6.5f);
+        turret = "tank"+colour+"_barrel1.png";
+        texture = new Texture(turret);
+        barrelLength = 44;
         bulletTexture = new Texture("bulletDark1.png");
         position = new Vector3((body.getWidth() - texture.getWidth()) / 2, - 1, 0);
         barrel = new Vector3((position.x + (texture.getWidth() / 2)), position.y + barrelLength, 0);
@@ -37,9 +37,17 @@ public class TankTurret {
     }
     
     public void update(float dt) {
-//        if () {
-//            
-//        }
+        if (turret.contains("_barrel")) {
+            barrelLength = 44;
+        } else if (turret.contains("specialBarrel1") || turret.contains("specialBarrel2")) {
+            barrelLength = 36;
+        } else if (turret.contains("specialBarrel3")) {
+            barrelLength = 46;
+        } else if (turret.contains("specialBarrel4")) {
+            barrelLength = 57;
+        } else if (turret.contains("specialBarrel5") || turret.contains("specialBarrel6") || turret.contains("specialBarrel7")) {
+            barrelLength = 47;
+        } 
         
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
