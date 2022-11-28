@@ -5,10 +5,10 @@ import com.badlogic.gdx.math.Vector3;
 import java.util.LinkedList;
 
 public class TankTurret {
-    private int barrelLength;
     private String colour;
     private String turretFile;
     private Texture texture;
+    private float barrelLength;
     private Texture bulletTexture;
     private Vector3 position;
     private Vector3 barrel;
@@ -22,13 +22,13 @@ public class TankTurret {
     private byte barrelAdjustmentX;
     private byte barrelAdjustmentY;
 
-    public TankTurret(Texture body, int x, int y, String colour) {
-        barrelLength = 44;
+    public TankTurret(Texture body, String colour) {
         this.colour = colour;
         turretFile = "tank"+colour+"_barrel1.png";
         texture = new Texture(turretFile);
+        barrelLength = texture.getHeight() - (texture.getHeight() / 6.5f);
         bulletTexture = new Texture("bulletDark1.png");
-        position = new Vector3(x + (body.getWidth() - texture.getWidth()) / 2, y - 1, 0);
+        position = new Vector3((body.getWidth() - texture.getWidth()) / 2, - 1, 0);
         barrel = new Vector3((position.x + (texture.getWidth() / 2)), position.y + barrelLength, 0);
         rotation = 0;
         rotationSpeed = 1.3f;
@@ -184,7 +184,7 @@ public class TankTurret {
         this.barrelAdjustmentY = barrelAdjustmentY;
     }
     
-    public int getBarrelLength() {
+    public float getBarrelLength() {
         return barrelLength;
     }
 }

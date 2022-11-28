@@ -9,9 +9,9 @@ public class Tank {
     private int forwardVelocity;
     private int backwardVelocity;
     
-    public Tank(int x, int y, String colour) {
-        body = new TankBody(x, y, colour);
-        turret = new TankTurret(body.getTexture(), x, y, colour);
+    public Tank(String colour, int mapSizeX, int mapSizeY) {
+        body = new TankBody(0, 0, colour);
+        turret = new TankTurret(body.getTexture(), colour);
         velocity = new Vector3(0, 0, 0);
         forwardVelocity = 130;
         backwardVelocity = -90;

@@ -8,23 +8,33 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.TankTrauma;
+import java.util.Random;
 
 public class MenuScreen implements Screen {
     private TankTrauma game;
     private OrthographicCamera cam;
     private Viewport viewport;
     private Texture background;
+    private int maxWidth;
+    private int minWidth;
+    private int maxHeight;
+    private int minHeight;
     
     public MenuScreen(TankTrauma game) {
         this.game = game;
         cam = new OrthographicCamera();
         viewport = new FitViewport(TankTrauma.WIDTH, TankTrauma.HEIGHT, cam);
         background = new Texture("bg.png");
+        maxWidth = 3;
+        minWidth = 3;
+        maxHeight = 1;
+        minHeight = 1;
     }
     
     public void handleInput() {
         if (Gdx.input.justTouched()) {
-            game.setScreen(new PlayScreen(game, 12));
+            Random random = new Random();
+            game.setScreen(new PlayScreen(game, random.nextInt(maxWidth - minWidth + 1) + minWidth, random.nextInt(maxHeight - minHeight + 1) + minHeight));
 //            dispose();
         }
     }

@@ -29,22 +29,26 @@ public class PlayScreen implements Screen {
     private final MapGenerator Map;
     private LinkedList<Bullet> playerBullets;
     private Bullet bullet;
-    private int mapSize;
+    private int mapSizeX;
+    private int mapSizeY;
     
-    public PlayScreen(TankTrauma game, int mapSize) {
+    public PlayScreen(TankTrauma game, int mapSizeX, int mapSizeY) {
         this.game = game;
         cam = new OrthographicCamera();
-        viewport = new FitViewport(((mapSize + 0.5f) * 16) / 9, mapSize + 0.5f, cam);
-        player = new Tank(50, 400, "green");
+        viewport = new FitViewport(((mapSizeX + 0.25f) * 16) / 9, mapSizeY + 0.25f, cam);
+//        viewport.setScreenX(0);
+//        viewport.setScreenY(0);
+        this.mapSizeX = mapSizeX;
+        this.mapSizeY = mapSizeY;
+        player = new Tank("green", mapSizeX, mapSizeY);
         body = player.getBody();
         turret = player.getTurret();
-        Map = new MapGenerator(mapSize);
+        Map = new MapGenerator(mapSizeX, mapSizeY);
         Map.generateGround();
         Map.generateMaze();
         groundRenderer = new OrthogonalTiledMapRenderer(Map.getGroundMap(), UNIT_SCALE);
         mazeRenderer = new OrthogonalTiledMapRenderer(Map.getMazeMap(), UNIT_SCALE);
         playerBullets = player.getTurret().getBullets();
-        this.mapSize = mapSize;
     }
 
     public void handleInput() {
@@ -133,60 +137,87 @@ public class PlayScreen implements Screen {
         int tankHeight = body.getTexture().getHeight();
         int turretWidth = turret.getTexture().getWidth();
         int turretHeight = turret.getTexture().getHeight();
-        
-
-        // Render ground
-        cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
-        cam.update();
-        groundRenderer.setView(cam);
-        groundRenderer.render();
-        
-        // Render maze
-//        cam.position.set((float)((mapSize / 2) - 64), (float)((mapSize / 2) + 64), 0);
-//        mazeRenderer.setView(cam);
-//        mazeRenderer.getBatch().begin();
-//        mazeRenderer.renderTileLayer(Map.getVerticalLayer());
-        
-//        mazeRenderer.setView(cam);
-//        mazeRenderer.renderTileLayer(Map.getHorizontalLayer());
-        
-//        mazeRenderer.renderTileLayer(Map.getDotLayer());
-//        mazeRenderer.getBatch().end();
+       
+        // Render maze and ground
         int[] layer1 = {0};
         int[] layer2 = {1};
         int[] layer3 = {2};
         
-        if (mapSize % 2 == 0) {
-        cam.position.set((float)(mapSize / 2) + 0.5f, (float)(mapSize / 2) + 0.5f, 0);
-        cam.update();
-        mazeRenderer.setView(cam);
-        mazeRenderer.render(layer1);
-        cam.position.set((float)(mapSize / 2) + 0.5f, (float)(mapSize / 2), 0);
-        cam.update();
-        mazeRenderer.setView(cam);
-        mazeRenderer.render(layer2);
-        cam.position.set((float)(mapSize / 2), (float)(mapSize / 2) + 0.5f, 0);
-        cam.update();
-        mazeRenderer.setView(cam);
-        mazeRenderer.render(layer3);
-    } else {
-        cam.position.set((float)(mapSize / 2) + 1, (float)(mapSize / 2) + 1, 0);
-        cam.update();
-        mazeRenderer.setView(cam);
-        mazeRenderer.render(layer1);
-        cam.position.set((float)(mapSize / 2) + 1, (float)(mapSize / 2) + 0.5f, 0);
-        cam.update();
-        mazeRenderer.setView(cam);
-        mazeRenderer.render(layer2);
-        cam.position.set((float)(mapSize / 2) + 0.5f, (float)(mapSize / 2) + 1, 0);
-        cam.update();
-        mazeRenderer.setView(cam);
-        mazeRenderer.render(layer3);
-    }
+        // - 0.5f off of y values for temporary solution - delete this
+        if (mapSizeX % 2 == 0 && mapSizeY % 2 == 0) {
+            cam.position.set(mapSizeX / 2, mapSizeY / 2, 0);
+            cam.update();
+            groundRenderer.setView(cam);
+            groundRenderer.render();
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer1);
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2), 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer2);
+            cam.position.set((mapSizeX / 2), (mapSizeY / 2) + 0.5f, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer3);
+        } else if (mapSizeX % 2 == 0 && mapSizeY % 2 != 0) {
+            cam.position.set(mapSizeX / 2, 0.5f + mapSizeY / 2, 0);
+            cam.update();
+            groundRenderer.setView(cam);
+            groundRenderer.render();
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 1, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer1);
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer2);
+            cam.position.set((mapSizeX / 2), (mapSizeY / 2) + 1, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer3);
+        } else if (mapSizeX % 2 != 0 && mapSizeY % 2 == 0) {
+            cam.position.set(0.5f + mapSizeX / 2, mapSizeY / 2, 0);
+            cam.update();
+            groundRenderer.setView(cam);
+            groundRenderer.render();
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer1);
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2), 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer2);
+            cam.position.set((mapSizeX / 2), (mapSizeY / 2) + 0.5f, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer3);
+        } else if (mapSizeX % 2 != 0 && mapSizeY % 2 != 0) {
+            cam.position.set(0.5f + mapSizeX / 2, 0.5f + mapSizeY / 2, 0);
+            cam.update();
+            groundRenderer.setView(cam);
+            groundRenderer.render();
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 1, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer1);
+            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer2);
+            cam.position.set((mapSizeX / 2), (mapSizeY / 2) + 1, 0);
+            cam.update();
+            mazeRenderer.setView(cam);
+            mazeRenderer.render(layer3);
+        }  
         
-        
-        // Reset camera position to centre
-        cam.position.set((float)mapSize / 2, (float)mapSize / 2, 0);
+        // Sets camera position to centre and sets the viewport dimensions
+        cam.position.set(mapSizeX / 2, mapSizeY / 2, 0);
+        cam.update();
+        viewport.setCamera(cam);
         
         // Render tank
         game.sb.begin();

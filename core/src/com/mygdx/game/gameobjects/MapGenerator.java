@@ -13,7 +13,8 @@ import java.util.Random;
 public class MapGenerator {
     private TiledMap groundMap;
     private TiledMap mazeMap;
-    private int mapSize;
+    private int mapSizeX;
+    private int mapSizeY;
     private TiledMapTileLayer groundLayer;
     private TiledMapTileLayer dotLayer;
     private TiledMapTileLayer verticalLayer;
@@ -22,21 +23,22 @@ public class MapGenerator {
     Queue<Integer> tilesToSearch;
     private boolean[][] tilesAccessible;
     
-    public MapGenerator(int mapSize) {
+    public MapGenerator(int mapSizeX, int mapSizeY) {
         groundMap = new TiledMap();
         mazeMap = new TiledMap();
-        this.mapSize = mapSize;
-        groundLayer = new TiledMapTileLayer(mapSize, mapSize, 128, 128);
-        dotLayer = new TiledMapTileLayer(mapSize + 1, mapSize + 1, 128, 128);
-        verticalLayer = new TiledMapTileLayer(mapSize + 1, mapSize, 128, 128);
-        horizontalLayer = new TiledMapTileLayer(mapSize, mapSize + 1, 128, 128);
+        this.mapSizeX = mapSizeX;
+        this.mapSizeY = mapSizeY;
+        groundLayer = new TiledMapTileLayer(mapSizeX, mapSizeY, 128, 128);
+        dotLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY + 1, 128, 128);
+        verticalLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY, 128, 128);
+        horizontalLayer = new TiledMapTileLayer(mapSizeX, mapSizeY + 1, 128, 128);
         groundMap.getLayers().add(groundLayer);
         mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
         mazeMap.getLayers().add(horizontalLayer);
-        tileCornerStates = new String[mapSize + 1][mapSize + 1];
+        tileCornerStates = new String[mapSizeY + 1][mapSizeX + 1];
         tilesToSearch = new LinkedList<>();
-        tilesAccessible = new boolean[mapSize][mapSize];
+        tilesAccessible = new boolean[mapSizeY][mapSizeX];
     }
     
     public void generateGround() {
@@ -67,8 +69,8 @@ public class MapGenerator {
     
     public void generateMaze() {
         Random random = new Random();
-        for (int y = 0; y < mapSize + 1; y++) {
-            for (int x = 0; x < mapSize + 1; x++) {
+        for (int y = 0; y < mapSizeY + 1; y++) {
+            for (int x = 0; x < mapSizeX + 1; x++) {
                 tileCornerStates[y][x] = "";
             }
         }
@@ -125,9 +127,9 @@ public class MapGenerator {
         }
         
         tilesAccessible[0][0] = true;
-        int x = 0;
-        int y = 0;
-        for (int i = 0; i < mapSize * mapSize; i++) {
+        int x = random.nextInt(mapSizeX);
+        int y = random.nextInt(mapSizeY);
+        for (int i = 0; i < mapSizeX * mapSizeY; i++) {
             // Retrieves and removes the coords of the first tile
             // from the queue
             if (i > 0) {  
@@ -149,14 +151,14 @@ public class MapGenerator {
                     tilesToSearch.add(y - 1);
                 }
             }
-            if (!eastWall && x < mapSize - 1) {
+            if (!eastWall && x < mapSizeX - 1) {
                 if (!tilesAccessible[y][x + 1]) {
                     tilesAccessible[y][x + 1] = true;
                     tilesToSearch.add(x + 1);
                     tilesToSearch.add(y);
                 }
             }
-            if (!southWall && y < mapSize - 1) {
+            if (!southWall && y < mapSizeY - 1) {
                 if (!tilesAccessible[y + 1][x]) {
                     tilesAccessible[y + 1][x] = true;
                     tilesToSearch.add(x);
@@ -179,8 +181,8 @@ public class MapGenerator {
                 LinkedList blockingTiles = new LinkedList();
                 
                 // Stores each tile that blocks the current path
-                for (y = 0; y < mapSize; y++) {
-                    for (x = 0; x < mapSize; x++) {
+                for (y = 0; y < mapSizeY; y++) {
+                    for (x = 0; x < mapSizeX; x++) {
                         tileAccessed = tilesAccessible[y][x];
                         if (!tileAccessed) {
                             continue;
@@ -192,10 +194,10 @@ public class MapGenerator {
                         if (y > 0) {
                             nTileAccessible = tilesAccessible[y - 1][x];
                         }
-                        if (x < mapSize - 1) {
+                        if (x < mapSizeX - 1) {
                             eTileAccessible = tilesAccessible[y][x + 1];
                         }
-                        if (y < mapSize - 1) {
+                        if (y < mapSizeY - 1) {
                             sTileAccessible = tilesAccessible[y + 1][x];
                         }
                         if (x > 0) {
@@ -221,10 +223,11 @@ public class MapGenerator {
                     continue;
                 } 
                 else if (blockingTiles.size() < 4) {
-                    wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
+                    wallsToDestroy = random.nextInt(blockingTiles.size());
                 } else {
                     wallsToDestroy = random.nextInt(blockingTiles.size() / 4);
                 }
+//                wallsToDestroy = random.nextInt(blockingTiles.size());
                 
                 for (int p = 0; p <= wallsToDestroy; p++) {
                     if (blockingTiles.size() == 0) {
@@ -243,10 +246,10 @@ public class MapGenerator {
                     if (yCoord > 0) {
                         nTileAccessible = tilesAccessible[yCoord - 1][xCoord];
                     } 
-                    if (xCoord < mapSize - 1) {
+                    if (xCoord < mapSizeX - 1) {
                         eTileAccessible = tilesAccessible[yCoord][xCoord + 1];
                     }
-                    if (yCoord < mapSize - 1) {
+                    if (yCoord < mapSizeY - 1) {
                         sTileAccessible = tilesAccessible[yCoord + 1][xCoord];
                     }
                     if (xCoord > 0) {
@@ -394,7 +397,7 @@ public class MapGenerator {
                 dotLayer.setCell(xCoord, yCoord, cell);
             }
         }
-        if (xCoord < mapSize - 1) {
+        if (xCoord < mapSizeX - 1) {
             if (!tileCornerStates[yCoord][xCoord + 1].contains("h")) {
                 dotLayer.setCell(xCoord + 1, yCoord, cell);
             }
@@ -413,7 +416,7 @@ public class MapGenerator {
                 dotLayer.setCell(xCoord + 1, yCoord, cell);
             }
         }
-        if (yCoord < mapSize - 1) {
+        if (yCoord < mapSizeY - 1) {
             if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("v")) {
                 dotLayer.setCell(xCoord + 1, yCoord + 1, cell);
             }
@@ -432,7 +435,7 @@ public class MapGenerator {
                 dotLayer.setCell(xCoord, yCoord + 1, cell);
             }
         }
-        if (xCoord < mapSize - 1) {
+        if (xCoord < mapSizeX - 1) {
             if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("h")) {
                 dotLayer.setCell(xCoord + 1, yCoord + 1, cell);
             }
@@ -451,7 +454,7 @@ public class MapGenerator {
                 dotLayer.setCell(xCoord, yCoord, cell);
             }
         }
-        if (yCoord < mapSize - 1) {
+        if (yCoord < mapSizeY - 1) {
             if (!tileCornerStates[yCoord + 1][xCoord].contains("v")) {
                 dotLayer.setCell(xCoord, yCoord + 1, cell);
             }
