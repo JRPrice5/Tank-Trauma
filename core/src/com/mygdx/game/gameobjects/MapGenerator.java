@@ -126,9 +126,9 @@ public class MapGenerator {
             }
         }
         
-        tilesAccessible[0][0] = true;
         int x = random.nextInt(mapSizeX);
         int y = random.nextInt(mapSizeY);
+        tilesAccessible[y][x] = true;
         for (int i = 0; i < mapSizeX * mapSizeY; i++) {
             // Retrieves and removes the coords of the first tile
             // from the queue
@@ -222,8 +222,8 @@ public class MapGenerator {
                 if (blockingTiles.size() == 0) {
                     continue;
                 } 
-                else if (blockingTiles.size() < 4) {
-                    wallsToDestroy = random.nextInt(blockingTiles.size());
+                else if (blockingTiles.size() < 8) {
+                    wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
                 } else {
                     wallsToDestroy = random.nextInt(blockingTiles.size() / 4);
                 }

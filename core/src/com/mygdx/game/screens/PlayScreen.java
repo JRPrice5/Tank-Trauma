@@ -138,12 +138,11 @@ public class PlayScreen implements Screen {
         int turretWidth = turret.getTexture().getWidth();
         int turretHeight = turret.getTexture().getHeight();
        
-        // Render maze and ground
+        // Render maze and ground with adjustments for odd and even map sizes
         int[] layer1 = {0};
         int[] layer2 = {1};
         int[] layer3 = {2};
         
-        // - 0.5f off of y values for temporary solution - delete this
         if (mapSizeX % 2 == 0 && mapSizeY % 2 == 0) {
             cam.position.set(mapSizeX / 2, mapSizeY / 2, 0);
             cam.update();
