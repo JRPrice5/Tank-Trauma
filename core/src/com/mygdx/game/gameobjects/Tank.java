@@ -13,8 +13,8 @@ public class Tank {
         body = new TankBody(0, 0, colour);
         turret = new TankTurret(body.getTexture(), colour);
         velocity = new Vector3(0, 0, 0);
-        forwardVelocity = 130;
-        backwardVelocity = -90;
+        forwardVelocity = 110;
+        backwardVelocity = -80;
     }
     
     public void update(float dt) {

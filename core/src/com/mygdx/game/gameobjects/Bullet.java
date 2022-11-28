@@ -11,8 +11,8 @@ public class Bullet {
     private Vector3 velocity;
     private float lifeSpan;
 
-    public Bullet(float x, float y, float rotation, float normaliserX, float normaliserY) {
-        texture = new Texture("bulletDark1.png");
+    public Bullet(float x, float y, String colour, float rotation, float normaliserX, float normaliserY) {
+        texture = new Texture("bullet"+colour+".png");
         position = new Vector3(x, y, 0);
         this.rotation = rotation;
         speed = 400;

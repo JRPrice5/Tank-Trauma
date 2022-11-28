@@ -40,7 +40,7 @@ public class PlayScreen implements Screen {
 //        viewport.setScreenY(0);
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
-        player = new Tank("green", mapSizeX, mapSizeY);
+        player = new Tank("red", mapSizeX, mapSizeY);
         body = player.getBody();
         turret = player.getTurret();
         Map = new MapGenerator(mapSizeX, mapSizeY);
