@@ -243,7 +243,7 @@ public class PlayScreen implements Screen {
                 (player.getPosition().x - (body.getTexture().getWidth()) / 2) * UNIT_SCALE,
                 (player.getPosition().y - (body.getTexture().getHeight()) / 2) * UNIT_SCALE,
                 (tankWidth / 2) * UNIT_SCALE,
-                ((tankHeight / 2) - 7) * UNIT_SCALE,
+                ((tankHeight / 2) - 5) * UNIT_SCALE,
                 tankWidth * UNIT_SCALE,
                 tankHeight * UNIT_SCALE,
                 1,
