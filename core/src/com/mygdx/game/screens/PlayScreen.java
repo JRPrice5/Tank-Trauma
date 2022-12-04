@@ -6,49 +6,69 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.TankTrauma;
 import com.mygdx.game.gameobjects.Bullet;
 import com.mygdx.game.gameobjects.Tank;
 import com.mygdx.game.gameobjects.TankBody;
-import com.mygdx.game.gameobjects.MapGenerator;
+import com.mygdx.game.utils.MapGenerator;
 import com.mygdx.game.gameobjects.TankTurret;
+import com.mygdx.game.utils.MapCollisionParser;
 import java.util.LinkedList;
 
 public class PlayScreen implements Screen {
-    private static final float UNIT_SCALE = 1 / 128f;
+    public static final float UNIT_SCALE = 1 / 128f;
+    public static final float PPM = 32;
+    
     private final TankTrauma game;
+    
     private final OrthographicCamera cam;
     private final Viewport viewport;
+    
+    private Box2DDebugRenderer b2dr;
+    private World world;
+    
     private final Tank player;
     private final TankBody body;
     private TankTurret turret;
+    private Bullet bullet;
+    private LinkedList<Bullet> playerBullets;
+    
     private final OrthogonalTiledMapRenderer groundRenderer;
     private final OrthogonalTiledMapRenderer mazeRenderer;
+    
     private final MapGenerator Map;
-    private LinkedList<Bullet> playerBullets;
-    private Bullet bullet;
+    
     private int mapSizeX;
     private int mapSizeY;
     
     public PlayScreen(TankTrauma game, int mapSizeX, int mapSizeY) {
         this.game = game;
+        
         cam = new OrthographicCamera();
         viewport = new FitViewport(((mapSizeX + 0.25f) * 16) / 9, mapSizeY + 0.25f, cam);
-//        viewport.setScreenX(0);
-//        viewport.setScreenY(0);
+        
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
+        
         player = new Tank("red", mapSizeX, mapSizeY);
         body = player.getBody();
         turret = player.getTurret();
+        playerBullets = player.getTurret().getBullets();
+        
         Map = new MapGenerator(mapSizeX, mapSizeY);
         Map.generateGround();
         Map.generateMaze();
+        
+        MapCollisionParser.parseMapLayer(world, Map.getVerticalLayer());
+        MapCollisionParser.parseMapLayer(world, Map.getHorizontalLayer());
+        MapCollisionParser.parseMapLayer(world, Map.getDotLayer());
+        
         groundRenderer = new OrthogonalTiledMapRenderer(Map.getGroundMap(), UNIT_SCALE);
         mazeRenderer = new OrthogonalTiledMapRenderer(Map.getMazeMap(), UNIT_SCALE);
-        playerBullets = player.getTurret().getBullets();
     }
 
     public void handleInput() {
@@ -304,6 +324,9 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
+        groundRenderer.dispose();
+        mazeRenderer.dispose();
+        player.dispose();
     }
     
     public Viewport getViewport() {

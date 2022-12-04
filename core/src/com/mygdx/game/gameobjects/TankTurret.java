@@ -49,6 +49,7 @@ public class TankTurret {
             barrelLength = 47;
         } 
         
+        // try to remove this update loop
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
             bullet.update(dt);
@@ -98,6 +99,10 @@ public class TankTurret {
             bullets.add(bullet);
             reload = 1;
         }
+    }
+    
+    public void dispose() {
+        texture.dispose();
     }
 
     public Vector3 getPosition() {

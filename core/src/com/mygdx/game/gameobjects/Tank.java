@@ -104,6 +104,11 @@ public class Tank {
         }
     }
     
+    public void dispose() {
+        turret.dispose();
+        body.dispose();
+    }
+    
     public TankTurret getTurret() {
         return turret;
     }

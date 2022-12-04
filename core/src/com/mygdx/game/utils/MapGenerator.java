@@ -1,11 +1,13 @@
-package com.mygdx.game.gameobjects;
+package com.mygdx.game.utils;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Vector2;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -20,7 +22,7 @@ public class MapGenerator {
     private TiledMapTileLayer verticalLayer;
     private TiledMapTileLayer horizontalLayer;
     private String[][] tileCornerStates;
-    Queue<Integer> tilesToSearch;
+    Queue<Vector2> tilesToSearch;
     private boolean[][] tilesAccessible;
     
     public MapGenerator(int mapSizeX, int mapSizeY) {
@@ -74,55 +76,74 @@ public class MapGenerator {
                 tileCornerStates[y][x] = "";
             }
         }
+        verticalLayer.setName("vertical-layer");
+        horizontalLayer.setName("horizontal-layer");
+        dotLayer.setName("dot-layer");
             
         for (int y = 0; y < verticalLayer.getHeight(); y++) {
             for (int x = 0; x < verticalLayer.getWidth(); x++) {
-                Cell cell = new Cell();
+                MapObject object = verticalLayer.getObjects().get((x + 1) * (y + 1) - 1);
+                object.setVisible(false);
                 
                 if (x == 0 || x == verticalLayer.getWidth() - 1) {
+                    Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
                     tileCornerStates[y][x] = "v";
+                    object.setVisible(true);
+                    verticalLayer.setCell(x, y, cell);
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
+                        Cell cell = new Cell();
                         cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
                         tileCornerStates[y][x] = "v";
+                        object.setVisible(true);
+                        verticalLayer.setCell(x, y, cell);
                     } 
                 }
-                verticalLayer.setCell(x, y, cell);  
             }
         }
         
         for (int y = 0; y < horizontalLayer.getHeight(); y++) {
             for (int x = 0; x < horizontalLayer.getWidth(); x++) {
-                Cell cell = new Cell();
-
+                MapObject object = horizontalLayer.getObjects().get((x + 1) * (y + 1) - 1);
+                object.setVisible(false);
+                
                 if (y == 0 || y == horizontalLayer.getHeight() - 1) {
+                    Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
                     tileCornerStates[y][x] += "h";
+                    object.setVisible(true);
+                    horizontalLayer.setCell(x, y, cell);
                 } else {
                     int tileType = random.nextInt(2);
                     if (tileType == 1) {
+                        Cell cell = new Cell(); 
                         cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
                         tileCornerStates[y][x] += "h";
+                        object.setVisible(true);
+                        horizontalLayer.setCell(x, y, cell);
                     } 
                 }
-                horizontalLayer.setCell(x, y, cell);
             }
         }
         
         for (int y = 0; y < dotLayer.getHeight(); y++) {
             for (int x = 0; x < dotLayer.getWidth(); x++) {
-                Cell cell = new Cell();
                 
                 if (y == 0 || y == dotLayer.getHeight() - 1 || x == 0 || x == dotLayer.getWidth() - 1) {
+                    Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
+                    dotLayer.setCell(x, y, cell);
                 }  else if (!tileCornerStates[y][x].equals("")) {
+                    Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
+                    dotLayer.setCell(x, y, cell);
                 } else if (tileCornerStates[y - 1][x].contains("v") || tileCornerStates[y][x - 1].contains("h")) {
+                    Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
+                    dotLayer.setCell(x, y, cell);
                 }
-                dotLayer.setCell(x, y, cell);
             }
         }
         
@@ -133,8 +154,8 @@ public class MapGenerator {
             // Retrieves and removes the coords of the first tile
             // from the queue
             if (i > 0) {  
-                    x = (int) tilesToSearch.poll();
-                    y = (int) tilesToSearch.poll();
+                    x = (int) tilesToSearch.peek().x;
+                    y = (int) tilesToSearch.poll().y;
             }
 
             // Determines whether adjacent tiles can be accessed, 
@@ -147,29 +168,25 @@ public class MapGenerator {
             if (!northWall && y > 0) {
                 if (!tilesAccessible[y - 1][x]) {
                     tilesAccessible[y - 1][x] = true;
-                    tilesToSearch.add(x);
-                    tilesToSearch.add(y - 1);
+                    tilesToSearch.add(new Vector2(x, y - 1));
                 }
             }
             if (!eastWall && x < mapSizeX - 1) {
                 if (!tilesAccessible[y][x + 1]) {
                     tilesAccessible[y][x + 1] = true;
-                    tilesToSearch.add(x + 1);
-                    tilesToSearch.add(y);
+                    tilesToSearch.add(new Vector2(x + 1, y));
                 }
             }
             if (!southWall && y < mapSizeY - 1) {
                 if (!tilesAccessible[y + 1][x]) {
                     tilesAccessible[y + 1][x] = true;
-                    tilesToSearch.add(x);
-                    tilesToSearch.add(y + 1);
+                    tilesToSearch.add(new Vector2(x, y + 1));
                 }
             }
             if (!westWall && x > 0) {
                 if (!tilesAccessible[y][x - 1]) {
                     tilesAccessible[y][x - 1] = true;
-                    tilesToSearch.add(x - 1);
-                    tilesToSearch.add(y);
+                    tilesToSearch.add(new Vector2(x - 1, y));
                 }
             }
 
@@ -390,8 +407,7 @@ public class MapGenerator {
         horizontalLayer.setCell(xCoord, yCoord, cell);
         tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("h", "");
         tilesAccessible[yCoord - 1][xCoord] = true;
-        tilesToSearch.add(xCoord);
-        tilesToSearch.add(yCoord - 1);
+        tilesToSearch.add(new Vector2(xCoord, yCoord - 1));
         if (xCoord > 0) {
             if (!tileCornerStates[yCoord][xCoord - 1].contains("h")) {
                 dotLayer.setCell(xCoord, yCoord, cell);
@@ -409,8 +425,7 @@ public class MapGenerator {
         verticalLayer.setCell(xCoord + 1, yCoord, cell);
         tileCornerStates[yCoord][xCoord + 1] = tileCornerStates[yCoord][xCoord + 1].replace("v", "");
         tilesAccessible[yCoord][xCoord + 1] = true;
-        tilesToSearch.add(xCoord + 1);
-        tilesToSearch.add(yCoord);
+        tilesToSearch.add(new Vector2(xCoord + 1, yCoord));
         if (yCoord > 0) {
             if (!tileCornerStates[yCoord - 1][xCoord + 1].contains("v")) {
                 dotLayer.setCell(xCoord + 1, yCoord, cell);
@@ -428,8 +443,7 @@ public class MapGenerator {
         horizontalLayer.setCell(xCoord, yCoord + 1, cell);
         tileCornerStates[yCoord + 1][xCoord] = tileCornerStates[yCoord + 1][xCoord].replace("h", "");
         tilesAccessible[yCoord + 1][xCoord] = true;
-        tilesToSearch.add(xCoord);
-        tilesToSearch.add(yCoord + 1);
+        tilesToSearch.add(new Vector2(xCoord, yCoord + 1));
         if (xCoord > 0) {
             if (!tileCornerStates[yCoord + 1][xCoord - 1].contains("h")) {
                 dotLayer.setCell(xCoord, yCoord + 1, cell);
@@ -447,8 +461,7 @@ public class MapGenerator {
         verticalLayer.setCell(xCoord, yCoord, cell);
         tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("v", "");
         tilesAccessible[yCoord][xCoord - 1] = true;
-        tilesToSearch.add(xCoord - 1);
-        tilesToSearch.add(yCoord);
+        tilesToSearch.add(new Vector2(xCoord - 1, yCoord));
         if (yCoord > 0) {
             if (!tileCornerStates[yCoord - 1][xCoord].contains("v")) {
                 dotLayer.setCell(xCoord, yCoord, cell);

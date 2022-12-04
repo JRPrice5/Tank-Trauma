@@ -18,6 +18,10 @@ public class TankBody {
         this.rotation = 0;
         this.rotationSpeed = 1.3f;
     }
+    
+    public void dispose() {
+        texture.dispose();
+    }
 
     public Vector3 getPosition() {
         return position;

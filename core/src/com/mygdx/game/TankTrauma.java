@@ -20,4 +20,8 @@ public class TankTrauma extends Game {
 	public void render () {
             super.render();
 	}
+        
+        public void dispose() {
+            sb.dispose();
+        }
 }
