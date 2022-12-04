@@ -24,7 +24,7 @@ public class TankTurret {
 
     public TankTurret(Texture body, String colour) {
         this.colour = colour;
-        turret = "tank"+colour+"_barrel1.png";
+        turret = "tank"+colour+"_barrel.png";
         texture = new Texture(turret);
         barrelLength = 44;
         bulletTexture = new Texture("bullet"+colour+".png");
@@ -62,7 +62,6 @@ public class TankTurret {
             reduceReload(dt);
         }
 
-        // resolved rotation is causing an issue
         float distanceX = (float) ((turretDirectionX * barrelLength * java.lang.Math.sin(resolvedRotation))
                 + position.x + (texture.getWidth() / 2) - barrel.x);
         float distanceY = (float) ((turretDirectionY * barrelLength * java.lang.Math.cos(resolvedRotation))

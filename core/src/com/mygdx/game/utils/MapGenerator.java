@@ -14,32 +14,42 @@ import java.util.Random;
 public class MapGenerator {
     private TiledMap groundMap;
     private TiledMap mazeMap;
+    
     private int mapSizeX;
     private int mapSizeY;
+    
     private TiledMapTileLayer groundLayer;
     private TiledMapTileLayer dotLayer;
     private TiledMapTileLayer verticalLayer;
     private TiledMapTileLayer horizontalLayer;
+    
     private String[][] tileCornerStates;
-    Queue<Vector2> tilesToSearch;
     private boolean[][] tilesAccessible;
+    Queue<Vector2> tilesToSearch;
     
     public MapGenerator(int mapSizeX, int mapSizeY) {
         groundMap = new TiledMap();
         mazeMap = new TiledMap();
+        
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
+        
         groundLayer = new TiledMapTileLayer(mapSizeX, mapSizeY, 128, 128);
         verticalLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY, 128, 128);
+        verticalLayer.setName("vertical-layer");
         horizontalLayer = new TiledMapTileLayer(mapSizeX, mapSizeY + 1, 128, 128);
+        horizontalLayer.setName("horizontal-layer");
         dotLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY + 1, 128, 128);
+        dotLayer.setName("dot-layer");
+        
         groundMap.getLayers().add(groundLayer);
         mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
         mazeMap.getLayers().add(horizontalLayer);
+        
         tileCornerStates = new String[mapSizeY + 1][mapSizeX + 1];
-        tilesToSearch = new LinkedList<>();
         tilesAccessible = new boolean[mapSizeY][mapSizeX];
+        tilesToSearch = new LinkedList<>();
     }
     
     public void generateGround() {
@@ -75,9 +85,7 @@ public class MapGenerator {
                 tileCornerStates[y][x] = "";
             }
         }
-        verticalLayer.setName("vertical-layer");
-        horizontalLayer.setName("horizontal-layer");
-        dotLayer.setName("dot-layer");
+        
             
         for (int y = 0; y < verticalLayer.getHeight(); y++) {
             for (int x = 0; x < verticalLayer.getWidth(); x++) {
@@ -120,19 +128,18 @@ public class MapGenerator {
         
         for (int y = 0; y < dotLayer.getHeight(); y++) {
             for (int x = 0; x < dotLayer.getWidth(); x++) {
-                
-                if (y == 0 || y == dotLayer.getHeight() - 1 || x == 0 || x == dotLayer.getWidth() - 1) {
+                if (y == 0 
+                        || y == dotLayer.getHeight() - 1 
+                        || x == 0 
+                        || x == dotLayer.getWidth() - 1 
+                        ||!tileCornerStates[y][x].equals("") 
+                        || tileCornerStates[y - 1][x].contains("v") 
+                        || tileCornerStates[y][x - 1].contains("h")) 
+                {
                     Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
                     dotLayer.setCell(x, y, cell);
-                }  else if (!tileCornerStates[y][x].equals("")) {
-                    Cell cell = new Cell();
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
-                    dotLayer.setCell(x, y, cell);
-                } else if (tileCornerStates[y - 1][x].contains("v") || tileCornerStates[y][x - 1].contains("h")) {
-                    Cell cell = new Cell();
-                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("dot3.png"))));
-                    dotLayer.setCell(x, y, cell);
+                    tileCornerStates[y][x] += "d";
                 }
             }
         }
@@ -217,16 +224,8 @@ public class MapGenerator {
                     }
                 }
                 
-//                int wallsToDestroy = 0;
-//                else if (blockingTiles.size() == 2) {
-//                    int wallsToDestroy = random.nextInt(2);
-//                } else if (blockingTiles.size() == 3) {
-//                    
-//                }
-                Cell cell = new Cell();
-                
-                int wallsToDestroy = 0;
-                if (blockingTiles.size() == 0) {
+                int wallsToDestroy;
+                if (blockingTiles.isEmpty()) {
                     continue;
                 } 
                 else if (blockingTiles.size() < 8) {
@@ -237,7 +236,7 @@ public class MapGenerator {
 //                wallsToDestroy = random.nextInt(blockingTiles.size());
                 
                 for (int p = 0; p <= wallsToDestroy; p++) {
-                    if (blockingTiles.size() == 0) {
+                    if (blockingTiles.isEmpty()) {
                         continue;
                     } 
                     boolean nTileAccessible = true;
@@ -464,6 +463,14 @@ public class MapGenerator {
         }
     }
     
+    public int getMapSizeX() {
+        return mapSizeX;
+    }
+    
+    public int getMapSizeY() {
+        return mapSizeY;
+    }
+    
     public TiledMap getGroundMap() {
         return groundMap;
     } 
@@ -472,16 +479,16 @@ public class MapGenerator {
         return mazeMap;
     } 
     
+    public TiledMapTileLayer getDotLayer() {
+        return dotLayer;
+    }
+    
     public TiledMapTileLayer getVerticalLayer() {
         return verticalLayer;
     }
 
     public TiledMapTileLayer getHorizontalLayer() {
         return horizontalLayer;
-    }
-    
-    public TiledMapTileLayer getDotLayer() {
-        return dotLayer;
     }
     
     public String[][] getTileCornerStates() {

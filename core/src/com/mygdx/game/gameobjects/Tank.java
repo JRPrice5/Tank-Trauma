@@ -47,9 +47,9 @@ public class Tank {
 
         // Correct rotations that are greater than 360 or smaller than 0
         if (bodyRotation > 359) {
-            body.appendRotation(-360);
+            body.appendRotation(bodyRotation - 360);
         } else if (bodyRotation < 0) {
-            body.appendRotation(360);
+            body.appendRotation(bodyRotation + 360);
         }
         if (turretRotation > 359) {
             turret.appendRotation(-360);
