@@ -40,7 +40,7 @@ public class PlayScreen implements Screen {
     private final OrthogonalTiledMapRenderer groundRenderer;
     private final OrthogonalTiledMapRenderer mazeRenderer;
     
-    private final MapGenerator Map;
+    private final MapGenerator map;
     
     private int mapSizeX;
     private int mapSizeY;
@@ -59,16 +59,17 @@ public class PlayScreen implements Screen {
         turret = player.getTurret();
         playerBullets = player.getTurret().getBullets();
         
-        Map = new MapGenerator(mapSizeX, mapSizeY);
-        Map.generateGround();
-        Map.generateMaze();
+        map = new MapGenerator(mapSizeX, mapSizeY);
+        map.generateGround();
+        map.generateMaze();
         
-        MapCollisionParser.parseMapLayer(world, Map.getVerticalLayer());
-        MapCollisionParser.parseMapLayer(world, Map.getHorizontalLayer());
-        MapCollisionParser.parseMapLayer(world, Map.getDotLayer());
+//        MapCollisionParser.parseMapLayer(world, Map.getVerticalLayer(), Map.getTileCornerStates());
+//        MapCollisionParser.parseMapLayer(world, Map.getHorizontalLayer(), Map.getTileCornerStates());
+//        MapCollisionParser.parseMapLayer(world, Map.getDotLayer(), Map.getTileCornerStates());
+        MapCollisionParser.parseMapLayers(world, map);
         
-        groundRenderer = new OrthogonalTiledMapRenderer(Map.getGroundMap(), UNIT_SCALE);
-        mazeRenderer = new OrthogonalTiledMapRenderer(Map.getMazeMap(), UNIT_SCALE);
+        groundRenderer = new OrthogonalTiledMapRenderer(map.getGroundMap(), UNIT_SCALE);
+        mazeRenderer = new OrthogonalTiledMapRenderer(map.getMazeMap(), UNIT_SCALE);
     }
 
     public void handleInput() {

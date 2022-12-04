@@ -2,7 +2,6 @@ package com.mygdx.game.utils;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -31,9 +30,9 @@ public class MapGenerator {
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         groundLayer = new TiledMapTileLayer(mapSizeX, mapSizeY, 128, 128);
-        dotLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY + 1, 128, 128);
         verticalLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY, 128, 128);
         horizontalLayer = new TiledMapTileLayer(mapSizeX, mapSizeY + 1, 128, 128);
+        dotLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY + 1, 128, 128);
         groundMap.getLayers().add(groundLayer);
         mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
@@ -82,14 +81,11 @@ public class MapGenerator {
             
         for (int y = 0; y < verticalLayer.getHeight(); y++) {
             for (int x = 0; x < verticalLayer.getWidth(); x++) {
-                MapObject object = verticalLayer.getObjects().get((x + 1) * (y + 1) - 1);
-                object.setVisible(false);
                 
                 if (x == 0 || x == verticalLayer.getWidth() - 1) {
                     Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
                     tileCornerStates[y][x] = "v";
-                    object.setVisible(true);
                     verticalLayer.setCell(x, y, cell);
                 } else {
                     int tileType = random.nextInt(2);
@@ -97,7 +93,6 @@ public class MapGenerator {
                         Cell cell = new Cell();
                         cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
                         tileCornerStates[y][x] = "v";
-                        object.setVisible(true);
                         verticalLayer.setCell(x, y, cell);
                     } 
                 }
@@ -106,14 +101,10 @@ public class MapGenerator {
         
         for (int y = 0; y < horizontalLayer.getHeight(); y++) {
             for (int x = 0; x < horizontalLayer.getWidth(); x++) {
-                MapObject object = horizontalLayer.getObjects().get((x + 1) * (y + 1) - 1);
-                object.setVisible(false);
-                
                 if (y == 0 || y == horizontalLayer.getHeight() - 1) {
                     Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
                     tileCornerStates[y][x] += "h";
-                    object.setVisible(true);
                     horizontalLayer.setCell(x, y, cell);
                 } else {
                     int tileType = random.nextInt(2);
@@ -121,7 +112,6 @@ public class MapGenerator {
                         Cell cell = new Cell(); 
                         cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("hWall3.png"))));
                         tileCornerStates[y][x] += "h";
-                        object.setVisible(true);
                         horizontalLayer.setCell(x, y, cell);
                     } 
                 }
@@ -481,10 +471,6 @@ public class MapGenerator {
     public TiledMap getMazeMap() {
         return mazeMap;
     } 
-
-    public TiledMapTileLayer getDotLayer() {
-        return dotLayer;
-    }
     
     public TiledMapTileLayer getVerticalLayer() {
         return verticalLayer;
@@ -492,5 +478,13 @@ public class MapGenerator {
 
     public TiledMapTileLayer getHorizontalLayer() {
         return horizontalLayer;
+    }
+    
+    public TiledMapTileLayer getDotLayer() {
+        return dotLayer;
+    }
+    
+    public String[][] getTileCornerStates() {
+        return tileCornerStates;
     }
 }

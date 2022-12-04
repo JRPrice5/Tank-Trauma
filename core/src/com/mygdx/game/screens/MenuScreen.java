@@ -26,9 +26,9 @@ public class MenuScreen implements Screen {
         viewport = new FitViewport(TankTrauma.WIDTH, TankTrauma.HEIGHT, cam);
         background = new Texture("bg.png");
         maxWidth = 15;
-        minWidth = 1;
+        minWidth = 15;
         maxHeight = 15;
-        minHeight = 1;
+        minHeight = 15;
     }
     
     public void handleInput() {
