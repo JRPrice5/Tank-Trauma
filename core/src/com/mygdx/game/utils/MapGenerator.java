@@ -228,10 +228,10 @@ public class MapGenerator {
                 if (blockingTiles.isEmpty()) {
                     continue;
                 } 
-                else if (blockingTiles.size() < 8) {
-                    wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
+                else if (blockingTiles.size() < 4) {
+                    wallsToDestroy = random.nextInt(blockingTiles.size());
                 } else {
-                    wallsToDestroy = random.nextInt(blockingTiles.size() / 4);
+                    wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
                 }
 //                wallsToDestroy = random.nextInt(blockingTiles.size());
                 

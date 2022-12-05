@@ -34,9 +34,6 @@ public class PlayScreen implements Screen {
     private int mapSizeX;
     private int mapSizeY;
     
-    private Box2DDebugRenderer b2dr;
-    private World world;
-    private Body player;
     
     private final Tank tank;
     private final TankBody body;
@@ -44,11 +41,15 @@ public class PlayScreen implements Screen {
     private Bullet bullet;
     private LinkedList<Bullet> playerBullets;
     
-    private final OrthogonalTiledMapRenderer groundRenderer;
-    private final OrthogonalTiledMapRenderer mazeRenderer;
+    private Box2DDebugRenderer b2dr;
+    private World world;
+
+    private Body player;
     
     private final MapGenerator map;
     
+    private final OrthogonalTiledMapRenderer groundRenderer;
+    private final OrthogonalTiledMapRenderer mazeRenderer;
     
     public PlayScreen(TankTrauma game, int mapSizeX, int mapSizeY) {
         this.game = game;
@@ -59,11 +60,11 @@ public class PlayScreen implements Screen {
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         
-        world = new World(new Vector2(0, 0), false);
         b2dr = new Box2DDebugRenderer();
+        world = new World(new Vector2(0, 0), false);
         player = createBox(0, 0, 76, 72, false);
         
-        tank = new Tank("green", mapSizeX, mapSizeY);
+        tank = new Tank("red", mapSizeX, mapSizeY, player);
         body = tank.getBody();
         turret = tank.getTurret();
         playerBullets = tank.getTurret().getBullets();
@@ -84,26 +85,28 @@ public class PlayScreen implements Screen {
         
         // Control turret and body rotation speeds, depending on user input
         if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-            body.appendRotation(-bodyRotationSpeed);
+//            body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-            body.appendRotation(-bodyRotationSpeed);
+//            body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            body.appendRotation(-bodyRotationSpeed);
+//            body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-bodyRotationSpeed);
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
             turret.appendRotation(-turretRotationSpeed);
         } 
         
+        // Use player for tankBody, define player as body inside tank body and apply all physics to the body instead of tankbody
+        
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-            body.appendRotation(bodyRotationSpeed);
+//            body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-            body.appendRotation(bodyRotationSpeed);
+//            body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            body.appendRotation(bodyRotationSpeed);
+//            body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(bodyRotationSpeed);
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.A))) {
             turret.appendRotation(turretRotationSpeed);
@@ -113,23 +116,21 @@ public class PlayScreen implements Screen {
         
         // Apply normalised x and y velocities if W or S is pressed
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-//            player.setLinearVelocity(
-//                    (float) (body.getDirectionX() * tank.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)), 
-//                    (float) (body.getDirectionY() * tank.getForwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
-            tank.appendVelocity(
-                    (float) (body.getDirectionX() * tank.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
+            player.setLinearVelocity(
+                    (float) (body.getDirectionX() * tank.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)), 
                     (float) (body.getDirectionY() * tank.getForwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
+//            tank.appendVelocity(
+//                    (float) (body.getDirectionX() * tank.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
+//                    (float) (body.getDirectionY() * tank.getForwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-//            player.setLinearVelocity(
-//                    (float) (body.getDirectionX() * tank.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)), 
-//                    (float) (body.getDirectionY() * tank.getBackwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
-            tank.appendVelocity(
-                    (float) (body.getDirectionX() * tank.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
+            player.setLinearVelocity(
+                    (float) (body.getDirectionX() * tank.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)), 
                     (float) (body.getDirectionY() * tank.getBackwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
+//            tank.appendVelocity(
+//                    (float) (body.getDirectionX() * tank.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
+//                    (float) (body.getDirectionY() * tank.getBackwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
         }
-        
-        player.setTransform(body.getPosition().x, body.getPosition().y, body.getRotation());
         
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
             turret.shoot(
@@ -354,5 +355,7 @@ public class PlayScreen implements Screen {
         return viewport;
     }
 
-            
+    public World getWorld() {
+        return world;
+    }
 }

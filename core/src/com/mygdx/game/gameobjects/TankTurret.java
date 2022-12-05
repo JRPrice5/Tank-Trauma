@@ -28,8 +28,9 @@ public class TankTurret {
         texture = new Texture(turret);
         barrelLength = 44;
         bulletTexture = new Texture("bullet"+colour+".png");
-        position = new Vector3((body.getWidth() - texture.getWidth()) / 2, - 1, 0);
-        barrel = new Vector3((position.x + (texture.getWidth() / 2)), position.y + barrelLength, 0);
+        position = new Vector3((body.getWidth() - texture.getWidth()) / 2, -5, 0);
+        // Fix barrel positioning
+        barrel = new Vector3(position.x - texture.getWidth() + 2, position.y, 0);
         rotation = 0;
         rotationSpeed = 1.3f;
         bullets = new LinkedList();
@@ -39,13 +40,16 @@ public class TankTurret {
     public void update(float dt) {
         if (turret.contains("_barrel")) {
             barrelLength = 44;
-        } else if (turret.contains("specialBarrel1") || turret.contains("specialBarrel2")) {
+        } else if (turret.contains("specialBarrel1") 
+                || turret.contains("specialBarrel2")) {
             barrelLength = 36;
         } else if (turret.contains("specialBarrel3")) {
             barrelLength = 46;
         } else if (turret.contains("specialBarrel4")) {
             barrelLength = 57;
-        } else if (turret.contains("specialBarrel5") || turret.contains("specialBarrel6") || turret.contains("specialBarrel7")) {
+        } else if (turret.contains("specialBarrel5") 
+                || turret.contains("specialBarrel6") 
+                || turret.contains("specialBarrel7")) {
             barrelLength = 47;
         } 
         
@@ -63,9 +67,9 @@ public class TankTurret {
         }
 
         float distanceX = (float) ((turretDirectionX * barrelLength * java.lang.Math.sin(resolvedRotation))
-                + position.x + (texture.getWidth() / 2) - barrel.x);
+                + position.x - texture.getWidth() + 2 - barrel.x);
         float distanceY = (float) ((turretDirectionY * barrelLength * java.lang.Math.cos(resolvedRotation))
-                + position.y + barrelLength - barrel.y);
+                + position.y - barrel.y);
         barrel.add(distanceX, distanceY, 0);
     }
     
@@ -91,7 +95,8 @@ public class TankTurret {
                             - (turretDirectionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 2)),
                     (float) (barrel.y
                             + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            - (turretDirectionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 2)), colour,
+                            - (turretDirectionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 2)), 
+                    colour,
                     rotation,
                     normaliserX,
                     normaliserY);

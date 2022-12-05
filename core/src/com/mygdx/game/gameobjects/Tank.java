@@ -1,6 +1,7 @@
 package com.mygdx.game.gameobjects;
 
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 
 public class Tank {
     private TankBody body;
@@ -9,8 +10,8 @@ public class Tank {
     private int forwardVelocity;
     private int backwardVelocity;
     
-    public Tank(String colour, int mapSizeX, int mapSizeY) {
-        body = new TankBody(0, 0, colour);
+    public Tank(String colour, int mapSizeX, int mapSizeY, Body hitBox) {
+        body = new TankBody(0, 0, colour, hitBox);
         turret = new TankTurret(body.getTexture(), colour);
         velocity = new Vector3(0, 0, 0);
         forwardVelocity = 110;

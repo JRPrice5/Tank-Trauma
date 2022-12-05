@@ -2,6 +2,12 @@ package com.mygdx.game.gameobjects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+import com.mygdx.game.screens.PlayScreen;
+import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
 
 public class TankBody {
     private Texture texture;
@@ -11,13 +17,20 @@ public class TankBody {
     private float rotationSpeed;
     private byte directionX;
     private byte directionY;
+    private Body body;
 
-    public TankBody(int x, int y, String colour) {
+    public Body getBody() {
+        return body;
+    }
+
+    public TankBody(int x, int y, String colour, Body body) {
         this.texture = new Texture("tankBody_"+colour+".png");
         this.position = new Vector3(x, y, 0);
         this.rotation = 0;
         this.rotationSpeed = 1.3f;
     }
+    
+    
     
     public void dispose() {
         texture.dispose();
