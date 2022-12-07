@@ -73,7 +73,7 @@ public class PlayScreen implements Screen {
         map.generateGround();
         map.generateMaze();
         
-        MazeCollsionParser.parseMapLayers(world, map);
+        MazeCollsionParser.parseMapLayers(world, map.getMazeMap());
         
         groundRenderer = new OrthogonalTiledMapRenderer(map.getGroundMap(), UNIT_SCALE);
         mazeRenderer = new OrthogonalTiledMapRenderer(map.getMazeMap(), UNIT_SCALE);
