@@ -25,10 +25,10 @@ public class MenuScreen implements Screen {
         cam = new OrthographicCamera();
         viewport = new FitViewport(TankTrauma.WIDTH, TankTrauma.HEIGHT, cam);
         background = new Texture("bg.png");
-        maxWidth = 15;
-        minWidth = 15;
-        maxHeight = 15;
-        minHeight = 15;
+        maxWidth = 10;
+        minWidth = 10;
+        maxHeight = 10;
+        minHeight = 10;
     }
     
     public void handleInput() {

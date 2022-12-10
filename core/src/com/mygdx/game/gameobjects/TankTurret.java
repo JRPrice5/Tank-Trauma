@@ -1,7 +1,8 @@
 package com.mygdx.game.gameobjects;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import java.util.LinkedList;
 
 public class TankTurret {
@@ -10,8 +11,8 @@ public class TankTurret {
     private Texture texture;
     private float barrelLength;
     private Texture bulletTexture;
-    private Vector3 position;
-    private Vector3 barrel;
+    private Vector2 turretPosition;
+    private Vector2 barrelPosition;
     private float rotation;
     private float resolvedRotation;
     private float rotationSpeed;
@@ -22,15 +23,14 @@ public class TankTurret {
     private byte barrelAdjustmentX;
     private byte barrelAdjustmentY;
 
-    public TankTurret(Texture body, String colour) {
+    public TankTurret(Texture body, String colour, Body physicsBody) {
         this.colour = colour;
         turret = "tank"+colour+"_barrel.png";
         texture = new Texture(turret);
         barrelLength = 44;
         bulletTexture = new Texture("bullet"+colour+".png");
-        position = new Vector3((body.getWidth() - texture.getWidth()) / 2, -5, 0);
-        // Fix barrel positioning
-        barrel = new Vector3(position.x - texture.getWidth() + 2, position.y, 0);
+        turretPosition = new Vector2(physicsBody.getWorldCenter().x - texture.getWidth() / 2, physicsBody.getWorldCenter().y - 13);
+        barrelPosition = new Vector2(turretPosition.x + texture.getWidth() / 2, turretPosition.y + barrelLength - 13);
         rotation = 0;
         rotationSpeed = 1.3f;
         bullets = new LinkedList();
@@ -67,10 +67,10 @@ public class TankTurret {
         }
 
         float distanceX = (float) ((turretDirectionX * barrelLength * java.lang.Math.sin(resolvedRotation))
-                + position.x - texture.getWidth() + 2 - barrel.x);
+                + turretPosition.x - texture.getWidth() + 2 - barrelPosition.x);
         float distanceY = (float) ((turretDirectionY * barrelLength * java.lang.Math.cos(resolvedRotation))
-                + position.y - barrel.y);
-        barrel.add(distanceX, distanceY, 0);
+                + turretPosition.y - barrelPosition.y);
+        barrelPosition.add(distanceX, distanceY);
     }
     
     public void shoot(float normaliserX, float normaliserY) {
@@ -90,10 +90,10 @@ public class TankTurret {
         
         if (reload <= 0) {
             Bullet bullet = new Bullet(
-                    (float) (barrel.x
+                    (float) (barrelPosition.x
                             + (barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * bulletTexture.getWidth() / 2)
                             - (turretDirectionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 2)),
-                    (float) (barrel.y
+                    (float) (barrelPosition.y
                             + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
                             - (turretDirectionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 2)), 
                     colour,
@@ -109,24 +109,20 @@ public class TankTurret {
         texture.dispose();
     }
 
-    public Vector3 getPosition() {
-        return position;
+    public Vector2 getTurretPosition() {
+        return turretPosition;
     }
     
     public void appendPosition(float x, float y) {
-        position.add(x, y, 0);
+        turretPosition.add(x, y);
     }
     
-    public void setPositionX(float value) {
-        position.x = value;
+    public void setTurretPosition(Vector2 newPosition) {
+        turretPosition = newPosition;
     }
     
-    public void setPositionY(float value) {
-        position.y = value;
-    }
-    
-    public Vector3 getBarrel() {
-        return barrel;
+    public Vector2 getBarrelPosition() {
+        return barrelPosition;
     }
     
     public float getRotation() {
@@ -203,5 +199,9 @@ public class TankTurret {
     
     public float getBarrelLength() {
         return barrelLength;
+    }
+    
+    public Texture getBulletTexture() {
+        return bulletTexture;
     }
 }

@@ -3,11 +3,6 @@ package com.mygdx.game.gameobjects;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
-import com.mygdx.game.screens.PlayScreen;
-import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
 
 public class TankBody {
     private Texture texture;
@@ -29,8 +24,6 @@ public class TankBody {
         this.rotation = 0;
         this.rotationSpeed = 1.3f;
     }
-    
-    
     
     public void dispose() {
         texture.dispose();

@@ -1,26 +1,25 @@
 package com.mygdx.game.gameobjects;
 
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.mygdx.game.screens.PlayScreen;
 
 public class Tank {
+    private Body physicsBody;
     private TankBody body;
     private TankTurret turret;
-    private Vector3 velocity;
-    private int forwardVelocity;
-    private int backwardVelocity;
+    private int forwardSpeed;
+    private int backwardSpeed;
     
-    public Tank(String colour, int mapSizeX, int mapSizeY, Body hitBox) {
-        body = new TankBody(0, 0, colour, hitBox);
-        turret = new TankTurret(body.getTexture(), colour);
-        velocity = new Vector3(0, 0, 0);
-        forwardVelocity = 110;
-        backwardVelocity = -80;
+    public Tank(String colour, int mapSizeX, int mapSizeY, Body physicsBody) {
+        this.physicsBody = physicsBody;
+        body = new TankBody(0, 0, colour, physicsBody);
+        turret = new TankTurret(body.getTexture(), colour, physicsBody);
+        forwardSpeed = 150;
+        backwardSpeed = 110;
     }
     
     public void update(float dt) {
         // Calculate tank position vectors
-        velocity.scl(dt);
 //        if ((body.getPosition().y <= 0) && (body.getPosition().x > 0) && velocity.y <= 0) {
 //            body.appendPosition(velocity.x, 0);
 //            turret.appendPosition(velocity.x, 0);               
@@ -37,10 +36,9 @@ public class Tank {
 //            body.appendPosition(velocity.x, velocity.y);
 //            turret.appendPosition(velocity.x, velocity.y);
 //        } 
-        body.appendPosition(velocity.x, velocity.y);
-        turret.appendPosition(velocity.x, velocity.y);
-        velocity.scl(1/dt);
-        velocity.scl(dt);
+//        body.appendPosition(physicsBody.getLinearVelocity().x, physicsBody.getLinearVelocity().y);
+//        turret.appendPosition(physicsBody.getLinearVelocity().x, physicsBody.getLinearVelocity().y);
+        turret.setTurretPosition(physicsBody.getPosition().scl(1 / PlayScreen.UNIT_SCALE));
         
         
         float bodyRotation = body.getRotation();
@@ -48,9 +46,9 @@ public class Tank {
 
         // Correct rotations that are greater than 360 or smaller than 0
         if (bodyRotation > 359) {
-            body.appendRotation(bodyRotation - 360);
+            body.appendRotation(- 360);
         } else if (bodyRotation < 0) {
-            body.appendRotation(bodyRotation + 360);
+            body.appendRotation(360);
         }
         if (turretRotation > 359) {
             turret.appendRotation(-360);
@@ -118,19 +116,11 @@ public class Tank {
         return body;
     }
 
-    public Vector3 getVelocity() {
-        return velocity;
-    }
-    
-    public void appendVelocity(float x, float y) {
-        velocity.add(x, y, 0);
-    }
-    
-    public int getForwardVelocity() {
-        return forwardVelocity;
+    public int getForwardSpeed() {
+        return forwardSpeed;
     }
 
-    public int getBackwardVelocity() {
-        return backwardVelocity;
+    public int getBackwardSpeed() {
+        return backwardSpeed;
     }
 }

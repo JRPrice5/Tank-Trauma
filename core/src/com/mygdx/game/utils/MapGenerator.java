@@ -36,10 +36,11 @@ public class MapGenerator {
         
         groundLayer = new TiledMapTileLayer(mapSizeX, mapSizeY, 128, 128);
         verticalLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY, 128, 128);
-        verticalLayer.setName("vertical-layer");
         horizontalLayer = new TiledMapTileLayer(mapSizeX, mapSizeY + 1, 128, 128);
-        horizontalLayer.setName("horizontal-layer");
         dotLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY + 1, 128, 128);
+        
+        verticalLayer.setName("vertical-layer");
+        horizontalLayer.setName("horizontal-layer");
         dotLayer.setName("dot-layer");
         
         groundMap.getLayers().add(groundLayer);
@@ -85,7 +86,6 @@ public class MapGenerator {
                 tileCornerStates[y][x] = "";
             }
         }
-        
             
         for (int y = 0; y < verticalLayer.getHeight(); y++) {
             for (int x = 0; x < verticalLayer.getWidth(); x++) {
@@ -228,12 +228,13 @@ public class MapGenerator {
                 if (blockingTiles.isEmpty()) {
                     continue;
                 } 
-                else if (blockingTiles.size() < 4) {
-                    wallsToDestroy = random.nextInt(blockingTiles.size());
-                } else {
-                    wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
-                }
-//                wallsToDestroy = random.nextInt(blockingTiles.size());
+//                else if (blockingTiles.size() < 4) {
+//                    wallsToDestroy = random.nextInt(blockingTiles.size());
+//                } 
+//                else {
+//                    wallsToDestroy = random.nextInt(blockingTiles.size());
+//                }
+                wallsToDestroy = random.nextInt(blockingTiles.size());
                 
                 for (int p = 0; p <= wallsToDestroy; p++) {
                     if (blockingTiles.isEmpty()) {

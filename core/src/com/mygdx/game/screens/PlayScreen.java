@@ -20,7 +20,7 @@ import com.mygdx.game.gameobjects.Tank;
 import com.mygdx.game.gameobjects.TankBody;
 import com.mygdx.game.utils.MapGenerator;
 import com.mygdx.game.gameobjects.TankTurret;
-import com.mygdx.game.utils.MazeCollsionParser;
+import com.mygdx.game.utils.MazeCollisionParser;
 import java.util.LinkedList;
 
 public class PlayScreen implements Screen {
@@ -33,7 +33,6 @@ public class PlayScreen implements Screen {
     
     private int mapSizeX;
     private int mapSizeY;
-    
     
     private final Tank tank;
     private final TankBody body;
@@ -62,7 +61,8 @@ public class PlayScreen implements Screen {
         
         b2dr = new Box2DDebugRenderer();
         world = new World(new Vector2(0, 0), false);
-        player = createBox(0, 0, 76, 72, false);
+        player = createBox(5, 5, 76, 72, false);
+        player.setSleepingAllowed(false);
         
         tank = new Tank("red", mapSizeX, mapSizeY, player);
         body = tank.getBody();
@@ -73,7 +73,7 @@ public class PlayScreen implements Screen {
         map.generateGround();
         map.generateMaze();
         
-        MazeCollsionParser.parseMapLayers(world, map.getMazeMap());
+        MazeCollisionParser.parseMapLayers(world, map);
         
         groundRenderer = new OrthogonalTiledMapRenderer(map.getGroundMap(), UNIT_SCALE);
         mazeRenderer = new OrthogonalTiledMapRenderer(map.getMazeMap(), UNIT_SCALE);
@@ -83,15 +83,20 @@ public class PlayScreen implements Screen {
         float bodyRotationSpeed = body.getRotationSpeed();
         float turretRotationSpeed = turret.getRotationSpeed();
         
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
+        
         // Control turret and body rotation speeds, depending on user input
         if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-//            body.appendRotation(-bodyRotationSpeed);
+//            player.setTransform(player.getLinearVelocity(), -bodyRotationSpeed);                  
+            body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-//            body.appendRotation(-bodyRotationSpeed);
+//            player.setTransform(player.getLinearVelocity(), -bodyRotationSpeed);                  
+            body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-//            body.appendRotation(-bodyRotationSpeed);
+//            player.setTransform(player.getLinearVelocity(), -bodyRotationSpeed);               
+            body.appendRotation(-bodyRotationSpeed);
             turret.appendRotation(-bodyRotationSpeed);
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
             turret.appendRotation(-turretRotationSpeed);
@@ -100,13 +105,16 @@ public class PlayScreen implements Screen {
         // Use player for tankBody, define player as body inside tank body and apply all physics to the body instead of tankbody
         
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-//            body.appendRotation(bodyRotationSpeed);
+//            player.setTransform(player.getLinearVelocity(), bodyRotationSpeed);            
+            body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-//            body.appendRotation(bodyRotationSpeed);
+//            player.setTransform(player.getLinearVelocity(), bodyRotationSpeed);            
+            body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-//            body.appendRotation(bodyRotationSpeed);
+//            player.setTransform(player.getLinearVelocity(), bodyRotationSpeed);
+            body.appendRotation(bodyRotationSpeed);
             turret.appendRotation(bodyRotationSpeed);
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.A))) {
             turret.appendRotation(turretRotationSpeed);
@@ -114,22 +122,17 @@ public class PlayScreen implements Screen {
         
         float resolvedBodyRotation = body.getResolvedRotation();
         
-        // Apply normalised x and y velocities if W or S is pressed
+        player.setLinearVelocity(0, 0);
+        
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             player.setLinearVelocity(
-                    (float) (body.getDirectionX() * tank.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)), 
-                    (float) (body.getDirectionY() * tank.getForwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
-//            tank.appendVelocity(
-//                    (float) (body.getDirectionX() * tank.getForwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
-//                    (float) (body.getDirectionY() * tank.getForwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
+                    (float) (body.getDirectionX() * tank.getForwardSpeed() * java.lang.Math.sin(resolvedBodyRotation) * UNIT_SCALE), 
+                    (float) (body.getDirectionY() * tank.getForwardSpeed() * java.lang.Math.cos(resolvedBodyRotation) * UNIT_SCALE));
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             player.setLinearVelocity(
-                    (float) (body.getDirectionX() * tank.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)), 
-                    (float) (body.getDirectionY() * tank.getBackwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
-//            tank.appendVelocity(
-//                    (float) (body.getDirectionX() * tank.getBackwardVelocity() * java.lang.Math.sin(resolvedBodyRotation)),
-//                    (float) (body.getDirectionY() * tank.getBackwardVelocity() * java.lang.Math.cos(resolvedBodyRotation)));
+                    (float) (body.getDirectionX() * -tank.getBackwardSpeed() * java.lang.Math.sin(resolvedBodyRotation) * UNIT_SCALE), 
+                    (float) (body.getDirectionY() * -tank.getBackwardSpeed() * java.lang.Math.cos(resolvedBodyRotation) * UNIT_SCALE));
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
@@ -140,6 +143,7 @@ public class PlayScreen implements Screen {
     }
 
     public void update(float dt) {
+        world.step(1 / 60f, 6, 2);
         handleInput();
         tank.update(dt);
     }
@@ -162,75 +166,25 @@ public class PlayScreen implements Screen {
         int[] layer2 = {1};
         int[] layer3 = {2};
         
-        if (mapSizeX % 2 == 0 && mapSizeY % 2 == 0) {
-            cam.position.set(mapSizeX / 2, mapSizeY / 2, 0);
-            cam.update();
-            groundRenderer.setView(cam);
-            groundRenderer.render();
-            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer1);
-            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2), 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer2);
-            cam.position.set((mapSizeX / 2), (mapSizeY / 2) + 0.5f, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer3);
-        } else if (mapSizeX % 2 == 0 && mapSizeY % 2 != 0) {
-            cam.position.set(mapSizeX / 2, 0.5f + mapSizeY / 2, 0);
-            cam.update();
-            groundRenderer.setView(cam);
-            groundRenderer.render();
-            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 1, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer1);
-            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer2);
-            cam.position.set((mapSizeX / 2), (mapSizeY / 2) + 1, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer3);
-        } else if (mapSizeX % 2 != 0 && mapSizeY % 2 == 0) {
-            cam.position.set(0.5f + mapSizeX / 2, mapSizeY / 2, 0);
-            cam.update();
-            groundRenderer.setView(cam);
-            groundRenderer.render();
-            cam.position.set((mapSizeX / 2) + 1, (mapSizeY / 2) + 0.5f, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer1);
-            cam.position.set((mapSizeX / 2) + 1, (mapSizeY / 2), 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer2);
-            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 0.5f, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer3);
-        } else if (mapSizeX % 2 != 0 && mapSizeY % 2 != 0) {
-            cam.position.set(0.5f + mapSizeX / 2, 0.5f + mapSizeY / 2, 0);
-            cam.update();
-            groundRenderer.setView(cam);
-            groundRenderer.render();
-            cam.position.set((mapSizeX / 2) + 1, (mapSizeY / 2) + 1, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer1);
-            cam.position.set((mapSizeX / 2) + 1, (mapSizeY / 2) + 0.5f, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer2);
-            cam.position.set((mapSizeX / 2) + 0.5f, (mapSizeY / 2) + 1, 0);
-            cam.update();
-            mazeRenderer.setView(cam);
-            mazeRenderer.render(layer3);
-        }  
+        float xOffset = (map.getMapSizeX() % 2 == 0) ? 0 : 0.5f;
+        float yOffset = (map.getMapSizeY() % 2 == 0) ? 0 : 0.5f;
+        
+        cam.position.set((mapSizeX / 2) + xOffset, (mapSizeY / 2) + yOffset, 0);
+        cam.update();
+        groundRenderer.setView(cam);
+        groundRenderer.render();
+        cam.position.set((mapSizeX / 2) + 0.5f + xOffset, (mapSizeY / 2) + 0.5f + yOffset, 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer1);
+        cam.position.set((mapSizeX / 2) + 0.5f + xOffset, (mapSizeY / 2) + yOffset, 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer2);
+        cam.position.set((mapSizeX / 2) + xOffset, (mapSizeY / 2) + 0.5f + yOffset, 0);
+        cam.update();
+        mazeRenderer.setView(cam);
+        mazeRenderer.render(layer3);
         
         // Sets camera position to centre and sets the viewport dimensions
         cam.position.set(mapSizeX / 2, mapSizeY / 2, 0);
@@ -241,8 +195,8 @@ public class PlayScreen implements Screen {
         game.sb.begin();
         game.sb.draw(
                 body.getTexture(),
-                (player.getPosition().x - (body.getTexture().getWidth()) / 2) * UNIT_SCALE,
-                (player.getPosition().y - (body.getTexture().getHeight()) / 2) * UNIT_SCALE,
+                player.getWorldCenter().x - ((body.getTexture().getWidth() / 2) * UNIT_SCALE),
+                player.getWorldCenter().y - ((body.getTexture().getHeight() / 2) * UNIT_SCALE),
                 (tankWidth / 2) * UNIT_SCALE,
                 ((tankHeight / 2) - 5) * UNIT_SCALE,
                 tankWidth * UNIT_SCALE,
@@ -250,31 +204,13 @@ public class PlayScreen implements Screen {
                 1,
                 1,
                 360 - body.getRotation(), 
+                /* 360 - player.getAngle(), */
                 0,
                 0,
                 tankWidth,
                 tankHeight,
                 false,
                 false);
-        
-        
-        game.sb.draw(
-                turret.getTexture(),
-                (player.getPosition().x - turret.getTexture().getWidth() / 2) * UNIT_SCALE,
-                (player.getPosition().y - 5 - (turret.getTexture().getHeight() - turret.getBarrelLength())) * UNIT_SCALE,
-                (turretWidth / 2) * UNIT_SCALE,
-                (turret.getTexture().getHeight() - turret.getBarrelLength()) * UNIT_SCALE,
-                turretWidth * UNIT_SCALE,
-                turretHeight * UNIT_SCALE,
-                1,
-                1,
-                360 - turret.getRotation(),
-                0,
-                0,
-                turretWidth,
-                turretHeight,
-                false,
-                false);        
         
         for (int i = 0; i < turret.getBullets().size(); i++) {
             bullet = turret.getBullets().get(i);
@@ -298,15 +234,43 @@ public class PlayScreen implements Screen {
                 false,
                 false);
         }
+        
+        game.sb.draw(
+                turret.getTexture(),
+                player.getWorldCenter().x - (turret.getTexture().getWidth() / 2 * UNIT_SCALE), 
+                player.getWorldCenter().y - (13 * UNIT_SCALE),
+                (turretWidth / 2) * UNIT_SCALE,
+                (turret.getTexture().getHeight() - turret.getBarrelLength()) * UNIT_SCALE,
+                turretWidth * UNIT_SCALE,
+                turretHeight * UNIT_SCALE,
+                1,
+                1,
+                360 - turret.getRotation(),
+                0,
+                0,
+                turretWidth,
+                turretHeight,
+                false,
+                false);        
+        
+        game.sb.draw(
+                turret.getBulletTexture(),
+                turret.getBarrelPosition().x * UNIT_SCALE, 
+                turret.getBarrelPosition().y * UNIT_SCALE, 
+                turret.getBulletTexture().getWidth() * UNIT_SCALE,
+                turret.getBulletTexture().getHeight() * UNIT_SCALE);  
+        
         game.sb.end();
+        
+        b2dr.render(world, cam.combined);
     }
     
-    public Body createBox(int x, int y, int width, int height, boolean isStatic) {
+    public Body createBox(float x, float y, int width, int height, boolean isStatic) {
         Body pBody;
         BodyDef def = new BodyDef();
 
         def.type = isStatic ? BodyDef.BodyType.StaticBody : BodyDef.BodyType.DynamicBody;
-        def.position.set(x * UNIT_SCALE, y * UNIT_SCALE);
+        def.position.set(x, y);
         def.fixedRotation = true;
         // initializes the body and puts it into the box2d world
         // with the body definition properties
@@ -315,7 +279,7 @@ public class PlayScreen implements Screen {
         // makes a 32 x 32 box (measure w and h from center)
         // setting positions and stuff -> / PPM
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2 * UNIT_SCALE, height / 2 * UNIT_SCALE);
+        shape.setAsBox(width / 2 * UNIT_SCALE, height / 2 * UNIT_SCALE, new Vector2(0 , -5 * UNIT_SCALE), 0);
 
         // gives body the shape and a density
         pBody.createFixture(shape, 1);
@@ -346,6 +310,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
+        world.dispose();
         groundRenderer.dispose();
         mazeRenderer.dispose();
         tank.dispose();
