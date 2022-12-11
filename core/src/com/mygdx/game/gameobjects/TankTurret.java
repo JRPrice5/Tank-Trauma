@@ -29,8 +29,8 @@ public class TankTurret {
         texture = new Texture(turret);
         barrelLength = 44;
         bulletTexture = new Texture("bullet"+colour+".png");
-        turretPosition = new Vector2(physicsBody.getWorldCenter().x - texture.getWidth() / 2, physicsBody.getWorldCenter().y - 13);
-        barrelPosition = new Vector2(turretPosition.x + texture.getWidth() / 2, turretPosition.y + barrelLength - 13);
+        turretPosition = new Vector2(physicsBody.getWorldCenter().x - texture.getWidth() / 2, physicsBody.getWorldCenter().y - (texture.getHeight() - barrelLength) - 5);
+        barrelPosition = new Vector2(turretPosition.x + texture.getWidth() / 2, turretPosition.y + barrelLength - (texture.getHeight() - barrelLength) - 5);
         rotation = 0;
         rotationSpeed = 1.3f;
         bullets = new LinkedList();

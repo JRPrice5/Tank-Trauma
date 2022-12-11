@@ -6,10 +6,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ChainShape;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -61,7 +64,9 @@ public class PlayScreen implements Screen {
         
         b2dr = new Box2DDebugRenderer();
         world = new World(new Vector2(0, 0), false);
-        player = createBox(5, 5, 76, 72, false);
+//        player = createTankBody(4.5f, 4.5f, 76, 72);
+//        player = createTankBody(4.5f, 4.5f, 70, 52);
+        player = createTankBody(4.5f, 4.5f, 32);
         player.setSleepingAllowed(false);
         
         tank = new Tank("red", mapSizeX, mapSizeY, player);
@@ -100,8 +105,6 @@ public class PlayScreen implements Screen {
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
             turret.appendRotation(-turretRotationSpeed);
         } 
-        
-        // Use player for tankBody, define player as body inside tank body and apply all physics to the body instead of tankbody
         
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
             player.setAngularVelocity(player.getAngularVelocity() - bodyRotationSpeed);
@@ -188,7 +191,7 @@ public class PlayScreen implements Screen {
         game.sb.begin();
         game.sb.draw(body.getTexture(),
                 player.getWorldCenter().x - ((body.getTexture().getWidth() / 2) * UNIT_SCALE),
-                player.getWorldCenter().y - ((body.getTexture().getHeight() / 2) * UNIT_SCALE),
+                player.getWorldCenter().y + ((5 - (body.getTexture().getHeight() / 2)) * UNIT_SCALE),
                 (tankWidth / 2) * UNIT_SCALE,
                 ((tankHeight / 2) - 5) * UNIT_SCALE,
                 tankWidth * UNIT_SCALE,
@@ -229,7 +232,7 @@ public class PlayScreen implements Screen {
         game.sb.draw(
                 turret.getTexture(),
                 player.getWorldCenter().x - (turret.getTexture().getWidth() / 2 * UNIT_SCALE), 
-                player.getWorldCenter().y - (13 * UNIT_SCALE),
+                player.getWorldCenter().y - ((turret.getTexture().getHeight() - turret.getBarrelLength()) * UNIT_SCALE),
                 (turretWidth / 2) * UNIT_SCALE,
                 (turret.getTexture().getHeight() - turret.getBarrelLength()) * UNIT_SCALE,
                 turretWidth * UNIT_SCALE,
@@ -256,11 +259,11 @@ public class PlayScreen implements Screen {
         b2dr.render(world, cam.combined);
     }
     
-    public Body createBox(float x, float y, int width, int height, boolean isStatic) {
+    public Body createTankBody(float x, float y, int radius/*, int width, int height*/) {
         Body pBody;
         BodyDef def = new BodyDef();
 
-        def.type = isStatic ? BodyDef.BodyType.StaticBody : BodyDef.BodyType.DynamicBody;
+        def.type = BodyDef.BodyType.DynamicBody;
         def.position.set(x, y);
         def.fixedRotation = true;
         // initializes the body and puts it into the box2d world
@@ -269,9 +272,16 @@ public class PlayScreen implements Screen {
 
         // makes a 32 x 32 box (measure w and h from center)
         // setting positions and stuff -> / PPM
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2 * UNIT_SCALE, height / 2 * UNIT_SCALE, new Vector2(0 , -5 * UNIT_SCALE), 0);
-
+//        Vector2[] localVertices = {new Vector2(1 * UNIT_SCALE, 8 * UNIT_SCALE), new Vector2(12 * UNIT_SCALE, 1 * UNIT_SCALE), 
+//            new Vector2(57 * UNIT_SCALE, 1 * UNIT_SCALE), new Vector2(68 * UNIT_SCALE, 8 * UNIT_SCALE), new Vector2(68 * UNIT_SCALE, 64 * UNIT_SCALE), 
+//            new Vector2(57 * UNIT_SCALE, 72 * UNIT_SCALE), new Vector2(12 * UNIT_SCALE, 72 * UNIT_SCALE), new Vector2(1 * UNIT_SCALE, 64 * UNIT_SCALE)};
+//        PolygonShape shape = new PolygonShape();
+//        shape.set(localVertices);
+//        shape.setAsBox(width / 2 * UNIT_SCALE, height / 2 * UNIT_SCALE, new Vector2(0 , -5 * UNIT_SCALE), 0);
+        CircleShape shape = new CircleShape();
+        shape.setPosition(new Vector2(0, -5 * UNIT_SCALE));
+        shape.setRadius(radius * UNIT_SCALE);
+        
         // gives body the shape and a density
         pBody.createFixture(shape, 1);
         shape.dispose();
