@@ -85,18 +85,17 @@ public class PlayScreen implements Screen {
         
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
         
+        player.setAngularVelocity(0);
+        
         // Control turret and body rotation speeds, depending on user input
         if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-//            player.setTransform(player.getLinearVelocity(), -bodyRotationSpeed);                  
-            body.appendRotation(-bodyRotationSpeed);
+            player.setAngularVelocity(player.getAngularVelocity() + bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-//            player.setTransform(player.getLinearVelocity(), -bodyRotationSpeed);                  
-            body.appendRotation(-bodyRotationSpeed);
+            player.setAngularVelocity(player.getAngularVelocity() + bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-//            player.setTransform(player.getLinearVelocity(), -bodyRotationSpeed);               
-            body.appendRotation(-bodyRotationSpeed);
+            player.setAngularVelocity(player.getAngularVelocity() + bodyRotationSpeed);
             turret.appendRotation(-bodyRotationSpeed);
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
             turret.appendRotation(-turretRotationSpeed);
@@ -105,34 +104,28 @@ public class PlayScreen implements Screen {
         // Use player for tankBody, define player as body inside tank body and apply all physics to the body instead of tankbody
         
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-//            player.setTransform(player.getLinearVelocity(), bodyRotationSpeed);            
-            body.appendRotation(bodyRotationSpeed);
+            player.setAngularVelocity(player.getAngularVelocity() - bodyRotationSpeed);
             turret.appendRotation(turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-//            player.setTransform(player.getLinearVelocity(), bodyRotationSpeed);            
-            body.appendRotation(bodyRotationSpeed);
+            player.setAngularVelocity(player.getAngularVelocity() - bodyRotationSpeed);
             turret.appendRotation(-turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-//            player.setTransform(player.getLinearVelocity(), bodyRotationSpeed);
-            body.appendRotation(bodyRotationSpeed);
+            player.setAngularVelocity(player.getAngularVelocity() - bodyRotationSpeed);
             turret.appendRotation(bodyRotationSpeed);
         } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.A))) {
             turret.appendRotation(turretRotationSpeed);
         }
         
-        float resolvedBodyRotation = body.getResolvedRotation();
-        
         player.setLinearVelocity(0, 0);
         
+        float vx = tank.getDirection().x * tank.getForwardSpeed() / tank.getDirection().len();
+        float vy = tank.getDirection().y * tank.getForwardSpeed() / tank.getDirection().len();
+        
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            player.setLinearVelocity(
-                    (float) (body.getDirectionX() * tank.getForwardSpeed() * java.lang.Math.sin(resolvedBodyRotation) * UNIT_SCALE), 
-                    (float) (body.getDirectionY() * tank.getForwardSpeed() * java.lang.Math.cos(resolvedBodyRotation) * UNIT_SCALE));
+            player.setLinearVelocity(vx * UNIT_SCALE, vy * UNIT_SCALE);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            player.setLinearVelocity(
-                    (float) (body.getDirectionX() * -tank.getBackwardSpeed() * java.lang.Math.sin(resolvedBodyRotation) * UNIT_SCALE), 
-                    (float) (body.getDirectionY() * -tank.getBackwardSpeed() * java.lang.Math.cos(resolvedBodyRotation) * UNIT_SCALE));
+            player.setLinearVelocity(-vx * UNIT_SCALE, -vy * UNIT_SCALE);
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
@@ -193,8 +186,7 @@ public class PlayScreen implements Screen {
         
         // Render tank
         game.sb.begin();
-        game.sb.draw(
-                body.getTexture(),
+        game.sb.draw(body.getTexture(),
                 player.getWorldCenter().x - ((body.getTexture().getWidth() / 2) * UNIT_SCALE),
                 player.getWorldCenter().y - ((body.getTexture().getHeight() / 2) * UNIT_SCALE),
                 (tankWidth / 2) * UNIT_SCALE,
@@ -202,9 +194,8 @@ public class PlayScreen implements Screen {
                 tankWidth * UNIT_SCALE,
                 tankHeight * UNIT_SCALE,
                 1,
-                1,
-                360 - body.getRotation(), 
-                /* 360 - player.getAngle(), */
+                1, 
+                (float) Math.toDegrees(player.getAngle()), 
                 0,
                 0,
                 tankWidth,
