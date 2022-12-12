@@ -266,200 +266,224 @@ public class MapGenerator {
                     if (!(nTileAccessible || eTileAccessible || wTileAccessible)) {
                         switch (random.nextInt(3)) {
                         case 0:
-                            deleteNorthTile(xCoord, yCoord);
+                            deleteNorthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteEastTile(xCoord, yCoord);
+                            deleteEastWall(xCoord, yCoord);
                             break;
                         case 2:
-                            deleteWestTile(xCoord, yCoord);
+                            deleteWestWall(xCoord, yCoord);
                             break;
                         }
                     }
                     else if (!(nTileAccessible || eTileAccessible || sTileAccessible)) {
                         switch (random.nextInt(3)) {
                         case 0:
-                            deleteNorthTile(xCoord, yCoord);
+                            deleteNorthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteEastTile(xCoord, yCoord);
+                            deleteEastWall(xCoord, yCoord);
                             break;
                         case 2:
-                            deleteSouthTile(xCoord, yCoord);
+                            deleteSouthWall(xCoord, yCoord);
                             break;
                          }
                     }
                     else if (!(eTileAccessible || sTileAccessible || wTileAccessible)) {
                         switch (random.nextInt(3)) {
                         case 0:
-                            deleteEastTile(xCoord, yCoord);
+                            deleteEastWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteSouthTile(xCoord, yCoord);
+                            deleteSouthWall(xCoord, yCoord);
                             break;
                         case 2:
-                            deleteWestTile(xCoord, yCoord);
+                            deleteWestWall(xCoord, yCoord);
                             break;
                         }
                     } 
                     else if (!(nTileAccessible || sTileAccessible || wTileAccessible)) {
                         switch (random.nextInt(3)) {
                         case 0:
-                            deleteNorthTile(xCoord, yCoord);
+                            deleteNorthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteSouthTile(xCoord, yCoord);
+                            deleteSouthWall(xCoord, yCoord);
                             break;
                         case 2:
-                            deleteWestTile(xCoord, yCoord);
+                            deleteWestWall(xCoord, yCoord);
                             break;
                         }
                     }
                     else if (!(nTileAccessible || sTileAccessible)) {
                         switch (random.nextInt(2)) {
                         case 0:
-                            deleteNorthTile(xCoord, yCoord);
+                            deleteNorthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteSouthTile(xCoord, yCoord);
+                            deleteSouthWall(xCoord, yCoord);
                             break;
                         }
                     }
                     else if (!(eTileAccessible || wTileAccessible)) {
                         switch (random.nextInt(2)) {
                         case 0:
-                            deleteEastTile(xCoord, yCoord);
+                            deleteEastWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteWestTile(xCoord, yCoord);
+                            deleteWestWall(xCoord, yCoord);
                             break;
                         }
                     } 
                     else if (!(nTileAccessible || wTileAccessible)) {
                         switch (random.nextInt(2)) {
                         case 0:
-                            deleteNorthTile(xCoord, yCoord);
+                            deleteNorthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteWestTile(xCoord, yCoord);
+                            deleteWestWall(xCoord, yCoord);
                             break;
                         }
                     } 
                     else if (!(nTileAccessible || eTileAccessible)) {
                         switch (random.nextInt(2)) {
                         case 0:
-                            deleteNorthTile(xCoord, yCoord);
+                            deleteNorthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteEastTile(xCoord, yCoord);
+                            deleteEastWall(xCoord, yCoord);
                             break;
                         }
                     } 
                     else if (!(eTileAccessible || sTileAccessible)) {
                         switch (random.nextInt(2)) {
                         case 0:
-                            deleteEastTile(xCoord, yCoord);
+                            deleteEastWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteSouthTile(xCoord, yCoord);
+                            deleteSouthWall(xCoord, yCoord);
                             break;
                         }
                     } 
                     else if (!(sTileAccessible || wTileAccessible)) {
                         switch (random.nextInt(2)) {
                         case 0:
-                            deleteSouthTile(xCoord, yCoord);
+                            deleteSouthWall(xCoord, yCoord);
                             break;
                         case 1:
-                            deleteWestTile(xCoord, yCoord);
+                            deleteWestWall(xCoord, yCoord);
                             break;
                         }
                     } 
                     else if (!nTileAccessible) {
-                        deleteNorthTile(xCoord, yCoord);
+                        deleteNorthWall(xCoord, yCoord);
                     } 
                     else if (!eTileAccessible) {
-                        deleteEastTile(xCoord, yCoord);
+                        deleteEastWall(xCoord, yCoord);
                     } 
                     else if (!sTileAccessible) {
-                        deleteSouthTile(xCoord, yCoord);
+                        deleteSouthWall(xCoord, yCoord);
                     } 
                     else if (!wTileAccessible) {
-                        deleteWestTile(xCoord, yCoord);
+                        deleteWestWall(xCoord, yCoord);
                     }
                 }
             }
         }
     }
     
-    private void deleteNorthTile(int xCoord, int yCoord) {
+    private void deleteNorthWall(int xCoord, int yCoord) {
         Cell cell = new Cell();
         horizontalLayer.setCell(xCoord, yCoord, cell);
         tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("h", "");
         tilesAccessible[yCoord - 1][xCoord] = true;
         tilesToSearch.add(new Vector2(xCoord, yCoord - 1));
         if (xCoord > 0) {
-            if (!tileCornerStates[yCoord][xCoord - 1].contains("h")) {
+            if (!tileCornerStates[yCoord][xCoord - 1].contains("h")
+                    && !tileCornerStates[yCoord - 1][xCoord].contains("v") 
+                    && !tileCornerStates[yCoord][xCoord].contains("v")) {
                 dotLayer.setCell(xCoord, yCoord, cell);
+                tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("d", "");
             }
         }
         if (xCoord < mapSizeX - 1) {
-            if (!tileCornerStates[yCoord][xCoord + 1].contains("h")) {
+            if (!tileCornerStates[yCoord][xCoord + 1].contains("h")
+                    && !tileCornerStates[yCoord - 1][xCoord + 1].contains("v") 
+                    && !tileCornerStates[yCoord][xCoord + 1].contains("v")) {
                 dotLayer.setCell(xCoord + 1, yCoord, cell);
+                tileCornerStates[yCoord][xCoord + 1] = tileCornerStates[yCoord][xCoord + 1].replace("d", "");
             }
         }
     }
     
-    private void deleteEastTile(int xCoord, int yCoord) {
+    private void deleteEastWall(int xCoord, int yCoord) {
         Cell cell = new Cell();
         verticalLayer.setCell(xCoord + 1, yCoord, cell);
         tileCornerStates[yCoord][xCoord + 1] = tileCornerStates[yCoord][xCoord + 1].replace("v", "");
         tilesAccessible[yCoord][xCoord + 1] = true;
         tilesToSearch.add(new Vector2(xCoord + 1, yCoord));
         if (yCoord > 0) {
-            if (!tileCornerStates[yCoord - 1][xCoord + 1].contains("v")) {
+            if (!tileCornerStates[yCoord - 1][xCoord + 1].contains("v")
+                    && !tileCornerStates[yCoord][xCoord].contains("h") 
+                    && !tileCornerStates[yCoord][xCoord + 1].contains("h")) {
                 dotLayer.setCell(xCoord + 1, yCoord, cell);
+                tileCornerStates[yCoord][xCoord + 1] = tileCornerStates[yCoord][xCoord + 1].replace("d", "");
             }
         }
         if (yCoord < mapSizeY - 1) {
-            if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("v")) {
+            if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("v")
+                    && !tileCornerStates[yCoord + 1][xCoord].contains("h") 
+                    && !tileCornerStates[yCoord + 1][xCoord + 1].contains("h")) {
                 dotLayer.setCell(xCoord + 1, yCoord + 1, cell);
+                tileCornerStates[yCoord + 1][xCoord + 1] = tileCornerStates[yCoord + 1][xCoord + 1].replace("d", "");
             }
         }
     }
     
-    private void deleteSouthTile(int xCoord, int yCoord) {
+    private void deleteSouthWall(int xCoord, int yCoord) {
         Cell cell = new Cell();
         horizontalLayer.setCell(xCoord, yCoord + 1, cell);
         tileCornerStates[yCoord + 1][xCoord] = tileCornerStates[yCoord + 1][xCoord].replace("h", "");
         tilesAccessible[yCoord + 1][xCoord] = true;
         tilesToSearch.add(new Vector2(xCoord, yCoord + 1));
         if (xCoord > 0) {
-            if (!tileCornerStates[yCoord + 1][xCoord - 1].contains("h")) {
+            if (!tileCornerStates[yCoord + 1][xCoord - 1].contains("h")
+                    && !tileCornerStates[yCoord + 1][xCoord].contains("v") 
+                    && !tileCornerStates[yCoord][xCoord].contains("v")) {
                 dotLayer.setCell(xCoord, yCoord + 1, cell);
+                tileCornerStates[yCoord + 1][xCoord] = tileCornerStates[yCoord + 1][xCoord].replace("d", "");
             }
         }
         if (xCoord < mapSizeX - 1) {
-            if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("h")) {
+            if (!tileCornerStates[yCoord + 1][xCoord + 1].contains("h")
+                    && !tileCornerStates[yCoord + 1][xCoord + 1].contains("v") 
+                    && !tileCornerStates[yCoord][xCoord + 1].contains("v")) {
                 dotLayer.setCell(xCoord + 1, yCoord + 1, cell);
+                tileCornerStates[yCoord + 1][xCoord + 1] = tileCornerStates[yCoord + 1][xCoord + 1].replace("d", "");
             }
         }
     }
     
-    private void deleteWestTile(int xCoord, int yCoord) {
+    private void deleteWestWall(int xCoord, int yCoord) {
         Cell cell = new Cell();
         verticalLayer.setCell(xCoord, yCoord, cell);
         tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("v", "");
         tilesAccessible[yCoord][xCoord - 1] = true;
         tilesToSearch.add(new Vector2(xCoord - 1, yCoord));
         if (yCoord > 0) {
-            if (!tileCornerStates[yCoord - 1][xCoord].contains("v")) {
+            if (!tileCornerStates[yCoord - 1][xCoord].contains("v")
+                    && !tileCornerStates[yCoord][xCoord - 1].contains("h") 
+                    && !tileCornerStates[yCoord][xCoord].contains("h")) {
                 dotLayer.setCell(xCoord, yCoord, cell);
+                tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("d", "");
             }
         }
         if (yCoord < mapSizeY - 1) {
-            if (!tileCornerStates[yCoord + 1][xCoord].contains("v")) {
+            if (!tileCornerStates[yCoord + 1][xCoord].contains("v")
+                    && !tileCornerStates[yCoord + 1][xCoord - 1].contains("h") 
+                    && !tileCornerStates[yCoord + 1][xCoord].contains("h")) {
                 dotLayer.setCell(xCoord, yCoord + 1, cell);
+                tileCornerStates[yCoord + 1][xCoord] = tileCornerStates[yCoord + 1][xCoord].replace("d", "");
             }
         }
     }

@@ -64,9 +64,7 @@ public class PlayScreen implements Screen {
         
         b2dr = new Box2DDebugRenderer();
         world = new World(new Vector2(0, 0), false);
-//        player = createTankBody(4.5f, 4.5f, 76, 72);
-//        player = createTankBody(4.5f, 4.5f, 70, 52);
-        player = createTankBody(4.5f, 4.5f, 32);
+        player = createTankBody(4.5f, 4.5f);
         player.setSleepingAllowed(false);
         
         tank = new Tank("red", mapSizeX, mapSizeY, player);
@@ -121,14 +119,13 @@ public class PlayScreen implements Screen {
         
         player.setLinearVelocity(0, 0);
         
-        float vx = tank.getDirection().x * tank.getForwardSpeed() / tank.getDirection().len();
-        float vy = tank.getDirection().y * tank.getForwardSpeed() / tank.getDirection().len();
-        
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            player.setLinearVelocity(vx * UNIT_SCALE, vy * UNIT_SCALE);
+            player.setLinearVelocity((tank.getDirection().x * tank.getForwardSpeed() / tank.getDirection().len()) * UNIT_SCALE,
+                    (tank.getDirection().y * tank.getForwardSpeed() / tank.getDirection().len()) * UNIT_SCALE);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            player.setLinearVelocity(-vx * UNIT_SCALE, -vy * UNIT_SCALE);
+            player.setLinearVelocity((-tank.getDirection().x * tank.getBackwardSpeed() / tank.getDirection().len()) * UNIT_SCALE,
+                    (-tank.getDirection().y * tank.getBackwardSpeed() / tank.getDirection().len()) * UNIT_SCALE);
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
@@ -256,10 +253,10 @@ public class PlayScreen implements Screen {
         
         game.sb.end();
         
-        b2dr.render(world, cam.combined);
+//        b2dr.render(world, cam.combined);
     }
     
-    public Body createTankBody(float x, float y, int radius/*, int width, int height*/) {
+    public Body createTankBody(float x, float y) {
         Body pBody;
         BodyDef def = new BodyDef();
 
@@ -270,20 +267,17 @@ public class PlayScreen implements Screen {
         // with the body definition properties
         pBody = world.createBody(def);
 
-        // makes a 32 x 32 box (measure w and h from center)
-        // setting positions and stuff -> / PPM
-//        Vector2[] localVertices = {new Vector2(1 * UNIT_SCALE, 8 * UNIT_SCALE), new Vector2(12 * UNIT_SCALE, 1 * UNIT_SCALE), 
-//            new Vector2(57 * UNIT_SCALE, 1 * UNIT_SCALE), new Vector2(68 * UNIT_SCALE, 8 * UNIT_SCALE), new Vector2(68 * UNIT_SCALE, 64 * UNIT_SCALE), 
-//            new Vector2(57 * UNIT_SCALE, 72 * UNIT_SCALE), new Vector2(12 * UNIT_SCALE, 72 * UNIT_SCALE), new Vector2(1 * UNIT_SCALE, 64 * UNIT_SCALE)};
-//        PolygonShape shape = new PolygonShape();
-//        shape.set(localVertices);
-//        shape.setAsBox(width / 2 * UNIT_SCALE, height / 2 * UNIT_SCALE, new Vector2(0 , -5 * UNIT_SCALE), 0);
-        CircleShape shape = new CircleShape();
-        shape.setPosition(new Vector2(0, -5 * UNIT_SCALE));
-        shape.setRadius(radius * UNIT_SCALE);
+        Vector2[] localVertices = {new Vector2(-30 * UNIT_SCALE, -30 * UNIT_SCALE), new Vector2(-23 * UNIT_SCALE, -34 * UNIT_SCALE), 
+            new Vector2(23 * UNIT_SCALE, -34 * UNIT_SCALE), new Vector2(30 * UNIT_SCALE, -30 * UNIT_SCALE), new Vector2(30 * UNIT_SCALE, 30 * UNIT_SCALE), 
+            new Vector2(23 * UNIT_SCALE, 34 * UNIT_SCALE), new Vector2(-23 * UNIT_SCALE, 34 * UNIT_SCALE), new Vector2(-30 * UNIT_SCALE, 30 * UNIT_SCALE)};
+        PolygonShape shape = new PolygonShape();
+        shape.set(localVertices);
+        PolygonShape shape2 = new PolygonShape();
+        shape2.setAsBox(22.5f * UNIT_SCALE, 20f * UNIT_SCALE, new Vector2(0, -10 * UNIT_SCALE), 0);
         
         // gives body the shape and a density
         pBody.createFixture(shape, 1);
+        pBody.createFixture(shape2, 1);
         shape.dispose();
         return pBody;
     }

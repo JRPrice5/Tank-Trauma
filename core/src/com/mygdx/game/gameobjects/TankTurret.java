@@ -28,7 +28,7 @@ public class TankTurret {
         turret = "tank"+colour+"_barrel.png";
         texture = new Texture(turret);
         barrelLength = 44;
-        bulletTexture = new Texture("bullet"+colour+".png");
+        bulletTexture = new Texture("cannonBall"+colour+"Small.png");
         turretPosition = new Vector2(physicsBody.getWorldCenter().x - texture.getWidth() / 2, physicsBody.getWorldCenter().y - (texture.getHeight() - barrelLength) - 5);
         barrelPosition = new Vector2(turretPosition.x + texture.getWidth() / 2, turretPosition.y + barrelLength - (texture.getHeight() - barrelLength) - 5);
         rotation = 0;

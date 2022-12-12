@@ -20,7 +20,7 @@ public class Tank {
         this.physicsBody = physicsBody;
         body = new TankBody(0, 0, colour, physicsBody);
         turret = new TankTurret(body.getTexture(), colour, physicsBody);
-        forwardSpeed = 150;
+        forwardSpeed = 140;
         backwardSpeed = 110;
         direction = new Vector2(physicsBody.getLocalVector(physicsBody.getLocalCenter()).x, -physicsBody.getLocalVector(physicsBody.getLocalCenter()).y);
     }

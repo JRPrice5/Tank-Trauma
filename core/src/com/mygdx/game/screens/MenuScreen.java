@@ -25,17 +25,17 @@ public class MenuScreen implements Screen {
         cam = new OrthographicCamera();
         viewport = new FitViewport(TankTrauma.WIDTH, TankTrauma.HEIGHT, cam);
         background = new Texture("bg.png");
-        maxWidth = 10;
-        minWidth = 10;
-        maxHeight = 10;
-        minHeight = 10;
+        maxWidth = 8;
+        minWidth = 8;
+        maxHeight = 8;
+        minHeight = 8;
     }
     
     public void handleInput() {
         if (Gdx.input.justTouched()) {
             Random random = new Random();
             game.setScreen(new PlayScreen(game, random.nextInt(maxWidth - minWidth + 1) + minWidth, random.nextInt(maxHeight - minHeight + 1) + minHeight));
-//            dispose();
+            dispose();
         }
     }
 
