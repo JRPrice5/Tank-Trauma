@@ -209,7 +209,7 @@ public class PlayScreen implements Screen {
                 bullet.getTexture(),
                 bullet.getPosition().x * UNIT_SCALE,
                 bullet.getPosition().y * UNIT_SCALE,
-                0, 
+                0,
                 0,
                 bulletWidth * UNIT_SCALE,
                 bulletHeight * UNIT_SCALE,
@@ -251,7 +251,7 @@ public class PlayScreen implements Screen {
         
         game.sb.end();
         
-        b2dr.render(world, cam.combined);
+//        b2dr.render(world, cam.combined);
     }
     
     public Body createTankBody(float x, float y) {
@@ -276,6 +276,7 @@ public class PlayScreen implements Screen {
         fixtureDef1.shape = shape1;
         fixtureDef1.filter.categoryBits = 1;
         fixtureDef1.filter.maskBits = 1;
+        fixtureDef1.isSensor = true;
         
         PolygonShape shape2 = new PolygonShape();
         shape2.setAsBox(22.5f * UNIT_SCALE, 20f * UNIT_SCALE, new Vector2(0, -10 * UNIT_SCALE), 0);

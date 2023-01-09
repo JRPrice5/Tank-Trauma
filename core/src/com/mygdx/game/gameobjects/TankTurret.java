@@ -95,16 +95,19 @@ public class TankTurret {
         if (reload <= 0) {
             Bullet bullet = new Bullet(
                     (float) (barrelPosition.x
-                            + (barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            - (turretDirectionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 2)),
+//                            + (barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * bulletTexture.getWidth() / 2)
+                            + (turretDirectionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 4)),
                     (float) (barrelPosition.y
-                            + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            - (turretDirectionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 2)), 
+//                            + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
+                            + (turretDirectionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 4)), 
                     colour,
                     rotation,
-                    normaliserX,
-                    normaliserY,
-                    world);
+                    resolvedRotation,
+                    world,
+                    barrelAdjustmentX,
+                    barrelAdjustmentY,
+                    turretDirectionX,
+                    turretDirectionY);
             bullets.add(bullet);
             reload = 1;
         }
