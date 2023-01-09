@@ -3,9 +3,11 @@ package com.mygdx.game.gameobjects;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.screens.PlayScreen;
+import com.badlogic.gdx.physics.box2d.World;
+
 
 public class Tank {
-    private Body physicsBody;
+    private Body rigidBody;
     private TankBody body;
     private TankTurret turret;
     private int forwardSpeed;
@@ -16,19 +18,19 @@ public class Tank {
         return direction;
     }
     
-    public Tank(String colour, int mapSizeX, int mapSizeY, Body physicsBody) {
-        this.physicsBody = physicsBody;
-        body = new TankBody(0, 0, colour, physicsBody);
-        turret = new TankTurret(body.getTexture(), colour, physicsBody);
+    public Tank(String colour, int mapSizeX, int mapSizeY, Body tankRigidBody, World world) {
+        rigidBody = tankRigidBody;
+        body = new TankBody(0, 0, colour, tankRigidBody);
+        turret = new TankTurret(body.getTexture(), colour, tankRigidBody, world);
         forwardSpeed = 140;
         backwardSpeed = 110;
-        direction = new Vector2(physicsBody.getLocalVector(physicsBody.getLocalCenter()).x, -physicsBody.getLocalVector(physicsBody.getLocalCenter()).y);
+        direction = new Vector2(tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).x, -tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).y);
     }
     
     public void update(float dt) {
-        turret.setTurretPosition(physicsBody.getPosition().scl(1 / PlayScreen.UNIT_SCALE));
-        direction.x = physicsBody.getLocalVector(physicsBody.getLocalCenter()).x;
-        direction.y = -physicsBody.getLocalVector(physicsBody.getLocalCenter()).y;
+        turret.setTurretPosition(rigidBody.getPosition().scl(1 / PlayScreen.UNIT_SCALE));
+        direction.x = rigidBody.getLocalVector(rigidBody.getLocalCenter()).x;
+        direction.y = -rigidBody.getLocalVector(rigidBody.getLocalCenter()).y;
         
         float turretRotation = turret.getRotation();
 

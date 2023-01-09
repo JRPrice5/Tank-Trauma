@@ -4,12 +4,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import java.util.LinkedList;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class TankTurret {
+    private final int BARREL_OFFSET = 3;
+    private World world;
     private String colour;
     private String turret;
     private Texture texture;
-    private float barrelLength;
+    private float BARREL_LENGTH;
     private Texture bulletTexture;
     private Vector2 turretPosition;
     private Vector2 barrelPosition;
@@ -23,14 +26,15 @@ public class TankTurret {
     private byte barrelAdjustmentX;
     private byte barrelAdjustmentY;
 
-    public TankTurret(Texture body, String colour, Body physicsBody) {
+    public TankTurret(Texture body, String colour, Body tankRigidBody, World world) {
+        this.world = world;
         this.colour = colour;
         turret = "tank"+colour+"_barrel.png";
         texture = new Texture(turret);
-        barrelLength = 44;
+        BARREL_LENGTH = 44;
         bulletTexture = new Texture("cannonBall"+colour+"Small.png");
-        turretPosition = new Vector2(physicsBody.getWorldCenter().x - texture.getWidth() / 2, physicsBody.getWorldCenter().y - (texture.getHeight() - barrelLength) - 5);
-        barrelPosition = new Vector2(turretPosition.x + texture.getWidth() / 2, turretPosition.y + barrelLength - (texture.getHeight() - barrelLength) - 5);
+        turretPosition = new Vector2(tankRigidBody.getWorldCenter().x, tankRigidBody.getWorldCenter().y);
+        barrelPosition = new Vector2(turretPosition.x, turretPosition.y + BARREL_LENGTH);
         rotation = 0;
         rotationSpeed = 1.3f;
         bullets = new LinkedList();
@@ -39,18 +43,18 @@ public class TankTurret {
     
     public void update(float dt) {
         if (turret.contains("_barrel")) {
-            barrelLength = 44;
+            BARREL_LENGTH = 44;
         } else if (turret.contains("specialBarrel1") 
                 || turret.contains("specialBarrel2")) {
-            barrelLength = 36;
+            BARREL_LENGTH = 36;
         } else if (turret.contains("specialBarrel3")) {
-            barrelLength = 46;
+            BARREL_LENGTH = 46;
         } else if (turret.contains("specialBarrel4")) {
-            barrelLength = 57;
+            BARREL_LENGTH = 57;
         } else if (turret.contains("specialBarrel5") 
                 || turret.contains("specialBarrel6") 
                 || turret.contains("specialBarrel7")) {
-            barrelLength = 47;
+            BARREL_LENGTH = 47;
         } 
         
         // try to remove this update loop
@@ -66,10 +70,10 @@ public class TankTurret {
             reduceReload(dt);
         }
 
-        float distanceX = (float) ((turretDirectionX * barrelLength * java.lang.Math.sin(resolvedRotation))
-                + turretPosition.x - texture.getWidth() + 2 - barrelPosition.x);
-        float distanceY = (float) ((turretDirectionY * barrelLength * java.lang.Math.cos(resolvedRotation))
-                + turretPosition.y - barrelPosition.y);
+        float distanceX = (float) ((turretDirectionX * BARREL_LENGTH * java.lang.Math.sin(resolvedRotation))
+                - barrelPosition.x + turretPosition.x);
+        float distanceY = (float) ((turretDirectionY * BARREL_LENGTH * java.lang.Math.cos(resolvedRotation))
+                - barrelPosition.y + turretPosition.y - BARREL_OFFSET);
         barrelPosition.add(distanceX, distanceY);
     }
     
@@ -99,7 +103,8 @@ public class TankTurret {
                     colour,
                     rotation,
                     normaliserX,
-                    normaliserY);
+                    normaliserY,
+                    world);
             bullets.add(bullet);
             reload = 1;
         }
@@ -198,7 +203,7 @@ public class TankTurret {
     }
     
     public float getBarrelLength() {
-        return barrelLength;
+        return BARREL_LENGTH;
     }
     
     public Texture getBulletTexture() {
