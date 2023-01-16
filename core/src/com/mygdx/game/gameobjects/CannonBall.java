@@ -10,37 +10,37 @@ import com.badlogic.gdx.math.Vector2;
 import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
 
 
-public class Bullet {
+public class CannonBall extends Projectile {
+    private final short SPEED = 250;
     private Texture texture;
     private Body body;
     private Vector2 position;
-    private float resolvedRotation;
     private Vector2 offset;
     private float rotation;
     private float lifeSpan;
 
-    public Bullet(float x, float y, String colour, float rotation, float resolvedRotation, World world, byte barrelAdjustmentX, byte barrelAdjustmentY, byte turretDirectionX, byte turretDirectionY) {
+    public CannonBall(float x, float y, String colour, float rotation,
+            float resolvedRotation, World world, byte barrelAdjustmentX,
+            byte barrelAdjustmentY, byte turretDirectionX, byte turretDirectionY,
+            Vector2 turretDirection) {
         texture = new Texture("cannonBall"+colour+"Small.png");
-        createRigidBody(x, y, world);
-        offset = new Vector2((float)((barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * texture.getWidth() / 2) 
-                                    - (turretDirectionX * java.lang.Math.sin(resolvedRotation) * texture.getHeight() / 2)),
-                                (float)((-turretDirectionY * java.lang.Math.cos(resolvedRotation) * texture.getHeight() / 2)
-                                    + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * texture.getWidth() / 2)));
+        body = createRigidBody(x, y, world);
+        offset = new Vector2(-texture.getWidth() / 2, -texture.getHeight() / 2);
         position = new Vector2(x + offset.x, y + offset.y);
-        this.resolvedRotation = resolvedRotation;
-        this.rotation = rotation;
-        lifeSpan = 8;
+        body.setLinearVelocity((turretDirection.x * SPEED / turretDirection.len()) * UNIT_SCALE,
+                    (turretDirection.y * SPEED / turretDirection.len()) * UNIT_SCALE);
+        lifeSpan = 12;
     }
     
+    @Override
     public void update(float dt) {
-//        velocity.scl(dt);
-//        position.add(velocity.x, velocity.y, 0);
-//        velocity.scl(1/dt);
-        position.add(body.getWorldCenter().x / UNIT_SCALE + offset.x - position.x, body.getWorldCenter().y / UNIT_SCALE + offset.y - position.y);
+        position.x = body.getWorldCenter().x / UNIT_SCALE + offset.x;
+        position.y = body.getWorldCenter().y / UNIT_SCALE + offset.y;
         lifeSpan -= dt;
     }
     
-    public void createRigidBody(float x, float y, World world) {
+    @Override
+    public Body createRigidBody(float x, float y, World world) {
         Body bullet;
         BodyDef def = new BodyDef();
         
@@ -49,6 +49,7 @@ public class Bullet {
 //                        (float) (y + texture.getWidth() / 2 * java.lang.Math.sin(resolvedRotation) * barrelAdjustmentY) * UNIT_SCALE);
         def.position.set(x * UNIT_SCALE, y * UNIT_SCALE);
         bullet = world.createBody(def);
+        bullet.setFixedRotation(false);
         
         CircleShape shape = new CircleShape();
         shape.setRadius(0.05f);
@@ -58,36 +59,44 @@ public class Bullet {
         fixtureDef.friction = 0;
         fixtureDef.restitution = 1;
         fixtureDef.shape = shape;
-        fixtureDef.filter.categoryBits = 2;
-        fixtureDef.filter.maskBits = 3;
+        fixtureDef.filter.categoryBits = 0x0008;
+        fixtureDef.filter.maskBits = 0x0001;
         
         // gives body the shape and a density
         bullet.createFixture(fixtureDef);
+        bullet.setBullet(true);
         shape.dispose();
-        body = bullet;
+        return bullet;
     }
     
+    @Override
     public void dispose() {
         texture.dispose();
         body.setActive(false);
+        body.destroyFixture(body.getFixtureList().peek());
     }
     
+    @Override
     public Body getBody() {
         return body;
     }
     
+    @Override
     public float getRotation() {
         return rotation;
     }
     
+    @Override
     public Texture getTexture() {
         return texture;
     }
     
+    @Override
     public Vector2 getPosition() {
         return position;
     }
 
+    @Override
     public float getLifeSpan() {
         return lifeSpan;
     }

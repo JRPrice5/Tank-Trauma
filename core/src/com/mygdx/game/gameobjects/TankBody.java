@@ -8,10 +8,6 @@ public class TankBody {
     private float rotationSpeed;
     private Body body;
 
-    public Body getBody() {
-        return body;
-    }
-
     public TankBody(int x, int y, String colour, Body body) {
         this.texture = new Texture("tankBody_"+colour+".png");
         this.rotationSpeed = 1.7f;
@@ -21,12 +17,12 @@ public class TankBody {
         texture.dispose();
     }
 
+    public Body getBody() {
+        return body;
+    }
+    
     public float getRotationSpeed() {
         return rotationSpeed;
-    }
-
-    public void setRotationSpeed(float rotationSpeed) {
-        this.rotationSpeed = rotationSpeed;
     }
     
     public Texture getTexture() {

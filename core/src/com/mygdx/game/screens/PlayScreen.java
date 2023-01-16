@@ -16,11 +16,11 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.TankTrauma;
-import com.mygdx.game.gameobjects.Bullet;
+import com.mygdx.game.gameobjects.Projectile;
 import com.mygdx.game.gameobjects.Tank;
 import com.mygdx.game.gameobjects.TankBody;
 import com.mygdx.game.utils.MapGenerator;
-import com.mygdx.game.gameobjects.TankTurret;
+import com.mygdx.game.gameobjects.Turret;
 import com.mygdx.game.utils.MazeCollisionParser;
 import java.util.LinkedList;
 
@@ -37,9 +37,9 @@ public class PlayScreen implements Screen {
     
     private final Tank tank;
     private final TankBody body;
-    private TankTurret turret;
-    private Bullet bullet;
-    private LinkedList<Bullet> playerBullets;
+    private Turret turret;
+    private Projectile projectile;
+    private LinkedList<Projectile> playerBullets;
     
     private Box2DDebugRenderer b2dr;
     private World world;
@@ -65,10 +65,10 @@ public class PlayScreen implements Screen {
         tankRigidBody = createTankBody(4.5f, 4.5f);
         tankRigidBody.setSleepingAllowed(false);
         
-        tank = new Tank("red", mapSizeX, mapSizeY, tankRigidBody, world);
+        tank = new Tank("red", tankRigidBody, world);
         body = tank.getBody();
         turret = tank.getTurret();
-        playerBullets = tank.getTurret().getBullets();
+        playerBullets = tank.getTurret().getProjectiles();
         
         map = new MapGenerator(mapSizeX, mapSizeY);
         map.generateGround();
@@ -127,9 +127,7 @@ public class PlayScreen implements Screen {
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
-            turret.shoot(
-                    (float) (turret.getTurretDirectionX() * java.lang.Math.sin(turret.getResolvedRotation())),
-                    (float) (turret.getTurretDirectionY() * java.lang.Math.cos(turret.getResolvedRotation())));
+            turret.shoot();
         }
     }
 
@@ -201,21 +199,21 @@ public class PlayScreen implements Screen {
                 false,
                 false);
         
-        for (int i = 0; i < turret.getBullets().size(); i++) {
-            bullet = turret.getBullets().get(i);
-            int bulletWidth = bullet.getTexture().getWidth();
-            int bulletHeight = bullet.getTexture().getHeight();
+        for (int i = 0; i < turret.getProjectiles().size(); i++) {
+            projectile = turret.getProjectiles().get(i);
+            int bulletWidth = projectile.getTexture().getWidth();
+            int bulletHeight = projectile.getTexture().getHeight();
             game.sb.draw(
-                bullet.getTexture(),
-                bullet.getPosition().x * UNIT_SCALE,
-                bullet.getPosition().y * UNIT_SCALE,
+                projectile.getTexture(),
+                projectile.getPosition().x * UNIT_SCALE,
+                projectile.getPosition().y * UNIT_SCALE,
                 0,
                 0,
                 bulletWidth * UNIT_SCALE,
                 bulletHeight * UNIT_SCALE,
                 1,
                 1,
-                -bullet.getRotation(),
+                -projectile.getRotation(),
                 0,
                 0,
                 bulletWidth,
@@ -274,9 +272,7 @@ public class PlayScreen implements Screen {
         fixtureDef1.density = 1;
         fixtureDef1.friction = 0;
         fixtureDef1.shape = shape1;
-        fixtureDef1.filter.categoryBits = 1;
         fixtureDef1.filter.maskBits = 1;
-        fixtureDef1.isSensor = true;
         
         PolygonShape shape2 = new PolygonShape();
         shape2.setAsBox(22.5f * UNIT_SCALE, 20f * UNIT_SCALE, new Vector2(0, -10 * UNIT_SCALE), 0);
@@ -284,12 +280,16 @@ public class PlayScreen implements Screen {
         fixtureDef2.density = 1;
         fixtureDef2.friction = 0;
         fixtureDef2.shape = shape2;
-        fixtureDef2.filter.categoryBits = 1;
         fixtureDef2.filter.maskBits = 1;
+
+        FixtureDef fixtureDef3 = new FixtureDef();
+        fixtureDef3.shape = shape1;
+        fixtureDef3.isSensor = true;
         
         // gives body the shape and a density
         pBody.createFixture(fixtureDef1);
         pBody.createFixture(fixtureDef2);
+        pBody.createFixture(fixtureDef3);
         shape1.dispose();
         return pBody;
     }

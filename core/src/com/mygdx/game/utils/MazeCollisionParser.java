@@ -3,6 +3,7 @@ package com.mygdx.game.utils;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
@@ -56,9 +57,14 @@ public class MazeCollisionParser {
                     Body body = world.createBody(def);
                     PolygonShape shape = new PolygonShape();
                     shape.setAsBox((width / 2) * UNIT_SCALE, (height / 2) * UNIT_SCALE);
-
+                    
+                    FixtureDef fixtureDef = new FixtureDef();
+                    fixtureDef.density = 1;
+                    fixtureDef.friction = 0;
+                    fixtureDef.shape = shape;
+                    
                     // gives body the shape and a density
-                    body.createFixture(shape, 1);
+                    body.createFixture(fixtureDef);
                     shape.dispose();
                 }
             }

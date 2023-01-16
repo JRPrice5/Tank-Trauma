@@ -2,33 +2,28 @@ package com.mygdx.game.gameobjects;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.mygdx.game.screens.PlayScreen;
 import com.badlogic.gdx.physics.box2d.World;
 
 
 public class Tank {
     private Body rigidBody;
     private TankBody body;
-    private TankTurret turret;
+    private Turret turret;
     private int forwardSpeed;
     private int backwardSpeed;
     private Vector2 direction;
 
-    public Vector2 getDirection() {
-        return direction;
-    }
     
-    public Tank(String colour, int mapSizeX, int mapSizeY, Body tankRigidBody, World world) {
+    public Tank(String colour, Body tankRigidBody, World world) {
         rigidBody = tankRigidBody;
         body = new TankBody(0, 0, colour, tankRigidBody);
-        turret = new TankTurret(body.getTexture(), colour, tankRigidBody, world);
+        turret = new Turret(body.getTexture(), colour, tankRigidBody, world);
         forwardSpeed = 140;
         backwardSpeed = 110;
         direction = new Vector2(tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).x, -tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).y);
     }
     
     public void update(float dt) {
-        turret.setTurretPosition(rigidBody.getPosition().scl(1 / PlayScreen.UNIT_SCALE));
         direction.x = rigidBody.getLocalVector(rigidBody.getLocalCenter()).x;
         direction.y = -rigidBody.getLocalVector(rigidBody.getLocalCenter()).y;
         
@@ -49,21 +44,22 @@ public class Tank {
     public void turretAngleResolved(float turretRotation) {
         if (turretRotation < 90) {
             turret.setResolvedRotation((float) Math.toRadians(turretRotation));
-            turret.setTurretDirectionX((byte) 1);
-            turret.setTurretDirectionY((byte) 1);
+            turret.setDirectionX((byte) 1);
+            turret.setDirectionY((byte) 1);
         } else if (turretRotation < 180) {
             turret.setResolvedRotation((float) Math.toRadians(180 - turretRotation));
-            turret.setTurretDirectionX((byte) 1);
-            turret.setTurretDirectionY((byte) -1);
+            turret.setDirectionX((byte) 1);
+            turret.setDirectionY((byte) -1);
         } else if (turretRotation < 270) {
             turret.setResolvedRotation((float) Math.toRadians(turretRotation - 180));
-            turret.setTurretDirectionX((byte) -1);
-            turret.setTurretDirectionY((byte) -1);
+            turret.setDirectionX((byte) -1);
+            turret.setDirectionY((byte) -1);
         } else if (turretRotation < 360) {
             turret.setResolvedRotation((float) Math.toRadians(360 - turretRotation));
-            turret.setTurretDirectionX((byte) -1);
-            turret.setTurretDirectionY((byte) 1);     
+            turret.setDirectionX((byte) -1);
+            turret.setDirectionY((byte) 1);     
         }
+        
         
     }
     
@@ -72,7 +68,7 @@ public class Tank {
         body.dispose();
     }
     
-    public TankTurret getTurret() {
+    public Turret getTurret() {
         return turret;
     }
     
@@ -86,5 +82,9 @@ public class Tank {
 
     public int getBackwardSpeed() {
         return backwardSpeed;
+    }
+    
+    public Vector2 getDirection() {
+        return direction;
     }
 }
