@@ -12,7 +12,7 @@ public class Tank {
     private int forwardSpeed;
     private int backwardSpeed;
     private Vector2 direction;
-
+    private boolean isAlive;
     
     public Tank(String colour, Body tankRigidBody, World world) {
         rigidBody = tankRigidBody;
@@ -21,24 +21,28 @@ public class Tank {
         forwardSpeed = 140;
         backwardSpeed = 110;
         direction = new Vector2(tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).x, -tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).y);
+        isAlive = true;
     }
     
     public void update(float dt) {
-        direction.x = rigidBody.getLocalVector(rigidBody.getLocalCenter()).x;
-        direction.y = -rigidBody.getLocalVector(rigidBody.getLocalCenter()).y;
-        
-        float turretRotation = turret.getRotation();
-
-        // Correct rotations that are greater than 360 or smaller than 0
-        if (turretRotation > 359) {
-            turret.appendRotation(-360);
-        } else if (turretRotation < 0) {
-            turret.appendRotation(360);
-        }
-        
-        turretAngleResolved(turretRotation);
-        
         turret.update(dt);
+        if (isAlive) {
+            direction.x = rigidBody.getLocalVector(rigidBody.getLocalCenter()).x;
+            direction.y = -rigidBody.getLocalVector(rigidBody.getLocalCenter()).y;
+
+            float turretRotation = turret.getRotation();
+
+            // Correct rotations that are greater than 360 or smaller than 0
+            if (turretRotation > 359) {
+                turret.appendRotation(-360);
+            } else if (turretRotation < 0) {
+                turret.appendRotation(360);
+            }
+
+            turretAngleResolved(turretRotation);
+        } else {
+            rigidBody.setTransform(100, 100, 0);
+        }
     }
     
     public void turretAngleResolved(float turretRotation) {
@@ -59,13 +63,13 @@ public class Tank {
             turret.setDirectionX((byte) -1);
             turret.setDirectionY((byte) 1);     
         }
-        
-        
     }
     
     public void dispose() {
         turret.dispose();
         body.dispose();
+        rigidBody.setActive(false);
+        rigidBody.getFixtureList().clear();
     }
     
     public Turret getTurret() {
@@ -86,5 +90,17 @@ public class Tank {
     
     public Vector2 getDirection() {
         return direction;
+    }
+    
+    public boolean getAlive() {
+        return isAlive;
+    }
+    
+    public void setAlive(boolean value) {
+        isAlive = value;
+    }
+    
+    public Body getRigidBody() {
+        return rigidBody;
     }
 }

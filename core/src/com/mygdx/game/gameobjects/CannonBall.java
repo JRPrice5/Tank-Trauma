@@ -11,7 +11,7 @@ import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
 
 
 public class CannonBall extends Projectile {
-    private final short SPEED = 250;
+    private final short SPEED = 300;
     private Texture texture;
     private Body body;
     private Vector2 position;
@@ -34,6 +34,11 @@ public class CannonBall extends Projectile {
     
     @Override
     public void update(float dt) {
+        if (!body.isAwake()) {
+            dispose();
+        } else {
+            
+        }
         position.x = body.getWorldCenter().x / UNIT_SCALE + offset.x;
         position.y = body.getWorldCenter().y / UNIT_SCALE + offset.y;
         lifeSpan -= dt;
@@ -54,16 +59,23 @@ public class CannonBall extends Projectile {
         CircleShape shape = new CircleShape();
         shape.setRadius(0.05f);
         
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.density = 1;
-        fixtureDef.friction = 0;
-        fixtureDef.restitution = 1;
-        fixtureDef.shape = shape;
-        fixtureDef.filter.categoryBits = 0x0008;
-        fixtureDef.filter.maskBits = 0x0001;
+        FixtureDef fixtureDef1 = new FixtureDef();
+        fixtureDef1.density = 1;
+        fixtureDef1.friction = 0;
+        fixtureDef1.restitution = 1;
+        fixtureDef1.shape = shape;
+        fixtureDef1.filter.categoryBits = 8;
+        fixtureDef1.filter.maskBits = 2;
+        
+        FixtureDef fixtureDef2 = new FixtureDef();
+        fixtureDef2.isSensor = true;
+        fixtureDef2.shape = shape;
+        fixtureDef2.filter.categoryBits = 8;
+        fixtureDef2.filter.maskBits = 1;
         
         // gives body the shape and a density
-        bullet.createFixture(fixtureDef);
+        bullet.createFixture(fixtureDef1);
+        bullet.createFixture(fixtureDef2);
         bullet.setBullet(true);
         shape.dispose();
         return bullet;
@@ -73,7 +85,7 @@ public class CannonBall extends Projectile {
     public void dispose() {
         texture.dispose();
         body.setActive(false);
-        body.destroyFixture(body.getFixtureList().peek());
+        body.getFixtureList().clear();
     }
     
     @Override

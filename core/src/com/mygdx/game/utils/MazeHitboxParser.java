@@ -8,11 +8,16 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
+import java.util.LinkedList;
 
-public class MazeCollisionParser {
-    // make sure to integrate unit scale into this
-    // maybe merge unit scale with pixels per meter or do research using forums
-    public static void parseMapLayers(World world, MapGenerator map) {
+public class MazeHitboxParser {
+    private LinkedList<Body> walls;
+    
+    public MazeHitboxParser() {
+        walls = new LinkedList();
+    }
+    
+    public void parseMapLayers(World world, MapGenerator map) {
         String[][] tileCornerStates = map.getTileCornerStates();
         for (int i = 0; i < map.getMazeMap().getLayers().getCount(); i++) {
             TiledMapTileLayer layer = (TiledMapTileLayer) map.getMazeMap().getLayers().get(i);
@@ -39,11 +44,11 @@ public class MazeCollisionParser {
                     switch (layer.getName()) {
                         case "vertical-layer":
                             width = 12;
-                            height = 128;
+                            height = 116;
                             def.position.set(x + xOffset, y + 0.5f + yOffset);
                             break;
                         case "horizontal-layer":
-                            width = 128;
+                            width = 116;
                             height = 12;
                             def.position.set(x + 0.5f + xOffset, y + yOffset);
                             break;
@@ -61,13 +66,23 @@ public class MazeCollisionParser {
                     FixtureDef fixtureDef = new FixtureDef();
                     fixtureDef.density = 1;
                     fixtureDef.friction = 0;
+                    fixtureDef.restitution = 1;
                     fixtureDef.shape = shape;
+                    fixtureDef.filter.categoryBits = 2;
                     
                     // gives body the shape and a density
                     body.createFixture(fixtureDef);
+                    walls.add(body);
                     shape.dispose();
                 }
             }
         }
+    }
+    
+    public void dispose() {
+        for (Body body : walls) {
+            body.destroyFixture(body.getFixtureList().first());
+        }
+        walls.clear();
     }
 }

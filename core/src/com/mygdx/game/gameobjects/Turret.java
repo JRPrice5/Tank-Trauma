@@ -102,10 +102,10 @@ public class Turret {
             CannonBall bullet = new CannonBall(
                     (float) (barrelPosition.x
 //                            + (barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            - (directionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 4)),
+                            + (directionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 4)),
                     (float) (barrelPosition.y
 //                            + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            - (directionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 4)), 
+                            + (directionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 4)), 
                     colour,
                     rotation,
                     resolvedRotation,

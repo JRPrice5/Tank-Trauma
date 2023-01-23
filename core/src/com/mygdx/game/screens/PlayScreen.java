@@ -21,8 +21,11 @@ import com.mygdx.game.gameobjects.Tank;
 import com.mygdx.game.gameobjects.TankBody;
 import com.mygdx.game.utils.MapGenerator;
 import com.mygdx.game.gameobjects.Turret;
-import com.mygdx.game.utils.MazeCollisionParser;
+import com.mygdx.game.utils.Listener;
+import com.mygdx.game.utils.MazeHitboxParser;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PlayScreen implements Screen {
     public static final float UNIT_SCALE = 1 / 128f;
@@ -35,30 +38,34 @@ public class PlayScreen implements Screen {
     private int mapSizeX;
     private int mapSizeY;
     
+    
     private final Tank tank;
     private final TankBody body;
     private Turret turret;
     private Projectile projectile;
     private LinkedList<Projectile> playerBullets;
     
+    private Listener contactListener;
     private Box2DDebugRenderer b2dr;
     private World world;
 
     private Body tankRigidBody;
     
-    private final MapGenerator map;
+    private MapGenerator map;
+    private MazeHitboxParser mazeHitboxParser;
     
-    private final OrthogonalTiledMapRenderer groundRenderer;
-    private final OrthogonalTiledMapRenderer mazeRenderer;
+    private OrthogonalTiledMapRenderer groundRenderer;
+    private OrthogonalTiledMapRenderer mazeRenderer;
     
     public PlayScreen(TankTrauma game, int mapSizeX, int mapSizeY) {
         this.game = game;
         
         cam = new OrthographicCamera();
-        viewport = new FitViewport(((mapSizeX + 0.25f) * 16) / 9, mapSizeY + 0.25f, cam);
+        viewport = new FitViewport(mapSizeX + 0.25f, mapSizeY + 0.25f, cam);
         
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
+        
         
         b2dr = new Box2DDebugRenderer();
         world = new World(new Vector2(0, 0), false);
@@ -70,12 +77,13 @@ public class PlayScreen implements Screen {
         turret = tank.getTurret();
         playerBullets = tank.getTurret().getProjectiles();
         
+        contactListener = new Listener(tank);
+        
         map = new MapGenerator(mapSizeX, mapSizeY);
         map.generateGround();
         map.generateMaze();
-        
-        MazeCollisionParser.parseMapLayers(world, map);
-        
+        mazeHitboxParser = new MazeHitboxParser();
+        mazeHitboxParser.parseMapLayers(world, map);
         groundRenderer = new OrthogonalTiledMapRenderer(map.getGroundMap(), UNIT_SCALE);
         mazeRenderer = new OrthogonalTiledMapRenderer(map.getMazeMap(), UNIT_SCALE);
     }
@@ -131,15 +139,23 @@ public class PlayScreen implements Screen {
         }
     }
 
-    public void update(float dt) {
+    public void update(float dt) throws InterruptedException {
         world.step(1 / 60f, 6, 2);
         handleInput();
         tank.update(dt);
+        if (!tank.getAlive()) {
+            tank.setAlive(true);
+            newRound();
+        }
     }
 
     @Override
     public void render(float dt) {
-        update(dt);
+        try {
+            update(dt);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(PlayScreen.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -201,25 +217,27 @@ public class PlayScreen implements Screen {
         
         for (int i = 0; i < turret.getProjectiles().size(); i++) {
             projectile = turret.getProjectiles().get(i);
-            int bulletWidth = projectile.getTexture().getWidth();
-            int bulletHeight = projectile.getTexture().getHeight();
-            game.sb.draw(
-                projectile.getTexture(),
-                projectile.getPosition().x * UNIT_SCALE,
-                projectile.getPosition().y * UNIT_SCALE,
-                0,
-                0,
-                bulletWidth * UNIT_SCALE,
-                bulletHeight * UNIT_SCALE,
-                1,
-                1,
-                -projectile.getRotation(),
-                0,
-                0,
-                bulletWidth,
-                bulletHeight,
-                false,
-                false);
+            if (projectile.getBody().isAwake()) {
+                int bulletWidth = projectile.getTexture().getWidth();
+                int bulletHeight = projectile.getTexture().getHeight();
+                game.sb.draw(
+                    projectile.getTexture(),
+                    projectile.getPosition().x * UNIT_SCALE,
+                    projectile.getPosition().y * UNIT_SCALE,
+                    0,
+                    0,
+                    bulletWidth * UNIT_SCALE,
+                    bulletHeight * UNIT_SCALE,
+                    1,
+                    1,
+                    -projectile.getRotation(),
+                    0,
+                    0,
+                    bulletWidth,
+                    bulletHeight,
+                    false,
+                    false);
+            }
         }
         
         game.sb.draw(
@@ -249,7 +267,18 @@ public class PlayScreen implements Screen {
         
         game.sb.end();
         
-//        b2dr.render(world, cam.combined);
+        b2dr.render(world, cam.combined);
+    }
+    
+    public void newRound() {
+        map = new MapGenerator(mapSizeX, mapSizeY);
+        map.generateGround();
+        map.generateMaze();
+        mazeHitboxParser.dispose();
+        mazeHitboxParser.parseMapLayers(world, map);
+        groundRenderer = new OrthogonalTiledMapRenderer(map.getGroundMap(), UNIT_SCALE);
+        mazeRenderer = new OrthogonalTiledMapRenderer(map.getMazeMap(), UNIT_SCALE);
+        tank.getRigidBody().setTransform(4.5f, 4.5f, 0);
     }
     
     public Body createTankBody(float x, float y) {
@@ -272,7 +301,6 @@ public class PlayScreen implements Screen {
         fixtureDef1.density = 1;
         fixtureDef1.friction = 0;
         fixtureDef1.shape = shape1;
-        fixtureDef1.filter.maskBits = 1;
         
         PolygonShape shape2 = new PolygonShape();
         shape2.setAsBox(22.5f * UNIT_SCALE, 20f * UNIT_SCALE, new Vector2(0, -10 * UNIT_SCALE), 0);
@@ -280,11 +308,13 @@ public class PlayScreen implements Screen {
         fixtureDef2.density = 1;
         fixtureDef2.friction = 0;
         fixtureDef2.shape = shape2;
-        fixtureDef2.filter.maskBits = 1;
+        fixtureDef2.filter.maskBits = 2;
 
         FixtureDef fixtureDef3 = new FixtureDef();
         fixtureDef3.shape = shape1;
         fixtureDef3.isSensor = true;
+        fixtureDef3.filter.maskBits = 8;
+        fixtureDef3.filter.categoryBits = 2;
         
         // gives body the shape and a density
         pBody.createFixture(fixtureDef1);
@@ -296,6 +326,7 @@ public class PlayScreen implements Screen {
     
     @Override
     public void show() {
+        world.setContactListener(contactListener);
     }
 
     @Override

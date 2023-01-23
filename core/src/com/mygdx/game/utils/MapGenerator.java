@@ -392,6 +392,10 @@ public class MapGenerator {
         }
     }
     
+    public void reset() {
+        
+    }
+    
     private void deleteNorthWall(int xCoord, int yCoord) {
         Cell cell = new Cell();
         horizontalLayer.setCell(xCoord, yCoord, cell);
