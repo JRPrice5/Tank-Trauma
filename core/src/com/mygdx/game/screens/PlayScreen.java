@@ -24,48 +24,56 @@ import com.mygdx.game.gameobjects.Turret;
 import com.mygdx.game.utils.Listener;
 import com.mygdx.game.utils.MazeHitboxParser;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Random;
 
 public class PlayScreen implements Screen {
     public static final float UNIT_SCALE = 1 / 128f;
     
     private final TankTrauma game;
     
-    private final OrthographicCamera cam;
-    private final Viewport viewport;
-    
     private int mapSizeX;
-    private int mapSizeY;
+    private final int maxWidth;
+    private final int minWidth;
     
+    private int mapSizeY;
+    private final int maxHeight;
+    private final int minHeight;
+    
+    private OrthographicCamera cam;
+    private Viewport viewport;
     
     private final Tank tank;
     private final TankBody body;
-    private Turret turret;
+    private final Turret turret;
     private Projectile projectile;
-    private LinkedList<Projectile> playerBullets;
     
-    private Listener contactListener;
-    private Box2DDebugRenderer b2dr;
-    private World world;
+    private final Listener contactListener;
+    private final Box2DDebugRenderer b2dr;
+    private final World world;
 
-    private Body tankRigidBody;
+    private final Body tankRigidBody;
     
     private MapGenerator map;
-    private MazeHitboxParser mazeHitboxParser;
+    private final MazeHitboxParser mazeHitboxParser;
     
     private OrthogonalTiledMapRenderer groundRenderer;
     private OrthogonalTiledMapRenderer mazeRenderer;
     
-    public PlayScreen(TankTrauma game, int mapSizeX, int mapSizeY) {
+    public PlayScreen(TankTrauma game, int maxWidth, int minWidth, int maxHeight, int minHeight) {
         this.game = game;
+        
+        Random random = new Random();
+        
+        mapSizeX = random.nextInt(maxWidth - minWidth + 1) + minWidth;
+        this.maxWidth = maxWidth;
+        this.minWidth = minWidth;
+        
+        mapSizeY = random.nextInt(maxHeight - minHeight + 1) + minHeight;
+        this.maxHeight = maxHeight;
+        this.minHeight = minHeight;
         
         cam = new OrthographicCamera();
         viewport = new FitViewport(mapSizeX + 0.25f, mapSizeY + 0.25f, cam);
-        
-        this.mapSizeX = mapSizeX;
-        this.mapSizeY = mapSizeY;
-        
         
         b2dr = new Box2DDebugRenderer();
         world = new World(new Vector2(0, 0), false);
@@ -75,9 +83,9 @@ public class PlayScreen implements Screen {
         tank = new Tank("red", tankRigidBody, world);
         body = tank.getBody();
         turret = tank.getTurret();
-        playerBullets = tank.getTurret().getProjectiles();
+        tank.getTurret().getProjectiles();
         
-        contactListener = new Listener(tank);
+        contactListener = new Listener(tank, turret.getProjectiles());
         
         map = new MapGenerator(mapSizeX, mapSizeY);
         map.generateGround();
@@ -139,7 +147,7 @@ public class PlayScreen implements Screen {
         }
     }
 
-    public void update(float dt) throws InterruptedException {
+    public void update(float dt) {
         world.step(1 / 60f, 6, 2);
         handleInput();
         tank.update(dt);
@@ -151,11 +159,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void render(float dt) {
-        try {
-            update(dt);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(PlayScreen.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        update(dt);
         
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -171,8 +175,8 @@ public class PlayScreen implements Screen {
         int[] layer2 = {1};
         int[] layer3 = {2};
         
-        float xOffset = (map.getMapSizeX() % 2 == 0) ? 0 : 0.5f;
-        float yOffset = (map.getMapSizeY() % 2 == 0) ? 0 : 0.5f;
+        float xOffset = (mapSizeX % 2 == 0) ? 0 : 0.5f;
+        float yOffset = (mapSizeY % 2 == 0) ? 0 : 0.5f;
         
         cam.position.set((mapSizeX / 2) + xOffset, (mapSizeY / 2) + yOffset, 0);
         cam.update();
@@ -194,7 +198,6 @@ public class PlayScreen implements Screen {
         // Sets camera position to centre and sets the viewport dimensions
         cam.position.set(mapSizeX / 2, mapSizeY / 2, 0);
         cam.update();
-        viewport.setCamera(cam);
         
         // Render tank
         game.sb.begin();
@@ -271,9 +274,19 @@ public class PlayScreen implements Screen {
     }
     
     public void newRound() {
+        Random random = new Random();
+        mapSizeX = random.nextInt(maxWidth - minWidth + 1) + minWidth;
+        mapSizeY = random.nextInt(maxHeight - minHeight + 1) + minHeight;
+        viewport = new FitViewport(mapSizeX + 0.25f, mapSizeY + 0.25f, cam);
         map = new MapGenerator(mapSizeX, mapSizeY);
         map.generateGround();
         map.generateMaze();
+        LinkedList projectiles = turret.getProjectiles();
+        for (int i = 0; i < projectiles.size(); i++) {
+            Projectile projectile = (Projectile) projectiles.get(i);
+            projectile.dispose();
+            projectiles.remove(i);
+        }
         mazeHitboxParser.dispose();
         mazeHitboxParser.parseMapLayers(world, map);
         groundRenderer = new OrthogonalTiledMapRenderer(map.getGroundMap(), UNIT_SCALE);

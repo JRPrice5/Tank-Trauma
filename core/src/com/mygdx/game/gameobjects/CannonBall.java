@@ -18,6 +18,7 @@ public class CannonBall extends Projectile {
     private Vector2 offset;
     private float rotation;
     private float lifeSpan;
+    private int collisionCount;
 
     public CannonBall(float x, float y, String colour, float rotation,
             float resolvedRotation, World world, byte barrelAdjustmentX,
@@ -30,12 +31,13 @@ public class CannonBall extends Projectile {
         body.setLinearVelocity((turretDirection.x * SPEED / turretDirection.len()) * UNIT_SCALE,
                     (turretDirection.y * SPEED / turretDirection.len()) * UNIT_SCALE);
         lifeSpan = 12;
+        collisionCount = 0;
     }
     
     @Override
     public void update(float dt) {
         if (!body.isAwake()) {
-            dispose();
+            lifeSpan = 0;
         } else {
             
         }
@@ -111,5 +113,15 @@ public class CannonBall extends Projectile {
     @Override
     public float getLifeSpan() {
         return lifeSpan;
+    }
+    
+    @Override
+    public int getCollisionCount() {
+        return collisionCount;
+    }
+    
+    @Override
+    public void incrementCollisionCount() {
+        collisionCount++;
     }
 }

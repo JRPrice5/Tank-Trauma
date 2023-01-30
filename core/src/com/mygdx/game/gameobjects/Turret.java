@@ -3,6 +3,9 @@ package com.mygdx.game.gameobjects;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import java.util.LinkedList;
 import com.badlogic.gdx.physics.box2d.World;
 import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
@@ -33,6 +36,7 @@ public class Turret {
         this.world = world;
         this.colour = colour;
         this.tankRigidBody = tankRigidBody;
+//        rigidBody = createBarrelBody();
         turret = "tank"+colour+"_barrel.png";
         texture = new Texture(turret);
         bulletTexture = new Texture("cannonBall"+colour+"Small.png");
@@ -40,8 +44,8 @@ public class Turret {
         rotation = 0;
         direction = new Vector2((float)java.lang.Math.sin(Math.toRadians(rotation)), (float)java.lang.Math.cos(Math.toRadians(rotation)));
         rotationSpeed = 1.3f;
-        projectiles = new LinkedList();
         reloadTime = 0;
+        projectiles = new LinkedList<Projectile>();
     }
     
     public void update(float dt) {
@@ -60,15 +64,17 @@ public class Turret {
             barrelLength = 47;
         } 
         
+//        rigidBody.setTransform(barrelPosition.x * UNIT_SCALE, barrelPosition.y * UNIT_SCALE, 0);
+        
         direction.x = (float)java.lang.Math.sin(Math.toRadians(rotation));
         direction.y = (float)java.lang.Math.cos(Math.toRadians(rotation));
         
         // try to remove this update loop
         for (int i = 0; i < projectiles.size(); i++) {
-            Projectile bullet = projectiles.get(i);
-            bullet.update(dt);
-            if (bullet.getLifeSpan() <= 0) {
-                bullet.dispose();
+            Projectile projectile = projectiles.get(i);
+            projectile.update(dt);
+            if (projectile.getLifeSpan() <= 0) {
+                projectile.dispose();
                 projectiles.remove(i);
             }
         }
@@ -99,13 +105,13 @@ public class Turret {
         } 
         
         if (reloadTime <= 0) {
-            CannonBall bullet = new CannonBall(
+            CannonBall cannonBall = new CannonBall(
                     (float) (barrelPosition.x
 //                            + (barrelAdjustmentX * java.lang.Math.cos(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            + (directionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 4)),
+                            - (directionX * java.lang.Math.sin(resolvedRotation) * bulletTexture.getHeight() / 4)),
                     (float) (barrelPosition.y
 //                            + (barrelAdjustmentY * java.lang.Math.sin(resolvedRotation) * bulletTexture.getWidth() / 2)
-                            + (directionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 4)), 
+                            - (directionY * java.lang.Math.cos(resolvedRotation) * bulletTexture.getHeight() / 4)), 
                     colour,
                     rotation,
                     resolvedRotation,
@@ -115,9 +121,32 @@ public class Turret {
                     directionX,
                     directionY,
                     direction);
-            projectiles.add(bullet);
+            projectiles.add(cannonBall);
             reloadTime = 1;
         }
+    }
+    
+    public Body createBarrelBody() {
+        Body body;
+        BodyDef def = new BodyDef();
+        
+        def.type = BodyDef.BodyType.StaticBody;
+        def.fixedRotation = true;
+        // initializes the body and puts it into the box2d world
+        // with the body definition properties
+        body = world.createBody(def);
+        
+        CircleShape shape = new CircleShape();
+        shape.setRadius(0.1f);
+        // Barrel fixture
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+//        fixtureDef.isSensor = true;
+        fixtureDef.filter.maskBits = 8;
+        fixtureDef.filter.categoryBits = 2;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef);
+        return body;
     }
     
     public void dispose() {

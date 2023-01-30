@@ -21,4 +21,6 @@ public abstract class Projectile {
     public abstract Texture getTexture();
     public abstract Vector2 getPosition();
     public abstract float getLifeSpan();
+    public abstract int getCollisionCount();
+    public abstract void incrementCollisionCount();
 }
