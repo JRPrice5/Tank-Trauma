@@ -38,8 +38,6 @@ public class CannonBall extends Projectile {
     public void update(float dt) {
         if (!body.isAwake()) {
             lifeSpan = 0;
-        } else {
-            
         }
         position.x = body.getWorldCenter().x / UNIT_SCALE + offset.x;
         position.y = body.getWorldCenter().y / UNIT_SCALE + offset.y;

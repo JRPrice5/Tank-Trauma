@@ -277,6 +277,10 @@ public class PlayScreen implements Screen {
         Random random = new Random();
         mapSizeX = random.nextInt(maxWidth - minWidth + 1) + minWidth;
         mapSizeY = random.nextInt(maxHeight - minHeight + 1) + minHeight;
+        cam.viewportWidth = mapSizeX + 0.25f;
+        cam.viewportHeight = mapSizeY + 0.25f;
+        cam.update();
+//        viewport.update((int)(mapSizeX / UNIT_SCALE), (int)(mapSizeY / UNIT_SCALE), true);
         viewport = new FitViewport(mapSizeX + 0.25f, mapSizeY + 0.25f, cam);
         map = new MapGenerator(mapSizeX, mapSizeY);
         map.generateGround();
