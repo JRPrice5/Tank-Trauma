@@ -48,19 +48,19 @@ public class Tank {
     
     public void turretAngleResolved(float turretRotation) {
         if (turretRotation < 90) {
-            turret.setResolvedRotation((float) Math.toRadians(turretRotation));
+            turret.setResolvedRotation((float) Math.toRadians(360 - turretRotation));
             turret.setDirectionX((byte) 1);
             turret.setDirectionY((byte) 1);
         } else if (turretRotation < 180) {
-            turret.setResolvedRotation((float) Math.toRadians(180 - turretRotation));
+            turret.setResolvedRotation((float) Math.toRadians(360 - (180 - turretRotation)));
             turret.setDirectionX((byte) 1);
             turret.setDirectionY((byte) -1);
         } else if (turretRotation < 270) {
-            turret.setResolvedRotation((float) Math.toRadians(turretRotation - 180));
+            turret.setResolvedRotation((float) Math.toRadians(360 - (turretRotation - 180)));
             turret.setDirectionX((byte) -1);
             turret.setDirectionY((byte) -1);
         } else if (turretRotation < 360) {
-            turret.setResolvedRotation((float) Math.toRadians(360 - turretRotation));
+            turret.setResolvedRotation((float) Math.toRadians(360 - (360 - turretRotation)));
             turret.setDirectionX((byte) -1);
             turret.setDirectionY((byte) 1);     
         }

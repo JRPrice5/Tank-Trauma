@@ -98,7 +98,6 @@ public class PlayScreen implements Screen {
 
     public void handleInput() {
         float bodyRotationSpeed = body1.getRotationSpeed();
-        float turretRotationSpeed = turret1.getRotationSpeed();
         
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
         
@@ -107,28 +106,18 @@ public class PlayScreen implements Screen {
         // Control turret and body rotation speeds, depending on user input
         if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
             tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + bodyRotationSpeed);
-            turret1.appendRotation(-turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
             tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + bodyRotationSpeed);
-            turret1.appendRotation(turretRotationSpeed - bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + bodyRotationSpeed);
-            turret1.appendRotation(-bodyRotationSpeed);
-        } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
-            turret1.appendRotation(-turretRotationSpeed);
-        } 
+        }
         
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
             tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - bodyRotationSpeed);
-            turret1.appendRotation(turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
             tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - bodyRotationSpeed);
-            turret1.appendRotation(-turretRotationSpeed + bodyRotationSpeed);
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - bodyRotationSpeed);
-            turret1.appendRotation(bodyRotationSpeed);
-        } else if ((Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.A))) {
-            turret1.appendRotation(turretRotationSpeed);
         }
         
         tank1RigidBody.setLinearVelocity(0, 0);
@@ -142,7 +131,7 @@ public class PlayScreen implements Screen {
                     (-tank1.getDirection().y * tank1.getBackwardSpeed() / tank1.getDirection().len()) * UNIT_SCALE);
         }
         
-        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             turret1.shoot();
         }
     }
@@ -210,7 +199,7 @@ public class PlayScreen implements Screen {
                 tankHeight * UNIT_SCALE,
                 1,
                 1, 
-                (float) Math.toDegrees(tank1RigidBody.getAngle()), 
+                (float) (Math.toDegrees(tank1RigidBody.getAngle())), 
                 0,
                 0,
                 tankWidth,
@@ -243,8 +232,7 @@ public class PlayScreen implements Screen {
             }
         }
         
-        game.sb.draw(
-                turret1.getTexture(),
+        game.sb.draw(turret1.getTexture(),
                 tank1RigidBody.getWorldCenter().x - (turret1.getTexture().getWidth() / 2 * UNIT_SCALE), 
                 tank1RigidBody.getWorldCenter().y - ((turret1.getTexture().getHeight() - turret1.getBarrelLength()) * UNIT_SCALE),
                 (turretWidth / 2) * UNIT_SCALE,
@@ -252,8 +240,7 @@ public class PlayScreen implements Screen {
                 turretWidth * UNIT_SCALE,
                 turretHeight * UNIT_SCALE,
                 1,
-                1,
-                360 - turret1.getRotation(),
+                1, (float) (Math.toDegrees(tank1.getRigidBody().getAngle())),
                 0,
                 0,
                 turretWidth,
@@ -261,12 +248,12 @@ public class PlayScreen implements Screen {
                 false,
                 false);        
         
-//        game.sb.draw(
-//                turret.getBulletTexture(),
-//                (turret.getBarrelPosition().x - turret.getBulletTexture().getWidth() / 2) * UNIT_SCALE, 
-//                (turret.getBarrelPosition().y - turret.getBulletTexture().getHeight() / 2) * UNIT_SCALE, 
-//                turret.getBulletTexture().getWidth() * UNIT_SCALE,
-//                turret.getBulletTexture().getHeight() * UNIT_SCALE);  
+        game.sb.draw(
+                turret1.getBulletTexture(),
+                (turret1.getBarrelPosition().x - turret1.getBulletTexture().getWidth() / 2) * UNIT_SCALE, 
+                (turret1.getBarrelPosition().y - turret1.getBulletTexture().getHeight() / 2) * UNIT_SCALE, 
+                turret1.getBulletTexture().getWidth() * UNIT_SCALE,
+                turret1.getBulletTexture().getHeight() * UNIT_SCALE);  
         
         game.sb.end();
         

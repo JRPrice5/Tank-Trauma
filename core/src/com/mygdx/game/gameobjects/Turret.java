@@ -3,9 +3,6 @@ package com.mygdx.game.gameobjects;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import java.util.LinkedList;
 import com.badlogic.gdx.physics.box2d.World;
 import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
@@ -36,16 +33,14 @@ public class Turret {
         this.world = world;
         this.colour = colour;
         this.tankRigidBody = tankRigidBody;
-//        rigidBody = createBarrelBody();
         turret = "tank"+colour+"_barrel.png";
         texture = new Texture(turret);
         bulletTexture = new Texture("cannonBall"+colour+"Small.png");
         barrelPosition = new Vector2(tankRigidBody.getWorldCenter().x / UNIT_SCALE, tankRigidBody.getWorldCenter().y / UNIT_SCALE + barrelLength);
         rotation = 0;
-        direction = new Vector2((float)java.lang.Math.sin(Math.toRadians(rotation)), (float)java.lang.Math.cos(Math.toRadians(rotation)));
-        rotationSpeed = 1.3f;
+        direction = new Vector2((float)java.lang.Math.sin(Math.toRadians(180 - rotation)), (float)java.lang.Math.cos(Math.toRadians(180 - rotation)));
         reloadTime = 0;
-        projectiles = new LinkedList<Projectile>();
+        projectiles = new LinkedList<>();
     }
     
     public void update(float dt) {
@@ -64,8 +59,8 @@ public class Turret {
             barrelLength = 47;
         } 
         
-//        rigidBody.setTransform(barrelPosition.x * UNIT_SCALE, barrelPosition.y * UNIT_SCALE, 0);
-        
+        rotation = (float) Math.toDegrees(tankRigidBody.getAngle());
+
         direction.x = (float)java.lang.Math.sin(Math.toRadians(rotation));
         direction.y = (float)java.lang.Math.cos(Math.toRadians(rotation));
         
@@ -124,29 +119,6 @@ public class Turret {
             projectiles.add(cannonBall);
             reloadTime = 1;
         }
-    }
-    
-    public Body createBarrelBody() {
-        Body body;
-        BodyDef def = new BodyDef();
-        
-        def.type = BodyDef.BodyType.StaticBody;
-        def.fixedRotation = true;
-        // initializes the body and puts it into the box2d world
-        // with the body definition properties
-        body = world.createBody(def);
-        
-        CircleShape shape = new CircleShape();
-        shape.setRadius(0.1f);
-        // Barrel fixture
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-//        fixtureDef.isSensor = true;
-        fixtureDef.filter.maskBits = 8;
-        fixtureDef.filter.categoryBits = 2;
-        fixtureDef.isSensor = true;
-        body.createFixture(fixtureDef);
-        return body;
     }
     
     public void dispose() {
