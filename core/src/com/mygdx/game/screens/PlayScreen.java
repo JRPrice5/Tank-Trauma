@@ -45,13 +45,21 @@ public class PlayScreen implements Screen {
     private final Tank tank1;
     private final TankBody body1;
     private final Turret turret1;
+    
+    private final Tank tank2;
+    private final TankBody body2;
+    private final Turret turret2;
+    
     private Projectile projectile;
+    private LinkedList projectiles1;
+    private LinkedList projectiles2;
     
     private final Listener contactListener;
     private final Box2DDebugRenderer b2dr;
     private final World world;
 
     private final Body tank1RigidBody;
+    private final Body tank2RigidBody;
     
     private MapGenerator map;
     private final MazeHitboxParser mazeHitboxParser;
@@ -83,9 +91,16 @@ public class PlayScreen implements Screen {
         tank1 = new Tank("green", tank1RigidBody, world);
         body1 = tank1.getBody();
         turret1 = tank1.getTurret();
-        tank1.getTurret().getProjectiles();
         
-        contactListener = new Listener(tank1, turret1.getProjectiles());
+        tank2RigidBody = createTankBody(3.5f, 3.5f);
+        tank2RigidBody.setSleepingAllowed(false);
+        
+        tank2 = new Tank("sand", tank2RigidBody, world);
+        body2 = tank2.getBody();
+        turret2 = tank2.getTurret();
+        
+        contactListener = new Listener(tank1, tank1.getTurret().getProjectiles(), 
+                tank2, tank2.getTurret().getProjectiles());
         
         map = new MapGenerator(mapSizeX, mapSizeY);
         map.generateGround();
@@ -97,42 +112,50 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput() {
-        float bodyRotationSpeed = body1.getRotationSpeed();
-        
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
         
         tank1RigidBody.setAngularVelocity(0);
+        tank2RigidBody.setAngularVelocity(0);
         
         // Control turret and body rotation speeds, depending on user input
-        if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + bodyRotationSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + bodyRotationSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + bodyRotationSpeed);
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() + body1.getRotationSpeed());
         }
-        
-        if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - bodyRotationSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - bodyRotationSpeed);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - bodyRotationSpeed);
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
+            tank2RigidBody.setAngularVelocity(tank2RigidBody.getAngularVelocity() + body2.getRotationSpeed());
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            tank1RigidBody.setAngularVelocity(tank1RigidBody.getAngularVelocity() - body1.getRotationSpeed());
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
+            tank2RigidBody.setAngularVelocity(tank2RigidBody.getAngularVelocity() - body2.getRotationSpeed());
         }
         
         tank1RigidBody.setLinearVelocity(0, 0);
+        tank2RigidBody.setLinearVelocity(0, 0);
         
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             tank1RigidBody.setLinearVelocity((tank1.getDirection().x * tank1.getForwardSpeed() / tank1.getDirection().len()) * UNIT_SCALE,
                     (tank1.getDirection().y * tank1.getForwardSpeed() / tank1.getDirection().len()) * UNIT_SCALE);
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
+            tank2RigidBody.setLinearVelocity((tank2.getDirection().x * tank2.getForwardSpeed() / tank2.getDirection().len()) * UNIT_SCALE,
+                    (tank2.getDirection().y * tank2.getForwardSpeed() / tank2.getDirection().len()) * UNIT_SCALE);
+        }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             tank1RigidBody.setLinearVelocity((-tank1.getDirection().x * tank1.getBackwardSpeed() / tank1.getDirection().len()) * UNIT_SCALE,
                     (-tank1.getDirection().y * tank1.getBackwardSpeed() / tank1.getDirection().len()) * UNIT_SCALE);
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN)) {
+            tank2RigidBody.setLinearVelocity((-tank2.getDirection().x * tank2.getBackwardSpeed() / tank2.getDirection().len()) * UNIT_SCALE,
+                    (-tank2.getDirection().y * tank2.getBackwardSpeed() / tank2.getDirection().len()) * UNIT_SCALE);
+        }
         
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             turret1.shoot();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
+            turret2.shoot();
         }
     }
 
@@ -140,8 +163,9 @@ public class PlayScreen implements Screen {
         world.step(1 / 60f, 6, 2);
         handleInput();
         tank1.update(dt);
-        if (!tank1.getAlive()) {
+        if (!tank1.getAlive() && !tank2.getAlive()) {
             tank1.setAlive(true);
+            tank2.setAlive(true);
             newRound();
         }
     }
@@ -207,8 +231,50 @@ public class PlayScreen implements Screen {
                 false,
                 false);
         
+        game.sb.draw(body2.getTexture(),
+                tank2RigidBody.getWorldCenter().x - ((body2.getTexture().getWidth() / 2) * UNIT_SCALE),
+                tank2RigidBody.getWorldCenter().y + ((5 - (body2.getTexture().getHeight() / 2)) * UNIT_SCALE),
+                (tankWidth / 2) * UNIT_SCALE,
+                ((tankHeight / 2) - 5) * UNIT_SCALE,
+                tankWidth * UNIT_SCALE,
+                tankHeight * UNIT_SCALE,
+                1,
+                1, 
+                (float) (Math.toDegrees(tank2RigidBody.getAngle())), 
+                0,
+                0,
+                tankWidth,
+                tankHeight,
+                false,
+                false);
+        
         for (int i = 0; i < turret1.getProjectiles().size(); i++) {
             projectile = turret1.getProjectiles().get(i);
+            if (projectile.getBody().isAwake()) {
+                int bulletWidth = projectile.getTexture().getWidth();
+                int bulletHeight = projectile.getTexture().getHeight();
+                game.sb.draw(
+                    projectile.getTexture(),
+                    projectile.getPosition().x * UNIT_SCALE,
+                    projectile.getPosition().y * UNIT_SCALE,
+                    0,
+                    0,
+                    bulletWidth * UNIT_SCALE,
+                    bulletHeight * UNIT_SCALE,
+                    1,
+                    1,
+                    -projectile.getRotation(),
+                    0,
+                    0,
+                    bulletWidth,
+                    bulletHeight,
+                    false,
+                    false);
+            }
+        }
+        
+        for (int i = 0; i < turret2.getProjectiles().size(); i++) {
+            projectile = turret2.getProjectiles().get(i);
             if (projectile.getBody().isAwake()) {
                 int bulletWidth = projectile.getTexture().getWidth();
                 int bulletHeight = projectile.getTexture().getHeight();
@@ -246,14 +312,30 @@ public class PlayScreen implements Screen {
                 turretWidth,
                 turretHeight,
                 false,
+                false);      
+        
+        game.sb.draw(turret2.getTexture(),
+                tank2RigidBody.getWorldCenter().x - (turret2.getTexture().getWidth() / 2 * UNIT_SCALE), 
+                tank2RigidBody.getWorldCenter().y - ((turret2.getTexture().getHeight() - turret2.getBarrelLength()) * UNIT_SCALE),
+                (turretWidth / 2) * UNIT_SCALE,
+                (turret2.getTexture().getHeight() - turret2.getBarrelLength()) * UNIT_SCALE,
+                turretWidth * UNIT_SCALE,
+                turretHeight * UNIT_SCALE,
+                1,
+                1, (float) (Math.toDegrees(tank2.getRigidBody().getAngle())),
+                0,
+                0,
+                turretWidth,
+                turretHeight,
+                false,
                 false);        
         
-        game.sb.draw(
-                turret1.getBulletTexture(),
-                (turret1.getBarrelPosition().x - turret1.getBulletTexture().getWidth() / 2) * UNIT_SCALE, 
-                (turret1.getBarrelPosition().y - turret1.getBulletTexture().getHeight() / 2) * UNIT_SCALE, 
-                turret1.getBulletTexture().getWidth() * UNIT_SCALE,
-                turret1.getBulletTexture().getHeight() * UNIT_SCALE);  
+//        game.sb.draw(
+//                turret1.getBulletTexture(),
+//                (turret1.getBarrelPosition().x - turret1.getBulletTexture().getWidth() / 2) * UNIT_SCALE, 
+//                (turret1.getBarrelPosition().y - turret1.getBulletTexture().getHeight() / 2) * UNIT_SCALE, 
+//                turret1.getBulletTexture().getWidth() * UNIT_SCALE,
+//                turret1.getBulletTexture().getHeight() * UNIT_SCALE);  
         
         game.sb.end();
         

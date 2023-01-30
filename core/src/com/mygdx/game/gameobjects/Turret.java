@@ -38,7 +38,7 @@ public class Turret {
         bulletTexture = new Texture("cannonBall"+colour+"Small.png");
         barrelPosition = new Vector2(tankRigidBody.getWorldCenter().x / UNIT_SCALE, tankRigidBody.getWorldCenter().y / UNIT_SCALE + barrelLength);
         rotation = 0;
-        direction = new Vector2((float)java.lang.Math.sin(Math.toRadians(180 - rotation)), (float)java.lang.Math.cos(Math.toRadians(180 - rotation)));
+        direction = new Vector2((float)java.lang.Math.sin(Math.toRadians(rotation)), (float)java.lang.Math.cos(Math.toRadians(rotation)));
         reloadTime = 0;
         projectiles = new LinkedList<>();
     }

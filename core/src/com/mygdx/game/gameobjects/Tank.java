@@ -3,7 +3,6 @@ package com.mygdx.game.gameobjects;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
-import java.util.ArrayList;
 
 
 public class Tank {
@@ -14,15 +13,18 @@ public class Tank {
     private int backwardSpeed;
     private Vector2 direction;
     private boolean isAlive;
+    private String colour;
     
     public Tank(String colour, Body tankRigidBody, World world) {
         rigidBody = tankRigidBody;
+        rigidBody.getFixtureList().get(2).setUserData(colour);
         body = new TankBody(0, 0, colour, tankRigidBody);
         turret = new Turret(body.getTexture(), colour, tankRigidBody, world);
         forwardSpeed = 140;
         backwardSpeed = 110;
         direction = new Vector2(tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).x, -tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).y);
         isAlive = true;
+        this.colour = colour;
     }
     
     public void update(float dt) {
@@ -103,5 +105,9 @@ public class Tank {
     
     public Body getRigidBody() {
         return rigidBody;
+    }
+    
+    public String getColour() {
+        return colour;
     }
 }

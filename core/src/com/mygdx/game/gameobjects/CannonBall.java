@@ -26,9 +26,10 @@ public class CannonBall extends Projectile {
             Vector2 turretDirection) {
         texture = new Texture("cannonBall"+colour+"Small.png");
         body = createRigidBody(x, y, world);
+        body.getFixtureList().first().setUserData(colour);
         offset = new Vector2(-texture.getWidth() / 2, -texture.getHeight() / 2);
         position = new Vector2(x + offset.x, y + offset.y);
-        body.setLinearVelocity((turretDirection.x * SPEED / turretDirection.len()) * UNIT_SCALE,
+        body.setLinearVelocity((-turretDirection.x * SPEED / turretDirection.len()) * UNIT_SCALE,
                     (turretDirection.y * SPEED / turretDirection.len()) * UNIT_SCALE);
         lifeSpan = 12;
         collisionCount = 0;
