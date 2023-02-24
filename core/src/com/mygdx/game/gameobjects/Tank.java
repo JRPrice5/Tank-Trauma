@@ -1,88 +1,104 @@
 package com.mygdx.game.gameobjects;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import static com.mygdx.game.screens.GameScreen.UNIT_SCALE;
+import java.util.LinkedList;
 
 
 public class Tank {
+    private final short BARREL_OFFSET = 3;
+    private short barrelLength = 44;
     private Body rigidBody;
-    private TankBody body;
-    private Turret turret;
     private int forwardSpeed;
     private int backwardSpeed;
     private Vector2 direction;
+    private float rotation;
     private boolean isAlive;
     private String colour;
+    private Texture bodyTexture;
+    private Texture turretTexture;
+    private Texture bulletTexture;
+    private float rotationSpeed;
+    private World world;
+    private Vector2 barrelPosition;
+    private float reloadTime;
+    private LinkedList projectiles;
+    private byte directionX;
+    private byte directionY;
+    private float resolvedRotation;
     
-    public Tank(String colour, Body tankRigidBody, World world) {
-        rigidBody = tankRigidBody;
+    public Tank(String colour, Body rigidBody, World world) {
+        this.rigidBody = rigidBody;
         rigidBody.getFixtureList().get(2).setUserData(colour);
-        body = new TankBody(0, 0, colour, tankRigidBody);
-        turret = new Turret(body.getTexture(), colour, tankRigidBody, world);
-        forwardSpeed = 140;
-        backwardSpeed = 110;
-        direction = new Vector2(tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).x, -tankRigidBody.getLocalVector(tankRigidBody.getLocalCenter()).y);
+        forwardSpeed = 160;
+        backwardSpeed = 120;
+        direction = new Vector2(rigidBody.getLocalVector(rigidBody.getLocalCenter()).x, -rigidBody.getLocalVector(rigidBody.getLocalCenter()).y);
         isAlive = true;
         this.colour = colour;
+        bodyTexture = new Texture("tankBody_"+colour+".png");
+        turretTexture = new Texture("tank"+colour+"_barrel.png");
+        bulletTexture = new Texture("cannonBall"+colour+"Small.png");
+        rotationSpeed = 2f;
+        this.world = world;
+        barrelPosition = new Vector2(rigidBody.getWorldCenter().x / UNIT_SCALE, rigidBody.getWorldCenter().y / UNIT_SCALE + barrelLength);
+        reloadTime = 0;
+        projectiles = new LinkedList<>();
     }
     
     public void update(float dt) {
-        turret.update(dt);
         if (isAlive) {
             direction.x = rigidBody.getLocalVector(rigidBody.getLocalCenter()).x;
             direction.y = -rigidBody.getLocalVector(rigidBody.getLocalCenter()).y;
-
-            float turretRotation = turret.getRotation();
-
-            // Correct rotations that are greater than 360 or smaller than 0
-            if (turretRotation > 359) {
-                turret.appendRotation(-360);
-            } else if (turretRotation < 0) {
-                turret.appendRotation(360);
+            rotation = (float) Math.toDegrees(rigidBody.getAngle());
+            // try to remove this update loop
+            for (int i = 0; i < projectiles.size(); i++) {
+                Projectile projectile = (Projectile) projectiles.get(i);
+                projectile.update(dt);
+                if (projectile.getLifeSpan() <= 0) {
+                    projectile.dispose();
+                    projectiles.remove(i);
+                }
+            }
+            
+            if (reloadTime > 0) {
+                reloadTime -= dt;
             }
 
-            turretAngleResolved(turretRotation);
+            float distanceX = (float) ((barrelLength * -java.lang.Math.sin(Math.toRadians(rotation)))
+                    - barrelPosition.x + rigidBody.getWorldCenter().x / UNIT_SCALE);
+            float distanceY = (float) ((barrelLength * java.lang.Math.cos(Math.toRadians(rotation)))
+                    - barrelPosition.y + rigidBody.getWorldCenter().y / UNIT_SCALE - BARREL_OFFSET);
+            barrelPosition.add(distanceX, distanceY);
         } else {
-            rigidBody.setTransform(100, 100, 0);
+            rigidBody.setTransform(-10, -10, 0);
         }
     }
     
-    public void turretAngleResolved(float turretRotation) {
-        if (turretRotation < 90) {
-            turret.setResolvedRotation((float) Math.toRadians(360 - turretRotation));
-            turret.setDirectionX((byte) 1);
-            turret.setDirectionY((byte) 1);
-        } else if (turretRotation < 180) {
-            turret.setResolvedRotation((float) Math.toRadians(360 - (180 - turretRotation)));
-            turret.setDirectionX((byte) 1);
-            turret.setDirectionY((byte) -1);
-        } else if (turretRotation < 270) {
-            turret.setResolvedRotation((float) Math.toRadians(360 - (turretRotation - 180)));
-            turret.setDirectionX((byte) -1);
-            turret.setDirectionY((byte) -1);
-        } else if (turretRotation < 360) {
-            turret.setResolvedRotation((float) Math.toRadians(360 - (360 - turretRotation)));
-            turret.setDirectionX((byte) -1);
-            turret.setDirectionY((byte) 1);     
+    public void shoot() {
+        if (reloadTime <= 0) {
+            CannonBall cannonBall = new CannonBall(
+                    (float) (barrelPosition.x
+                            - (directionX * java.lang.Math.sin(resolvedRotation) * BARREL_OFFSET * bulletTexture.getHeight() / 8)),
+                    (float) (barrelPosition.y
+                            - (directionY * java.lang.Math.cos(resolvedRotation) * BARREL_OFFSET * bulletTexture.getHeight() / 8)), 
+                    colour,
+                    rotation,
+                    world,
+                    direction,
+                    rigidBody);
+            projectiles.add(cannonBall);
+            reloadTime = 1;
         }
     }
     
     public void dispose() {
-        turret.dispose();
-        body.dispose();
         rigidBody.setActive(false);
         rigidBody.getFixtureList().clear();
     }
     
-    public Turret getTurret() {
-        return turret;
-    }
-    
-    public TankBody getBody() {
-        return body;
-    }
-
     public int getForwardSpeed() {
         return forwardSpeed;
     }
@@ -95,11 +111,11 @@ public class Tank {
         return direction;
     }
     
-    public boolean getAlive() {
+    public boolean getIsAlive() {
         return isAlive;
     }
     
-    public void setAlive(boolean value) {
+    public void setIsAlive(boolean value) {
         isAlive = value;
     }
     
@@ -109,5 +125,37 @@ public class Tank {
     
     public String getColour() {
         return colour;
+    }
+    
+    public float getReloadTime() {
+        return reloadTime;
+    } 
+    
+    public void setReloadTime(float value) {
+        reloadTime = value;
+    }
+    
+    public Texture getBodyTexture() {
+        return bodyTexture;
+    }
+    
+    public float getRotationSpeed() {
+        return rotationSpeed;
+    }
+    
+    public short getBarrelLength() {
+        return barrelLength;
+    }
+    
+    public Texture getBulletTexture() {
+        return bulletTexture;
+    }
+
+    public Texture getTurretTexture() {
+        return turretTexture;
+    }
+
+    public LinkedList getProjectiles() {
+        return projectiles;
     }
 }

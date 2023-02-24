@@ -14,7 +14,8 @@ public class TankTrauma extends Game {
 	public void create () {
 		sb = new SpriteBatch();
                 setScreen(new MenuScreen(this));
-                Gdx.gl.glClearColor(0, 0, 0, 1);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 	}
 
 	public void render () {

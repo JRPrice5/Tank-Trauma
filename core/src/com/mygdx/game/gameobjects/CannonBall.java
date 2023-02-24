@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.math.Vector2;
-import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
+import static com.mygdx.game.screens.GameScreen.UNIT_SCALE;
 
 
 public class CannonBall extends Projectile {
@@ -16,23 +16,23 @@ public class CannonBall extends Projectile {
     private Body body;
     private Vector2 position;
     private Vector2 offset;
+    private String colour;
     private float rotation;
     private float lifeSpan;
-    private int collisionCount;
+    private boolean isAfterInitialCollision;
 
-    public CannonBall(float x, float y, String colour, float rotation,
-            float resolvedRotation, World world, byte barrelAdjustmentX,
-            byte barrelAdjustmentY, byte turretDirectionX, byte turretDirectionY,
-            Vector2 turretDirection) {
+    public CannonBall(float x, float y, String colour, float rotation, World world, Vector2 turretDirection, Body tankBody) {
         texture = new Texture("cannonBall"+colour+"Small.png");
         body = createRigidBody(x, y, world);
         body.getFixtureList().first().setUserData(colour);
         offset = new Vector2(-texture.getWidth() / 2, -texture.getHeight() / 2);
-        position = new Vector2(x + offset.x, y + offset.y);
-        body.setLinearVelocity((-turretDirection.x * SPEED / turretDirection.len()) * UNIT_SCALE,
-                    (turretDirection.y * SPEED / turretDirection.len()) * UNIT_SCALE);
+        position = new Vector2(x / UNIT_SCALE + offset.x, y / UNIT_SCALE + offset.y);
+        body.setLinearVelocity((turretDirection.x * (SPEED + tankBody.getLinearVelocity().x) / turretDirection.len()) * UNIT_SCALE,
+                    (turretDirection.y * (SPEED + tankBody.getLinearVelocity().y) / turretDirection.len()) * UNIT_SCALE);
+        // test whether this bullet speed
+        this.colour = colour;
         lifeSpan = 12;
-        collisionCount = 0;
+        isAfterInitialCollision = false;
     }
     
     @Override
@@ -47,15 +47,15 @@ public class CannonBall extends Projectile {
     
     @Override
     public Body createRigidBody(float x, float y, World world) {
-        Body bullet;
+        Body ball;
         BodyDef def = new BodyDef();
         
         def.type = BodyDef.BodyType.DynamicBody;
 //        def.position.set((float) (x + texture.getWidth() / 2 * java.lang.Math.cos(resolvedRotation) * barrelAdjustmentX) * UNIT_SCALE,
 //                        (float) (y + texture.getWidth() / 2 * java.lang.Math.sin(resolvedRotation) * barrelAdjustmentY) * UNIT_SCALE);
         def.position.set(x * UNIT_SCALE, y * UNIT_SCALE);
-        bullet = world.createBody(def);
-        bullet.setFixedRotation(false);
+        ball = world.createBody(def);
+        ball.setFixedRotation(false);
         
         CircleShape shape = new CircleShape();
         shape.setRadius(0.05f);
@@ -75,11 +75,12 @@ public class CannonBall extends Projectile {
         fixtureDef2.filter.maskBits = 1;
         
         // gives body the shape and a density
-        bullet.createFixture(fixtureDef1);
-        bullet.createFixture(fixtureDef2);
-        bullet.setBullet(true);
+        ball.createFixture(fixtureDef1);
+        ball.createFixture(fixtureDef2);
+        ball.setBullet(true);
+        ball.setUserData(colour);
         shape.dispose();
-        return bullet;
+        return ball;
     }
     
     @Override
@@ -115,12 +116,12 @@ public class CannonBall extends Projectile {
     }
     
     @Override
-    public int getCollisionCount() {
-        return collisionCount;
+    public boolean getIsAfterInitialCollision() {
+        return isAfterInitialCollision;
     }
     
     @Override
-    public void incrementCollisionCount() {
-        collisionCount++;
+    public void afterInitialCollision() {
+        isAfterInitialCollision = true;
     }
 }

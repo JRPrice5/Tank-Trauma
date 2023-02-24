@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
-import static com.mygdx.game.screens.PlayScreen.UNIT_SCALE;
+import static com.mygdx.game.screens.GameScreen.UNIT_SCALE;
 import java.util.LinkedList;
 
 public class MazeHitboxParser {
@@ -17,7 +17,7 @@ public class MazeHitboxParser {
         walls = new LinkedList();
     }
     
-    public void parseMapLayers(World world, MapGenerator map) {
+    public void parseMaze(World world, MazeGenerator map) {
         String[][] tileCornerStates = map.getTileCornerStates();
         for (int i = 0; i < map.getMazeMap().getLayers().getCount(); i++) {
             TiledMapTileLayer layer = (TiledMapTileLayer) map.getMazeMap().getLayers().get(i);
@@ -38,8 +38,8 @@ public class MazeHitboxParser {
                     int width = 0;
                     int height = 0;
                     
-                    float xOffset = (map.getMapSizeX() % 2 == 0) ? 0 : -0.5f;
-                    float yOffset = (map.getMapSizeY() % 2 == 0) ? 0 : -0.5f;
+                    float xOffset = (map.getMazeSizeX() % 2 == 0) ? 0 : -0.5f;
+                    float yOffset = (map.getMazeSizeY() % 2 == 0) ? 0 : -0.5f;
                     
                     switch (layer.getName()) {
                         case "vertical-layer":
