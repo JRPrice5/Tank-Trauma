@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -16,79 +17,81 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.TankTrauma;
 
-public class MenuScreen implements Screen {
+public class SettingsScreen implements Screen {
     private TankTrauma game;
     private Skin skin;
     private Stage stage;
-    private Table table;
+    private Table buttonTable;
+    private Table settingsTable;
     private Viewport viewport;
     private OrthographicCamera cam;
     private Texture background;
-    private int maxWidth;
-    private int minWidth;
-    private int maxHeight;
-    private int minHeight;
     
-    private final TextButton startButton;
-    private final TextButton settingsButton;
-    private final TextButton quitButton;
+//    private final TextButton audioButton;
+    private final TextButton gameplayButton;
+    private final TextButton backButton;
     
-    public MenuScreen(final TankTrauma game) {
+    public SettingsScreen(final TankTrauma game) {
         this.game = game;
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         cam = new OrthographicCamera();
         viewport = new ScreenViewport(cam);
         stage = new Stage(viewport);
         background = new Texture("background1.png");
-        maxWidth = 16;
-        minWidth = 3;
-        maxHeight = 16;
-        minHeight = 3;
         
-        startButton = new TextButton("START", skin);
-        settingsButton = new TextButton("SETTINGS", skin);
-        quitButton = new TextButton("QUIT", skin);
+//        audioButton = new TextButton("AUDIO", skin);
+        gameplayButton = new TextButton("GAMEPLAY", skin);
+        backButton = new TextButton("BACK", skin);
         
-        startButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                dispose();
-                game.setScreen(new GameScreen(game, maxWidth, minWidth, maxHeight, minHeight));
-            }
-        });
+//        audioButton.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                
+//            }
+//        });
         
-        settingsButton.addListener(new ClickListener() {
+        gameplayButton.addListener(new ClickListener() {
            @Override
            public void clicked(InputEvent event, float x, float y) {
-               game.setScreen(new SettingsScreen(game));
+               CheckBox test = new CheckBox("test", skin);
+               settingsTable.add(test).pad(100);
            }
         });
         
-        quitButton.addListener(new ClickListener() {
+        backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                game.setScreen(new MenuScreen(game));
             }
         });
         
-        table = new Table();
+        buttonTable = new Table();
+        settingsTable = new Table();
         
-        table.add(startButton).padBottom(40).minSize(330, 80);
-        table.row();
-        table.add(settingsButton).padBottom(40).minSize(330, 80);
-        table.row();
-        table.add(quitButton).minSize(330, 80);
+        settingsTable.align(Align.center);
+        settingsTable.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        stage.addActor(settingsTable);
         
-        table.padLeft(40);
-        table.setWidth(stage.getWidth());
-        table.align(Align.left|Align.top);
-        table.setPosition(0, Gdx.graphics.getHeight() * 0.75f);
+//        table.add(audioButton).padBottom(40).minSize(330, 80);
+//        table.row();
+        buttonTable.add(gameplayButton).padBottom(40).minSize(330, 80);
+        buttonTable.row();
+        buttonTable.add(backButton).minSize(330, 80);
         
-        stage.addActor(table);
+        buttonTable.padLeft(40);
+        buttonTable.setWidth(stage.getWidth());
+        buttonTable.align(Align.left|Align.top);
+        buttonTable.setPosition(0, Gdx.graphics.getHeight() * 0.75f);
+        
+        stage.addActor(buttonTable);
         
         Gdx.input.setInputProcessor(stage);
     }
     
+    @Override
+    public void show() {
+    }
+
     @Override
     public void render(float dt) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -104,19 +107,7 @@ public class MenuScreen implements Screen {
     }
 
     @Override
-    public void dispose() {
-        background.dispose();
-        skin.dispose();
-        stage.dispose();
-    }
-
-    @Override
-    public void show() {
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
+    public void resize(int i, int i1) {
     }
 
     @Override
@@ -129,5 +120,12 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
+    }
+
+    @Override
+    public void dispose() {
+        background.dispose();
+        skin.dispose();
+        stage.dispose();
     }
 }

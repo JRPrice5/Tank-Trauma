@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -67,6 +68,7 @@ public final class GameScreen implements Screen {
     private final Skin skin;
     private final Stage stage;
     private final Table table;
+    
     private final TextButton menuButton;
     private final TextButton resumeButton;
     private final TextButton restartButton;
