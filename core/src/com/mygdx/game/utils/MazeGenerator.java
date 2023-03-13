@@ -24,38 +24,43 @@ public class MazeGenerator {
     private TiledMapTileLayer horizontalLayer;
     
     private String[][] tileCornerStates;
-    private boolean[][] tilesAccessible;
+    private boolean[][] accessibleTiles;
     Queue<Vector2> tilesToSearch;
     
-    public MazeGenerator(int mapSizeX, int mapSizeY) {
+    private TiledMapTileLayer mazeLayer;
+    
+    public MazeGenerator(int mazeSizeX, int mazeSizeY) {
         groundMap = new TiledMap();
         mazeMap = new TiledMap();
         
-        this.mazeSizeX = mapSizeX;
-        this.mazeSizeY = mapSizeY;
+        this.mazeSizeX = mazeSizeX;
+        this.mazeSizeY = mazeSizeY;
         
-        groundLayer = new TiledMapTileLayer(mapSizeX, mapSizeY, 128, 128);
-        verticalLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY, 128, 128);
-        horizontalLayer = new TiledMapTileLayer(mapSizeX, mapSizeY + 1, 128, 128);
-        dotLayer = new TiledMapTileLayer(mapSizeX + 1, mapSizeY + 1, 128, 128);
+        groundLayer = new TiledMapTileLayer(mazeSizeX, mazeSizeY, 128, 128);
+        verticalLayer = new TiledMapTileLayer(mazeSizeX + 1, mazeSizeY, 128, 128);
+        horizontalLayer = new TiledMapTileLayer(mazeSizeX, mazeSizeY + 1, 128, 128);
+        dotLayer = new TiledMapTileLayer(mazeSizeX + 1, mazeSizeY + 1, 128, 128);
+        mazeLayer = new TiledMapTileLayer(mazeSizeX, mazeSizeY, 128, 128);
         
         verticalLayer.setName("vertical-layer");
         horizontalLayer.setName("horizontal-layer");
         dotLayer.setName("dot-layer");
+        mazeLayer.setName("maze-layer");
         
         groundMap.getLayers().add(groundLayer);
         mazeMap.getLayers().add(dotLayer);
         mazeMap.getLayers().add(verticalLayer);
         mazeMap.getLayers().add(horizontalLayer);
         
-        tileCornerStates = new String[mapSizeY + 1][mapSizeX + 1];
-        tilesAccessible = new boolean[mapSizeY][mapSizeX];
+        tileCornerStates = new String[mazeSizeY + 1][mazeSizeX + 1];
+        accessibleTiles = new boolean[mazeSizeY][mazeSizeX];
         tilesToSearch = new LinkedList<>();
     }
     
     public void generateGround() {
         Random random = new Random();
-        int tileMapType = random.nextInt(2);
+//        int tileMapType = random.nextInt(2);
+        int tileMapType = 0;
         for (int y = 0; y < groundLayer.getHeight(); y++) {
             for (int x = 0; x < groundLayer.getWidth(); x++) {
                 Cell cell = new Cell();
@@ -78,7 +83,7 @@ public class MazeGenerator {
             }
         }
     }
-    
+       
     public void generateMaze() {
         Random random = new Random();
         for (int y = 0; y < mazeSizeY + 1; y++) {
@@ -89,7 +94,6 @@ public class MazeGenerator {
             
         for (int y = 0; y < verticalLayer.getHeight(); y++) {
             for (int x = 0; x < verticalLayer.getWidth(); x++) {
-                
                 if (x == 0 || x == verticalLayer.getWidth() - 1) {
                     Cell cell = new Cell();
                     cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture("vWall3.png"))));
@@ -146,7 +150,7 @@ public class MazeGenerator {
         
         int x = random.nextInt(mazeSizeX);
         int y = random.nextInt(mazeSizeY);
-        tilesAccessible[y][x] = true;
+        accessibleTiles[y][x] = true;
         for (int i = 0; i < mazeSizeX * mazeSizeY; i++) {
             // Retrieves and removes the coords of the first tile
             // from the queue
@@ -163,26 +167,26 @@ public class MazeGenerator {
             boolean westWall = (tileCornerStates[y][x].contains("v"));
 
             if (!northWall && y > 0) {
-                if (!tilesAccessible[y - 1][x]) {
-                    tilesAccessible[y - 1][x] = true;
+                if (!accessibleTiles[y - 1][x]) {
+                    accessibleTiles[y - 1][x] = true;
                     tilesToSearch.add(new Vector2(x, y - 1));
                 }
             }
             if (!eastWall && x < mazeSizeX - 1) {
-                if (!tilesAccessible[y][x + 1]) {
-                    tilesAccessible[y][x + 1] = true;
+                if (!accessibleTiles[y][x + 1]) {
+                    accessibleTiles[y][x + 1] = true;
                     tilesToSearch.add(new Vector2(x + 1, y));
                 }
             }
             if (!southWall && y < mazeSizeY - 1) {
-                if (!tilesAccessible[y + 1][x]) {
-                    tilesAccessible[y + 1][x] = true;
+                if (!accessibleTiles[y + 1][x]) {
+                    accessibleTiles[y + 1][x] = true;
                     tilesToSearch.add(new Vector2(x, y + 1));
                 }
             }
             if (!westWall && x > 0) {
-                if (!tilesAccessible[y][x - 1]) {
-                    tilesAccessible[y][x - 1] = true;
+                if (!accessibleTiles[y][x - 1]) {
+                    accessibleTiles[y][x - 1] = true;
                     tilesToSearch.add(new Vector2(x - 1, y));
                 }
             }
@@ -196,7 +200,7 @@ public class MazeGenerator {
                 // Stores each tile that blocks the current path
                 for (y = 0; y < mazeSizeY; y++) {
                     for (x = 0; x < mazeSizeX; x++) {
-                        tileAccessed = tilesAccessible[y][x];
+                        tileAccessed = accessibleTiles[y][x];
                         if (!tileAccessed) {
                             continue;
                         }
@@ -205,16 +209,16 @@ public class MazeGenerator {
                         boolean sTileAccessible = true;
                         boolean wTileAccessible = true;
                         if (y > 0) {
-                            nTileAccessible = tilesAccessible[y - 1][x];
+                            nTileAccessible = accessibleTiles[y - 1][x];
                         }
                         if (x < mazeSizeX - 1) {
-                            eTileAccessible = tilesAccessible[y][x + 1];
+                            eTileAccessible = accessibleTiles[y][x + 1];
                         }
                         if (y < mazeSizeY - 1) {
-                            sTileAccessible = tilesAccessible[y + 1][x];
+                            sTileAccessible = accessibleTiles[y + 1][x];
                         }
                         if (x > 0) {
-                            wTileAccessible = tilesAccessible[y][x - 1];
+                            wTileAccessible = accessibleTiles[y][x - 1];
                         } 
                         if (!(nTileAccessible && eTileAccessible && sTileAccessible && wTileAccessible)) {
                             blockingTiles.add(x);
@@ -233,11 +237,11 @@ public class MazeGenerator {
 //                else {
 //                    wallsToDestroy = random.nextInt(blockingTiles.size());
 //                }
-                wallsToDestroy = random.nextInt(blockingTiles.size());
+                wallsToDestroy = random.nextInt(blockingTiles.size() / 2);
                 
                 for (int n = 0; n <= wallsToDestroy; n++) {
                     if (blockingTiles.isEmpty()) {
-                        continue;
+                        break;
                     } 
                     boolean nTileAccessible = true;
                     boolean eTileAccessible = true;
@@ -250,16 +254,16 @@ public class MazeGenerator {
                     blockingTiles.remove(index);
 
                     if (yCoord > 0) {
-                        nTileAccessible = tilesAccessible[yCoord - 1][xCoord];
+                        nTileAccessible = accessibleTiles[yCoord - 1][xCoord];
                     } 
                     if (xCoord < mazeSizeX - 1) {
-                        eTileAccessible = tilesAccessible[yCoord][xCoord + 1];
+                        eTileAccessible = accessibleTiles[yCoord][xCoord + 1];
                     }
                     if (yCoord < mazeSizeY - 1) {
-                        sTileAccessible = tilesAccessible[yCoord + 1][xCoord];
+                        sTileAccessible = accessibleTiles[yCoord + 1][xCoord];
                     }
                     if (xCoord > 0) {
-                        wTileAccessible = tilesAccessible[yCoord][xCoord - 1];
+                        wTileAccessible = accessibleTiles[yCoord][xCoord - 1];
                     } 
 
                     if (!(nTileAccessible || eTileAccessible || wTileAccessible)) {
@@ -395,7 +399,7 @@ public class MazeGenerator {
         Cell cell = new Cell();
         horizontalLayer.setCell(xCoord, yCoord, cell);
         tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("h", "");
-        tilesAccessible[yCoord - 1][xCoord] = true;
+        accessibleTiles[yCoord - 1][xCoord] = true;
         tilesToSearch.add(new Vector2(xCoord, yCoord - 1));
         if (xCoord > 0) {
             if (!tileCornerStates[yCoord][xCoord - 1].contains("h")
@@ -419,7 +423,7 @@ public class MazeGenerator {
         Cell cell = new Cell();
         verticalLayer.setCell(xCoord + 1, yCoord, cell);
         tileCornerStates[yCoord][xCoord + 1] = tileCornerStates[yCoord][xCoord + 1].replace("v", "");
-        tilesAccessible[yCoord][xCoord + 1] = true;
+        accessibleTiles[yCoord][xCoord + 1] = true;
         tilesToSearch.add(new Vector2(xCoord + 1, yCoord));
         if (yCoord > 0) {
             if (!tileCornerStates[yCoord - 1][xCoord + 1].contains("v")
@@ -443,7 +447,7 @@ public class MazeGenerator {
         Cell cell = new Cell();
         horizontalLayer.setCell(xCoord, yCoord + 1, cell);
         tileCornerStates[yCoord + 1][xCoord] = tileCornerStates[yCoord + 1][xCoord].replace("h", "");
-        tilesAccessible[yCoord + 1][xCoord] = true;
+        accessibleTiles[yCoord + 1][xCoord] = true;
         tilesToSearch.add(new Vector2(xCoord, yCoord + 1));
         if (xCoord > 0) {
             if (!tileCornerStates[yCoord + 1][xCoord - 1].contains("h")
@@ -467,7 +471,7 @@ public class MazeGenerator {
         Cell cell = new Cell();
         verticalLayer.setCell(xCoord, yCoord, cell);
         tileCornerStates[yCoord][xCoord] = tileCornerStates[yCoord][xCoord].replace("v", "");
-        tilesAccessible[yCoord][xCoord - 1] = true;
+        accessibleTiles[yCoord][xCoord - 1] = true;
         tilesToSearch.add(new Vector2(xCoord - 1, yCoord));
         if (yCoord > 0) {
             if (!tileCornerStates[yCoord - 1][xCoord].contains("v")
