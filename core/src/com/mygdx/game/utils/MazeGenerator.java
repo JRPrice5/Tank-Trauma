@@ -1,5 +1,6 @@
 package com.mygdx.game.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -59,27 +60,42 @@ public class MazeGenerator {
     
     public void generateGround() {
         Random random = new Random();
-//        int tileMapType = random.nextInt(2);
-        int tileMapType = 0;
-        for (int y = 0; y < groundLayer.getHeight(); y++) {
-            for (int x = 0; x < groundLayer.getWidth(); x++) {
-                Cell cell = new Cell();
-                String tile = "";
-                if (tileMapType == 0) {
-                    if (random.nextInt(2) == 0) {
-                        tile = "tileGrass1.png";
-                    } else {
-                        tile = "tileGrass2.png";
+        int tileMapType = random.nextInt(2);
+        if (Gdx.app.getPreferences("My Preferences").getString("tileType").equals("random")) {
+            for (int y = 0; y < groundLayer.getHeight(); y++) {
+                for (int x = 0; x < groundLayer.getWidth(); x++) {
+                    Cell cell = new Cell();
+                    String tile = "";
+                    if (tileMapType == 0) {
+                        if (random.nextInt(2) == 0) {
+                            tile = "tileGrass1.png";
+                        } else {
+                            tile = "tileGrass2.png";
+                        }
+                    } else if (tileMapType == 1) {
+                        if (random.nextInt(2) == 0) {
+                            tile = "tileSand1.png";
+                        } else {
+                            tile = "tileSand2.png";
+                        }
                     }
-                } else if (tileMapType == 1) {
-                    if (random.nextInt(2) == 0) {
-                        tile = "tileSand1.png";
-                    } else {
-                        tile = "tileSand2.png";
-                    }
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture(tile))));
+                    groundLayer.setCell(x, y, cell);
                 }
-                cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture(tile))));
-                groundLayer.setCell(x, y, cell);
+            }
+        } else {
+            for (int y = 0; y < groundLayer.getHeight(); y++) {
+                for (int x = 0; x < groundLayer.getWidth(); x++) {
+                    Cell cell = new Cell();
+                    String tile = "";
+                    if (random.nextInt(2) == 0) {
+                        tile = "tile"+Gdx.app.getPreferences("My Preferences").getString("tileType")+"1.png";
+                    } else {
+                        tile = "tile"+Gdx.app.getPreferences("My Preferences").getString("tileType")+"2.png";
+                    }
+                    cell.setTile(new StaticTiledMapTile(new TextureRegion(new Texture(tile))));
+                    groundLayer.setCell(x, y, cell);
+                }
             }
         }
     }
