@@ -6,7 +6,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -68,24 +67,23 @@ public final class GameScreen implements Screen {
     private final Skin skin;
     private final Stage stage;
     private final Table table;
-    
     private final TextButton menuButton;
     private final TextButton resumeButton;
     private final TextButton restartButton;
     private final TextButton quitButton;
     
-    public GameScreen(final TankTrauma game, final int maxWidth, final int minWidth, final int maxHeight, final int minHeight) {
+    public GameScreen(final TankTrauma game) {
         this.game = game;
         
         Random random = new Random();
         
+        this.maxWidth = Gdx.app.getPreferences("My Preferences").getInteger("maxWidth");
+        this.minWidth = Gdx.app.getPreferences("My Preferences").getInteger("minWidth");
         mazeSizeX = random.nextInt(maxWidth - minWidth + 1) + minWidth;
-        this.maxWidth = maxWidth;
-        this.minWidth = minWidth;
         
+        this.maxHeight = Gdx.app.getPreferences("My Preferences").getInteger("maxHeight");
+        this.minHeight = Gdx.app.getPreferences("My Preferences").getInteger("minHeight");
         mazeSizeY = random.nextInt(maxHeight - minHeight + 1) + minHeight;
-        this.maxHeight = maxHeight;
-        this.minHeight = minHeight;
         
         cam = new OrthographicCamera();
         viewport = new FitViewport(mazeSizeX + 0.25f, mazeSizeY + 0.25f, cam);
@@ -94,14 +92,14 @@ public final class GameScreen implements Screen {
         world = new World(new Vector2(0, 0), false);
         Vector2 tank1Spawn = randomSpawn();
         
-        tank1 = new Tank("sand", tank1Spawn, world);
+        tank1 = new Tank(Gdx.app.getPreferences("My Preferences").getString("tank1Colour"), tank1Spawn, world);
         
         Vector2 tank2Spawn = randomSpawn();
         while (tank2Spawn.x == tank1Spawn.x && tank2Spawn.y == tank1Spawn.y) {
             tank2Spawn = randomSpawn();
         }
         
-        tank2 = new Tank("dark", tank2Spawn, world);
+        tank2 = new Tank(Gdx.app.getPreferences("My Preferences").getString("tank2Colour"), tank2Spawn, world);
         
         contactListener = new CollisionListener(tank1, tank2);
         
@@ -464,7 +462,7 @@ public final class GameScreen implements Screen {
     }
     
     public void restart() {
-        game.setScreen(new GameScreen(game, maxWidth, minWidth, maxHeight, minHeight));
+        game.setScreen(new GameScreen(game));
     }
     
     @Override
@@ -481,8 +479,7 @@ public final class GameScreen implements Screen {
     public void pause() {
         viewport = new ScreenViewport(cam);
         viewport.update(TankTrauma.WIDTH, TankTrauma.HEIGHT);
-        table.setPosition(-Gdx.graphics.getWidth() * 0.7175f, Gdx.graphics.getHeight() * 0.225f);
-//        table.setPosition(0, Gdx.graphics.getHeight() / 2);
+        table.setPosition(-Gdx.graphics.getWidth() * 0.4775f, Gdx.graphics.getHeight() * 0.257f);
         stage.setViewport(viewport);
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         paused = true;
