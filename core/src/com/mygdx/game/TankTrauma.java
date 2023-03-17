@@ -21,7 +21,7 @@ public class TankTrauma extends Game {
             prefs.putInteger("maxHeight", 10);
             prefs.putString("tileType", "random");
             prefs.putString("tank1Colour", "red");
-            prefs.putString("tank2Colour", "sand");
+            prefs.putString("tank2Colour", "dark");
             prefs.flush();
             sb = new SpriteBatch();
             Gdx.gl.glClearColor(1, 1, 1, 1);

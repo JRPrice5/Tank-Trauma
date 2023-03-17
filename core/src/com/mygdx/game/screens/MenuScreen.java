@@ -24,10 +24,6 @@ public class MenuScreen implements Screen {
     private Viewport viewport;
     private OrthographicCamera cam;
     private Texture background;
-    private int maxWidth;
-    private int minWidth;
-    private int maxHeight;
-    private int minHeight;
     
     private final TextButton startButton;
     private final TextButton settingsButton;
@@ -40,10 +36,6 @@ public class MenuScreen implements Screen {
         viewport = new ScreenViewport(cam);
         stage = new Stage(viewport);
         background = new Texture("background1.png");
-        maxWidth = 16;
-        minWidth = 3;
-        maxHeight = 16;
-        minHeight = 3;
         
         startButton = new TextButton("START", skin);
         settingsButton = new TextButton("SETTINGS", skin);
@@ -53,7 +45,7 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dispose();
-                game.setScreen(new GameScreen(game, maxWidth, minWidth, maxHeight, minHeight));
+                game.setScreen(new GameScreen(game));
             }
         });
         

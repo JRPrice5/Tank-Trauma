@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -159,7 +158,6 @@ public final class GameScreen implements Screen {
         table.row();
         table.add(quitButton).minSize(330, 80);
         
-//        table.padRight(40);
         table.setWidth(stage.getWidth());
         table.align(Align.left|Align.top);
         
@@ -191,9 +189,6 @@ public final class GameScreen implements Screen {
         Random random = new Random();
         mazeSizeX = random.nextInt(maxWidth - minWidth + 1) + minWidth;
         mazeSizeY = random.nextInt(maxHeight - minHeight + 1) + minHeight;
-//        cam.viewportWidth = mazeSizeX + 0.25f;
-//        cam.viewportHeight = mazeSizeY + 0.25f;
-//        cam.update();
         viewport = new FitViewport(mazeSizeX + 0.25f, mazeSizeY + 0.25f, cam);
         Gdx.graphics.setWindowedMode(1920, 1080);
         Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -334,7 +329,6 @@ public final class GameScreen implements Screen {
             cam.position.set(mazeSizeX / 2, mazeSizeY / 2, 0);
             cam.update();
 
-            // Render tank
             game.sb.begin();
             game.sb.draw(tank1.getBodyTexture(),
                     tank1.getBody().getWorldCenter().x - ((tank1.getBodyTexture().getWidth() / 2) * UNIT_SCALE),
@@ -352,6 +346,7 @@ public final class GameScreen implements Screen {
                     tankHeight,
                     false,
                     false);
+            // Renders tank1
 
             game.sb.draw(tank2.getBodyTexture(),
                     tank2.getBody().getWorldCenter().x - ((tank2.getBodyTexture().getWidth() / 2) * UNIT_SCALE),
@@ -369,6 +364,7 @@ public final class GameScreen implements Screen {
                     tankHeight,
                     false,
                     false);
+            // Renders tank2
 
             for (int i = 0; i < tank1.getProjectiles().size(); i++) {
                 projectile = (Projectile) tank1.getProjectiles().get(i);
