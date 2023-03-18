@@ -66,6 +66,7 @@ public final class GameScreen implements Screen {
     private final Skin skin;
     private final Stage stage;
     private final Table table;
+    
     private final TextButton menuButton;
     private final TextButton resumeButton;
     private final TextButton restartButton;
