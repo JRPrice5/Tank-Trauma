@@ -1,7 +1,7 @@
 # Tank-Trauma
 
 ## Overview
-Tank-Trauma is a **LibGDX-based** top-down tank combat game featuring **physics-based movement**, **destructible environments**, and **procedurally generated mazes**. The game supports **single-player** and **multiplayer** modes, where players control tanks to battle AI opponents or other players in dynamic arenas.
+Tank-Trauma is a **LibGDX-based** top-down tank combat game featuring **physics-based movement**, **bullet ricochet**, and **procedurally generated mazes**.
 
 ## Features
 - **Physics-Based Tank Movement**: Realistic controls with momentum and rotation.
