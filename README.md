@@ -1,44 +1,93 @@
-## Name
-Choose a self-explaining name for your project.
+# Tank-Trauma
 
-## Todo
-Upload javadoc
-Update readme
-Configure launching / get that sorted
+## Overview
+Tank-Trauma is a **LibGDX-based** top-down tank combat game featuring **physics-based movement**, **destructible environments**, and **procedurally generated mazes**. The game supports **single-player** and **multiplayer** modes, where players control tanks to battle AI opponents or other players in dynamic arenas.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Features
+- **Physics-Based Tank Movement**: Realistic controls with momentum and rotation.
+- **Projectile System**: Bullets with lifespans and physics interactions.
+- **Maze Generation**: Randomized battlefield layout using a custom maze generator.
+- **Collision Handling**: A robust Box2D physics system for accurate object interactions.
+- **Multiple Tank Colors**: Customizable tank appearances.
+- **Menu & Settings**: Start, configure, and adjust gameplay settings.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## Installation & Setup
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Prerequisites
+- **Java Development Kit (JDK)** (Version 8 or higher)
+- **Gradle** (For project building)
+- **LibGDX** (Game development framework)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Cloning the Repository
+```sh
+ git clone https://github.com/JRPrice5/Tank-Trauma.git
+ cd Tank-Trauma
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Building the Project
+1. **Navigate to the Project Directory**:
+   ```sh
+   cd Tank-Trauma
+   ```
+2. **Run Gradle Build**:
+   ```sh
+   ./gradlew build
+   ```
+   This will compile the project and handle dependencies.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Running the Game
+After building:
+- **Desktop**: Execute the generated JAR file located in `desktop/build/libs/`.
+  ```sh
+  java -jar desktop-1.0.jar
+  ```
+- **Android**: Deploy the APK found in `android/build/outputs/apk/` to an emulator or device.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Gameplay & Controls
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Controls
+- **Tank 1 (Player 1)**:
+  - **Move**: `WASD`
+  - **Fire**: `Spacebar`
+  - **Rotate turret**: `Mouse`
+  
+- **Tank 2 (Player 2, if applicable)**:
+  - **Move**: `Arrow Keys`
+  - **Fire**: `Right Control / Right Alt`
+  - **Rotate turret**: `Mouse`
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- **Game Controls**:
+  - **Pause**: `Escape`
+  - **Navigate Menu**: `Mouse`
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Game Modes
+- **Multiplayer (Local)**: Compete against another player.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## Code Structure
+
+### Key Classes
+- **`Tank.java`** - Handles tank movement, shooting, and physics.
+- **`Bullet.java`** - Defines projectile behavior and interactions.
+- **`Projectile.java`** - Abstract base class for all projectiles.
+- **`GameScreen.java`** - Main game logic, rendering, and physics updates.
+- **`MenuScreen.java`** - Main menu UI and navigation.
+- **`SettingsScreen.java`** - Configurable game options.
+- **`CollisionListener.java`** - Detects and handles collisions between game objects.
+- **`MazeGenerator.java`** - Generates randomized maps for battles.
+- **`MazeHitboxParser.java`** - Processes maze data into Box2D hitboxes.
+- **`TankTrauma.java`** - Main game entry point and state management.
+
+## Contribution Guidelines
+We welcome contributions! Please:
+1. **Fork the Repository**.
+2. **Create a New Branch**: `git checkout -b feature-name`.
+3. **Commit Your Changes**: `git commit -m 'Description of feature'`.
+4. **Push to Branch**: `git push origin feature-name`.
+5. **Submit a Pull Request**.
 
 ## License
-For open source projects, say how it is licensed.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Acknowledgments
+- **LibGDX**: For providing a robust game development framework.
+- **Contributors**: Thanks to all who have contributed to this project.
